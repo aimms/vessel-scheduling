@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AimmsXMLMapping>
+	<ElementObjectMapping name="Type Cost Group">
+		<ElementObjectMapping name="Row">
+			<AttributeMapping name="i_CostType" binds-to="i_CostType" />
+			<AttributeMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
+			<AttributeMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
+			<AttributeMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+		</ElementObjectMapping>
+	</ElementObjectMapping>
+</AimmsXMLMapping>

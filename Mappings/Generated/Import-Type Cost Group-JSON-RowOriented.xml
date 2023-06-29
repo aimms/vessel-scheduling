@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping>
+	<ObjectMapping>
+		<RowMapping name="rows">
+			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
+			<ColumnMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
+			<ColumnMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
+			<ColumnMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+		</RowMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

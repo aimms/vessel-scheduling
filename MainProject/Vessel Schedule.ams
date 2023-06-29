@@ -1,0 +1,1769 @@
+## ams_version=1.0
+
+Model Main_Vessel_Schedule {
+	Section DataModel {
+		Section CreateRoutes {
+			Procedure pr_ActiveCalculateRoutesAndCost {
+				Body: {
+					empty s_FeasibleRoutes;
+					empty p_CargoesOnRoute;
+					
+					!Assumption: when a vessel is used, and the time horizon starts, 
+					!the vessel will always directly move to the loading port of the cargo.
+					
+					for i_ActiveVessel do
+					
+					    !Resetten van LoopCount
+					    p_LoopCount := 1;
+					
+					    for i_ActiveCargo do
+					
+					        if 
+					        p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo))<=p_MinTimeWindow(i_ActiveCargo)
+					        then
+					
+					            setelementadd(s_FeasibleRoutes,ep_route,i_ActiveVessel + "_" + i_ActiveCargo);
+					
+					            !Cannot come earlier then arrival time
+					            p_LastLoadArrivalTime(ep_route) := p_MinTimeWindow(i_ActiveCargo);
+					            ep_LastCargoFromRoute(ep_route) := i_ActiveCargo;
+					            ep_VesselOnRoute(ep_route) := i_ActiveVessel;
+					            p_CargoesOnRoute(ep_route, i_ActiveCargo) := 1;
+					            p_QuantityCargos(ep_route) := 1;
+					
+					            !Loading and delivering time
+					            p_LoadingTimeCargoRoute(i_ActiveCargo, ep_route) := p_MinTimeWindow(i_ActiveCargo);
+					
+					            !Add cargoes to route
+					            sp_CargoesOnRoute(ep_route) := i_ActiveCargo;
+					
+					            !Extra deliver arrival time
+					            p_LastDeliverArrivalTime(ep_route) := p_LastLoadArrivalTime(ep_route) + 
+					               p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo),ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					            !Idle cost per route first cargo
+					            p_TotalRouteIdleCost(ep_route) := p_IdleCostLocation(ep_LoadingPortsCargo(i_ActiveCargo)) * 
+					            (p_MinTimeWindow(i_ActiveCargo)-p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo)));
+					
+					            !Cost for first movement
+					            p_TotalDaysTravel(ep_route) := p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo))+
+					            p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo), ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					            !Cost for first location
+					            p_TotalRouteLocationCost(ep_route) := sum(i_ActiveCostType, p_LocationCost(ep_LoadingPortsCargo(i_ActiveCargo),i_ActiveCostType)+
+					                p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));
+					
+					            !Cost for first cargo
+					            p_TotalRouteCargoCost(ep_route) := sum(i_ActiveCostType, p_CargoCost(i_ActiveCargo, i_ActiveCostType));
+					
+					        elseif
+					        p_MinTimeWindow(i_ActiveCargo) <= p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo)) <= p_MaxTimeWindow(i_ActiveCargo)
+					        then
+					
+					            setelementadd(s_FeasibleRoutes,ep_route,i_ActiveVessel + "_" + i_ActiveCargo);
+					
+					            !Cannot come earlier then arrival time
+					            p_LastLoadArrivalTime(ep_route) := p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo));
+					            ep_LastCargoFromRoute(ep_route) := i_ActiveCargo;
+					            ep_VesselOnRoute(ep_route) := i_ActiveVessel;
+					            p_CargoesOnRoute(ep_route, i_ActiveCargo) := 1;
+					            p_QuantityCargos(ep_route) := 1;
+					
+					            !Loading and delivering time
+					            p_LoadingTimeCargoRoute(i_ActiveCargo, ep_route) := p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo));
+					
+					            !Add cargoes to route
+					            sp_CargoesOnRoute(ep_route) := i_ActiveCargo;
+					
+					            !Extra deliver arrival time
+					            p_LastDeliverArrivalTime(ep_route) := p_LastLoadArrivalTime(ep_route) + 
+					               p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo),ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					            !Cost for first movement
+					            p_TotalDaysTravel(ep_route) := p_DistanceBetweenLocations(ep_LoadingPortsVessel(i_ActiveVessel),ep_LoadingPortsCargo(i_ActiveCargo))+
+					            p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo), ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					            !Cost for first location
+					            p_TotalRouteLocationCost(ep_route) := sum(i_ActiveCostType, p_LocationCost(ep_LoadingPortsCargo(i_ActiveCargo),i_ActiveCostType)+
+					                p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));
+					
+					            !Cost for first cargo
+					            p_TotalRouteCargoCost(ep_route) := sum(i_ActiveCostType, p_CargoCost(i_ActiveCargo, i_ActiveCostType));
+					
+					        endif;
+					    endfor;
+					
+					    repeat 
+					
+					        !Selecteer alle routes die gelijk zijn aan de loopcount en aan de juiste vessel
+					        s_sub_routes := {i_route | p_QuantityCargos(i_route) = p_LoopCount and ep_VesselOnRoute(i_route) = i_ActiveVessel}; 
+					
+					        !Statement to break out of the loop
+					        if card(s_sub_routes)=0 then
+					
+					            break;
+					
+					        endif;
+					
+					        for i_sub_rout do
+					
+					            !Only cargoes that are not on the route yet
+					            for i_ActiveCargo | p_CargoesOnRoute(i_sub_rout, i_ActiveCargo) = 0 do  
+					
+					                if 
+					                p_TravelTimeCargoes(ep_LastCargoFromRoute(i_sub_rout),i_ActiveCargo) + p_LastLoadArrivalTime(i_sub_rout) <= p_MinTimeWindow(i_ActiveCargo)
+					                then
+					
+					                    setelementadd(s_FeasibleRoutes,ep_route,i_sub_rout + "_" + i_ActiveCargo);
+					
+					                    p_LastLoadArrivalTime(ep_route) := p_MinTimeWindow(i_ActiveCargo);
+					                    ep_LastCargoFromRoute(ep_route) := i_ActiveCargo;
+					                    ep_VesselOnRoute(ep_route) := i_ActiveVessel;
+					                    p_QuantityCargos(ep_route) := p_LoopCount+1;
+					                    p_CargoesOnRoute(ep_route, i_ActiveCargo1) := p_CargoesOnRoute(i_sub_rout, i_ActiveCargo1);
+					                    p_CargoesOnRoute(ep_route, i_ActiveCargo) := p_QuantityCargos(ep_route);
+					
+					                    !Loading and delivering time
+					                    p_LoadingTimeCargoRoute(i_ActiveCargo1, ep_route) :=  p_LoadingTimeCargoRoute(i_ActiveCargo1, i_sub_rout);
+					                    p_LoadingTimeCargoRoute(i_ActiveCargo, ep_route) :=  p_MinTimeWindow(i_ActiveCargo);
+					
+					                    !Add cargoes to route
+					                    sp_CargoesOnRoute(ep_route) := sp_CargoesOnRoute(i_sub_rout)+","+i_ActiveCargo;
+					
+					                    !Extra deliver arrival time
+					                    p_LastDeliverArrivalTime(ep_route) := p_LastLoadArrivalTime(ep_route) + 
+					                       p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo),ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					                    !Idle cost per route next cargoes
+					                    p_TotalRouteIdleCost(ep_route) := p_TotalRouteIdleCost(i_sub_rout) + p_IdleCostLocation(ep_LoadingPortsCargo(i_ActiveCargo)) * 
+					                    (p_MinTimeWindow(i_ActiveCargo)-(p_TravelTimeCargoes(ep_LastCargoFromRoute(i_sub_rout),i_ActiveCargo) + p_LastLoadArrivalTime(i_sub_rout)));
+					
+					                    !Cost for the other movements
+					                    p_TotalDaysTravel(ep_route) := p_TotalDaysTravel(i_sub_rout)+
+					                        p_DistanceBetweenLocations(ep_DeliveringPortsCargo(ep_LastCargoFromRoute(ep_route)),ep_LoadingPortsCargo(i_ActiveCargo))+
+					                        p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo), ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					                    !Cost for the other locations
+					                    if ep_DeliveringPortsCargo(ep_LastCargoFromRoute(i_sub_rout)) <> ep_LoadingPortsCargo(i_ActiveCargo) then
+					                        p_TotalRouteLocationCost(ep_route) := p_TotalRouteLocationCost(i_sub_rout)+
+					                        sum(i_ActiveCostType,  p_LocationCost(ep_LoadingPortsCargo(i_ActiveCargo),i_ActiveCostType) +
+					                        p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));
+					                    else 
+					                        p_TotalRouteLocationCost(ep_route) := p_TotalRouteLocationCost(i_sub_rout)+
+					                        sum(i_ActiveCostType,p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));                                
+					                    endif;                
+					
+					                    !Cost for the other cargoes
+					                    p_TotalRouteCargoCost(ep_route) := p_TotalRouteCargoCost(i_sub_rout)+
+					                    sum(i_ActiveCostType, p_CargoCost(i_ActiveCargo, i_ActiveCostType));
+					
+					                elseif 
+					                p_MinTimeWindow(i_ActiveCargo) <= p_TravelTimeCargoes(ep_LastCargoFromRoute(i_sub_rout),i_ActiveCargo) + 
+					                p_LastLoadArrivalTime(i_sub_rout) <= p_MaxTimeWindow(i_ActiveCargo)
+					                then
+					
+					                    setelementadd(s_FeasibleRoutes,ep_route,i_sub_rout + "_" + i_ActiveCargo);
+					                    p_LastLoadArrivalTime(ep_route) := p_TravelTimeCargoes(ep_LastCargoFromRoute(i_sub_rout),i_ActiveCargo) + p_LastLoadArrivalTime(i_sub_rout);
+					                    ep_LastCargoFromRoute(ep_route) := i_ActiveCargo;
+					                    ep_VesselOnRoute(ep_route) := i_ActiveVessel;
+					                    p_QuantityCargos(ep_route) := p_LoopCount+1;
+					                    p_CargoesOnRoute(ep_route, i_ActiveCargo1) := p_CargoesOnRoute(i_sub_rout, i_ActiveCargo1);
+					                    p_CargoesOnRoute(ep_route, i_ActiveCargo) :=  p_QuantityCargos(ep_route);
+					
+					                    !Loading and delivering time
+					                    p_LoadingTimeCargoRoute(i_ActiveCargo1, ep_route) :=  p_LoadingTimeCargoRoute(i_ActiveCargo1, i_sub_rout);
+					                    p_LoadingTimeCargoRoute(i_ActiveCargo, ep_route) :=  p_TravelTimeCargoes(ep_LastCargoFromRoute(i_sub_rout),i_ActiveCargo) + 
+					                        p_LastLoadArrivalTime(i_sub_rout);
+					
+					                    !Add cargoes to route
+					                    sp_CargoesOnRoute(ep_route) := sp_CargoesOnRoute(i_sub_rout)+","+i_ActiveCargo;
+					
+					                    !Extra deliver arrival time
+					                    p_LastDeliverArrivalTime(ep_route) := p_LastLoadArrivalTime(ep_route) + 
+					                       p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo),ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					                    !Cost for the other movements
+					                    p_TotalDaysTravel(ep_route) := p_TotalDaysTravel(i_sub_rout)+
+					                        p_DistanceBetweenLocations(ep_DeliveringPortsCargo(ep_LastCargoFromRoute(ep_route)),ep_LoadingPortsCargo(i_ActiveCargo))+
+					                        p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo), ep_DeliveringPortsCargo(i_ActiveCargo));
+					
+					                    !Cost for the other locations
+					                    if ep_DeliveringPortsCargo(ep_LastCargoFromRoute(i_sub_rout)) <> ep_LoadingPortsCargo(i_ActiveCargo) then
+					                        p_TotalRouteLocationCost(ep_route) := p_TotalRouteLocationCost(i_sub_rout)+
+					                        sum(i_ActiveCostType,  p_LocationCost(ep_LoadingPortsCargo(i_ActiveCargo),i_ActiveCostType) +
+					                        p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));
+					                    else 
+					                        p_TotalRouteLocationCost(ep_route) := p_TotalRouteLocationCost(i_sub_rout)+
+					                        sum(i_ActiveCostType,p_LocationCost(ep_DeliveringPortsCargo(i_ActiveCargo),i_ActiveCostType));                                
+					                    endif;                
+					
+					                    !Cost for the other cargoes
+					                    p_TotalRouteCargoCost(ep_route) := p_TotalRouteCargoCost(i_sub_rout)+
+					                    sum(i_ActiveCostType, p_CargoCost(i_ActiveCargo, i_ActiveCostType));
+					
+					                endif;
+					
+					            endfor;
+					
+					        endfor;
+					
+					    p_LoopCount += 1;
+					
+					    endrepeat;
+					
+					endfor;
+					
+					!Add the idle cost of a ship staying in the port of delevering
+					for i_route do
+					
+					    if max(i_cargo,p_MaxTimeWindow(i_cargo))-p_LastLoadArrivalTime(i_route)>=0[day] then
+					
+					        p_TotalRouteIdleCost(i_route) += ((max(i_cargo,p_MaxTimeWindow(i_cargo))-p_LastLoadArrivalTime(i_route)))*
+					           p_IdleCostLocation(ep_DeliveringPortsCargo(ep_LastCargoFromRoute(i_route)));
+					
+					    endif;
+					endfor;
+					
+					!Activate solve button
+					sp_MySecondaryActions(4,'state'):= 'active';
+					
+					!Changes to status bar
+					sp_MyStatusBar(2,'icon') := "aimms-checkmark-circle";
+					sp_MyStatusBar(2,'color') := "Green";
+					sp_MyStatusBar(2,'tooltip') := "The routes are succesfully generated.";
+					sp_MyStatusBar(3,'color') := "Orange";
+					sp_MyStatusBar(3,'icon'):= "aimms-circle2";
+					sp_MyStatusBar(3,'tooltip') := "Data is ready, time to solve!";
+					sp_MyStatusBar(3,'state'):="active";
+				}
+				Set s_sub_routes {
+					SubsetOf: s_FeasibleRoutes;
+					Index: i_sub_rout;
+				}
+				Parameter p_LoopCount;
+			}
+		}
+		Section InputModel {
+			Procedure pr_ImportDataExcel {
+				Body: {
+					!Delete old data
+					pr_DeleteData;
+					
+					!Importeren van de data
+					dex::AddMapping(
+					    mappingName : "ImportData", 
+					    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+					
+					dex::ReadFromFile(
+					    dataFile : "data\\DataForImport_test_v2.xlsx", !Uiteindelijke variant DataForImport.xlsx
+					    mappingName : "ImportData");
+					
+					!Activate all master data
+					p_ActiveCargoes(i_cargo):= 1;
+					p_ActiveTypeCost(i_CostType) := 1;
+					p_ActiveVessels(i_vessel) := 1;
+					p_AllocatedCargoes(i_ActiveCargo) :=1;
+					
+					!Activate generating routes
+					sp_MySecondaryActions(3,'state'):= 'active';
+					
+					!Changes to status bar
+					sp_MyStatusBar(1,'icon') := "aimms-checkmark-circle";
+					sp_MyStatusBar(1,'color') := "Green";
+					sp_MyStatusBar(1,'tooltip') := "Data is succesfully imported.";
+					sp_MyStatusBar(2,'color') := "Orange";
+					sp_MyStatusBar(2,'icon'):= "aimms-circle2";
+					sp_MyStatusBar(2,'tooltip') := "Application ready to generate routes.";
+					sp_MyStatusBar(2,'state') := "active";
+					sp_MyStatusBar(3,'color') := "red";
+					sp_MyStatusBar(3,'icon') := "aimms-cancel-circle2";
+					sp_MyStatusBar(3,'tooltip') := "Model not ready to be solved.";
+					sp_MyStatusBar(3,'state') := 'inactive';
+					
+					!Open Overview dataset
+					MyWorkflowStepsFoldingStates(1, 4, 'openclose') := "open";
+				}
+			}
+			Procedure pr_AimmsGeneratingData {
+				Body: {
+					empty s_FleetVessels;
+					empty s_Cargoes;
+					empty s_Locations;
+					empty s_TypeOfCost;
+					
+					!Importeren van de data
+					dex::AddMapping(
+					    mappingName : "ImportData", 
+					    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+					
+					dex::ReadFromFile(
+					    dataFile : "data\\LocationData.xlsx", 
+					    mappingName : "ImportData");
+					
+					!Define char
+					sp_CharacterCargo := "a";
+					
+					!Making vessel en vesselcost data
+					setelementadd(s_TypeOfCost,ep_TypeofCost,"Fuel");
+					setelementadd(s_TypeOfCost,ep_TypeofCost,"Crew");
+					
+					while card(s_FleetVessels)<p_TotalVessels do
+					    !VesselData
+					    setelementadd(s_FleetVessels,ep_Vessel,"Vessel"+(1+card(s_FleetVessels)));
+					    ep_LoadingPortsVessel(ep_Vessel):= nth(i_Loc,round(uniform(1,card(s_Locations))));
+					
+					    !VesselCost Data
+					    p_VesselCostDay(ep_Vessel, 'Fuel') := (round(uniform(50,200)))[$/day];
+					    p_VesselCostDay(ep_Vessel, 'Crew') := (round(uniform(50,200)))[$/day];
+					endwhile;
+					
+					
+					!Making CargoData
+					setelementadd(s_TypeOfCost,ep_TypeofCost,"Loading");
+					setelementadd(s_TypeOfCost,ep_TypeofCost,"Admin");
+					setelementadd(s_TypeOfCost,ep_TypeofCost,"Unloading");
+					p_NumCharacter :=0;
+					
+					while card(s_Cargoes)<p_TotalCargoes do
+					    !Change Character for Cargo   
+					    if mod(card(s_Cargoes),5) = 0 then
+					        p_NumCharacter+=1;
+					    endif;
+					    sp_CharacterCargo := substring(sp_Alphabet,p_NumCharacter,p_NumCharacter);
+					
+					    !CargoData
+					    setelementadd(s_Cargoes,ep_cargo,sp_CharacterCargo+(1+mod(card(s_Cargoes),5)));
+					    ep_LoadingPortsCargo(ep_cargo) := nth(i_Loc,round(uniform(1,card(s_Locations))));
+					    ep_DeliveringPortsCargo(ep_cargo) := nth(i_Loc | i_Loc <> ep_LoadingPortsCargo(ep_cargo),round(uniform(1,card(s_Locations))));
+					
+					    !CargoCost Data
+					    p_SpotCostVessel(ep_cargo) := (round(uniform(10000,20000)))[$];
+					    p_CargoCost(ep_cargo, 'Loading') := (round(uniform(1000,4000)))[$];
+					    p_CargoCost(ep_cargo, 'Unloading') := (round(uniform(1000,4000)))[$];
+					    p_CargoCost(ep_cargo, 'Admin') := (round(uniform(100,400)))[$];
+					
+					    !Dates
+					    ep_MinTimeWindow(ep_cargo) := ep_StartHorizonDate+round(uniform(0,182));
+					    ep_MaxTimeWindow(ep_cargo) := ep_MinTimeWindow(ep_cargo)+round(uniform(0,10));
+					
+					endwhile;
+					
+					!Making Location Data
+					p_LocationCost(i_Loc, 'Loading'):=(round(uniform(1000,4000)))[$];
+					p_LocationCost(i_Loc, 'Admin') := (round(uniform(100,400)))[$];
+					
+					!Generating Distance Matrix
+					p_DistanceBetweenLocations(i_Loc, i_Loc2) | i_Loc2<i_Loc  := (round(uniform(5,60)))[day];
+					p_DistanceBetweenLocations(i_Loc, i_Loc2) | i_Loc2>i_Loc  := p_DistanceBetweenLocations(i_Loc2, i_Loc);    
+					
+					!Activate all master data
+					p_ActiveCargoes(i_cargo):= 1;
+					p_ActiveTypeCost(i_CostType) := 1;
+					p_ActiveVessels(i_vessel) := 1;
+					p_AllocatedCargoes(i_ActiveCargo) :=1;
+					
+					!Activate generating routes
+					sp_MySecondaryActions(3,'state'):= 'active';
+					sp_MySecondaryActions(4,'state') := 'inactive';
+					
+					!Changes to status bar
+					sp_MyStatusBar(1,'icon') := "aimms-checkmark-circle";
+					sp_MyStatusBar(1,'color') := "Green";
+					sp_MyStatusBar(1,'tooltip') := "Data is succesfully imported.";
+					sp_MyStatusBar(2,'color') := "Orange";
+					sp_MyStatusBar(2,'icon'):= "aimms-circle2";
+					sp_MyStatusBar(2,'tooltip') := "Application ready to generate routes.";
+					sp_MyStatusBar(2,'state') := "active";
+					sp_MyStatusBar(3,'color') := "red";
+					sp_MyStatusBar(3,'icon') := "aimms-cancel-circle2";
+					sp_MyStatusBar(3,'tooltip') := "Model not ready to be solved.";
+					sp_MyStatusBar(3,'state') := 'inactive';
+					
+					!Pages connecting
+					sp_MyWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
+					sp_MyWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+					
+					!Open Overview dataset
+					MyWorkflowStepsFoldingStates(1, 4, 'openclose') := "open";
+				}
+				StringParameter sp_CharacterCargo {
+					InitialData: "a";
+				}
+				StringParameter sp_Alphabet {
+					InitialData: "abcdefghijklmnopqrstuvwxyz";
+				}
+				Parameter p_NumCharacter;
+			}
+			Procedure pr_GenerateMappingFile {
+				Body: {
+					dex::GenerateDatasetMappings;
+				}
+			}
+			DeclarationSection Declaration_Import_Out_Excel {
+				Calendar cal_OneHundredYears {
+					Index: t;
+					Unit: day;
+					BeginDate: "2000-01-01";
+					EndDate: "2099-12-31";
+					TimeslotFormat: "%c%y-%m-%d";
+				}
+				Set s_FleetVessels {
+					Index: i_vessel;
+					Parameter: ep_Vessel;
+				}
+				Set s_Cargoes {
+					Index: i_cargo, i_cargo1;
+					Parameter: ep_cargo;
+				}
+				Set s_Locations {
+					Index: i_Loc, i_Loc2;
+					Parameter: ep_Location;
+				}
+				Set s_TypeOfCost {
+					Index: i_CostType;
+					Parameter: ep_TypeofCost;
+				}
+				ElementParameter ep_LoadingPortsVessel {
+					IndexDomain: i_vessel;
+					Range: s_Locations;
+					dex::ColumnName: Port of Origin;
+					dex::Dataset: Import;
+					dex::TableName: VesselData;
+				}
+				ElementParameter ep_LoadingPortsCargo {
+					IndexDomain: i_cargo;
+					Range: s_Locations;
+					dex::ColumnName: Loading Port;
+					dex::Dataset: Import;
+					dex::TableName: CargoData;
+				}
+				ElementParameter ep_DeliveringPortsCargo {
+					IndexDomain: i_cargo;
+					Range: s_Locations;
+					dex::ColumnName: Delevering Port;
+					dex::Dataset: Import;
+					dex::TableName: CargoData;
+				}
+				ElementParameter ep_StartHorizonDate {
+					Range: cal_OneHundredYears;
+				}
+				Parameter p_SpotCostVessel {
+					IndexDomain: i_cargo;
+					Unit: $;
+					dex::ColumnName: Spotcost on Vessel;
+					dex::Dataset: Import;
+					dex::TableName: CargoData;
+				}
+				Parameter p_Latitude {
+					IndexDomain: i_Loc;
+					Comment: "Deze kolom komt niet in het exporteer file te staan";
+					dex::ColumnName: Latitude;
+					dex::Dataset: Import;
+					dex::TableName: LocationData;
+				}
+				Parameter p_Longitude {
+					IndexDomain: i_Loc;
+					Comment: "Deze kolom komt niet in het exporteer file te staan";
+					dex::ColumnName: Longitude;
+					dex::Dataset: Import;
+					dex::TableName: LocationData;
+				}
+				Parameter p_MinTimeWindow {
+					IndexDomain: i_cargo;
+					Unit: day;
+					Definition: StringToMoment("%c%y-%m-%d",[day],ep_StartHorizonDate,ep_MinTimeWindow(i_cargo));
+					Comment: {
+						"!Change the table name if the indices 
+						!"
+					}
+				}
+				ElementParameter ep_MinTimeWindow {
+					IndexDomain: i_cargo;
+					Range: cal_OneHundredYears;
+					dex::ColumnName: Minimum Loading Time;
+					dex::Dataset: Import;
+					dex::TableName: CargoData;
+				}
+				Parameter p_MaxTimeWindow {
+					IndexDomain: i_cargo;
+					Unit: day;
+					Definition: StringToMoment("%c%y-%m-%d",[day],ep_StartHorizonDate,ep_MaxTimeWindow(i_cargo));
+				}
+				ElementParameter ep_MaxTimeWindow {
+					IndexDomain: i_cargo;
+					Range: cal_OneHundredYears;
+					dex::ColumnName: Maximum Loading Time;
+					dex::Dataset: Import;
+					dex::TableName: CargoData;
+				}
+				Parameter p_DistanceBetweenLocations {
+					IndexDomain: (i_Loc,i_Loc2)|i_loc<>i_Loc2;
+					Unit: day;
+					Definition: {
+						!13,5 knots = 25 km/h
+						!1 day = 25*24= 600
+						!aantal dagen
+						!(1/600)*
+						!((6371.0 ) 
+						!*   arccos(
+						!            cos(radians(90 - P_latitude(i_Loc)))
+						!            * cos(radians(90 - P_latitude(i_Loc2))) 
+						!            + 
+						!            sin(radians(90 - P_latitude(i_Loc)))
+						!            * sin(radians(90 - P_latitude(i_Loc2)))
+						!            * cos(radians(p_longitude(i_Loc) - p_longitude(i_Loc2)))))
+					}
+					dex::ColumnName: DeleveringLocation;
+					dex::Dataset: Import;
+					dex::TableName: DistanceBetweenLocations;
+				}
+				Parameter p_IdleCostLocation {
+					IndexDomain: i_Loc;
+					Unit: $/day;
+					dex::ColumnName: Idle Cost;
+					dex::Dataset: Import;
+					dex::TableName: LocationData;
+				}
+			}
+			DeclarationSection Declaration_Routes {
+				Set s_FeasibleRoutes {
+					Index: i_route;
+					Parameter: ep_route;
+				}
+				ElementParameter ep_VesselOnRoute {
+					IndexDomain: i_route;
+					Range: s_MasterVessels;
+					webui::FlagsIdentifier: sp_ReadsOnly;
+				}
+				ElementParameter ep_LastCargoFromRoute {
+					IndexDomain: i_route;
+					Range: s_Cargoes;
+				}
+				Parameter p_TravelTimeCargoes {
+					IndexDomain: (i_cargo,i_cargo1) | (i_cargo<>i_cargo1);
+					Unit: day;
+					Definition: {
+						!13,5 knots = 25 km/h
+						!1 day = 600km
+						p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_cargo),ep_DeliveringPortsCargo(i_cargo)) +
+						p_DistanceBetweenLocations(ep_DeliveringPortsCargo(i_cargo),ep_LoadingPortsCargo(i_cargo1))
+					}
+				}
+				Parameter p_CargoesOnRouteBin {
+					IndexDomain: (i_route,i_cargo);
+					Range: binary;
+					Definition: {
+						p_CargoesOnRoute(i_route, i_cargo)>0;
+					}
+				}
+				Parameter p_CargoesOnRoute {
+					IndexDomain: (i_route,i_cargo);
+					Range: nonnegative;
+				}
+				Parameter p_LastLoadArrivalTime {
+					IndexDomain: i_route;
+					Unit: day;
+				}
+				Parameter p_LastDeliverArrivalTime {
+					IndexDomain: i_route;
+					Unit: day;
+				}
+				Parameter p_QuantityCargos {
+					IndexDomain: i_route;
+				}
+				Parameter p_TotalDaysTravel {
+					IndexDomain: i_route;
+					Unit: day;
+					webui::FlagsIdentifier: sp_ReadsOnly;
+				}
+			}
+			DeclarationSection Declaration_Routes_Cost {
+				Parameter p_IdleCostVesselNotUsed {
+					IndexDomain: i_vessel;
+					Unit: $;
+					Definition: {
+						! Location vessel multiply max time horizon
+						p_IdleCostLocation(ep_LoadingPortsVessel(i_vessel)) * max(i_cargo, p_MaxTimeWindow(i_cargo));
+					}
+				}
+				Parameter p_TotalRouteIdleCost {
+					IndexDomain: (i_route);
+					Unit: $;
+				}
+				Parameter p_VesselCostDay {
+					IndexDomain: (i_vessel,i_CostType) | p_ActiveVesselCost(i_CostType);
+					Unit: $/day;
+					Comment: {
+						"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
+					}
+					dex::ColumnName: DailyCost;
+					dex::Dataset: Import;
+					dex::TableName: VesselCosts;
+				}
+				Parameter p_TotalRouteMovementCost {
+					IndexDomain: i_route;
+					Unit: $;
+					Definition: p_TotalDaysTravel(i_route) * sum(i_CostType, p_VesselCostDay(ep_VesselOnRoute(i_route),i_CostType));
+				}
+				Parameter p_LocationCost {
+					IndexDomain: (i_loc,i_CostType) | p_ActiveLocationCost(i_CostType);
+					Unit: $;
+					Definition: {
+						!Hoe wordt dit in de webui teruggeven
+						!sum(i_CostType |
+					}
+					dex::ColumnName: Costs;
+					dex::Dataset: Import;
+					dex::TableName: LocationCosts;
+				}
+				Parameter p_TotalRouteLocationCost {
+					IndexDomain: i_route;
+					Unit: $;
+				}
+				Parameter p_CargoCost {
+					IndexDomain: (i_cargo,i_CostType) | p_ActiveCargoesCost(i_CostType);
+					Range: free;
+					Unit: $;
+					dex::ColumnName: Type Costs;
+					dex::Dataset: Import;
+					dex::TableName: CargoCosts;
+				}
+				Parameter p_TotalRouteCargoCost {
+					IndexDomain: i_route;
+					Unit: $;
+				}
+				Parameter p_OperationalCostVessel {
+					IndexDomain: i_route;
+					Unit: $;
+					Definition: {
+						!p_IdleCostUsedVessel(i_route)+p_TaxesCostRoute(i_route)+p_DailyCostRoute(i_route)+p_FuelCostRoute(i_route)
+						p_TotalRouteCargoCost(i_route)+p_TotalRouteLocationCost(i_route)+p_TotalRouteIdleCost(i_route)+p_TotalRouteMovementCost(i_route)
+					}
+				}
+			}
+			DeclarationSection Declaration_Random_Data {
+				Set s_SubLocations {
+					SubsetOf: s_Locations;
+					Index: i_subLoc;
+				}
+				Parameter p_TotalCargoes {
+					Range: nonnegative;
+					InitialData: 1;
+				}
+				Parameter p_TotalVessels {
+					Range: nonnegative;
+					InitialData: 1;
+				}
+			}
+		}
+		Section MathModel {
+			Variable v_AllocateVesselToRoute {
+				IndexDomain: (i_ActiveVessel,i_route) | p_DomainAllocateVesselToRoute(i_ActiveVessel, i_route);
+				Range: binary;
+			}
+			Parameter p_DomainAllocateVesselToRoute {
+				IndexDomain: (i_ActiveVessel,i_route);
+				Range: binary;
+				Property: NoSave;
+				Definition: 1 $ (i_activeVessel = ep_VesselOnRoute(i_route));
+			}
+			Variable v_CargoOnCharteredVessel {
+				IndexDomain: i_ActiveCargo;
+				Range: binary;
+			}
+			Variable v_IdleVessel {
+				IndexDomain: i_ActiveVessel;
+				Range: binary;
+			}
+			Constraint c_AssignCargoToOneVessel {
+				IndexDomain: i_ActiveCargo;
+				Definition: {
+					!Raakt nu nog in de war omdat die nu niet 1 is
+					
+					!sum(i_route,p_CargoesOnRouteBin(i_route, i_cargo)*v_AllocateVesselToRoute(ep_VesselOnRoute(i_route), i_route)) + 
+					!v_CargoOnCharteredVessel(i_cargo) = 1
+					
+					sum(i_route | p_CargoesOnRoute(i_route, i_ActiveCargo), 
+					    v_AllocateVesselToRoute(ep_VesselOnRoute(i_route), i_route)) 
+					+  v_CargoOnCharteredVessel(i_ActiveCargo) = 1
+				}
+			}
+			Constraint c_VesselMaxOneRoute {
+				IndexDomain: i_ActiveVessel;
+				Definition: {
+					sum(i_route ,
+					    v_AllocateVesselToRoute(i_ActiveVessel, i_route)) + v_IdleVessel(i_ActiveVessel) = 1
+				}
+			}
+			Variable v_ObjectiveFunction {
+				Range: free;
+				Unit: $;
+				Definition: {
+					sum((i_ActiveVessel,i_route), p_OperationalCostVessel(i_route) * v_AllocateVesselToRoute(i_ActiveVessel, i_route)) + 
+					sum(i_ActiveCargo, p_SpotCostVessel(i_ActiveCargo) * v_CargoOnCharteredVessel(i_ActiveCargo)) + 
+					sum(i_ActiveVessel, p_IdleCostVesselNotUsed(i_ActiveVessel) * v_IdleVessel(i_ActiveVessel))
+				}
+			}
+			MathematicalProgram mp_SchedullingVessels {
+				Objective: v_ObjectiveFunction;
+				Direction: minimize;
+				Constraints: AllConstraints;
+				Variables: AllVariables;
+				Type: Automatic;
+			}
+			Variable v_TotalOperationalCost {
+				Range: free;
+				Unit: $;
+				Definition: {
+					sum((i_ActiveVessel,i_route), p_OperationalCostVessel(i_route) * v_AllocateVesselToRoute(i_ActiveVessel, i_route))
+					
+					
+					!sum((i_vessel,i_route,i_typeCost), 
+					!    (p_allRouteCostCargo(i_route,i_typeCost)
+					!    + p_allRouteLocationCost(i_route,i_typeCost)
+					!    * v_AllocateVesselToRoute(i_vessel, i_route) -> 1)
+				}
+			}
+			Variable v_TotalMaitenanceCost {
+				Range: free;
+				Unit: $;
+				Definition: sum(i_ActiveVessel, p_IdleCostVesselNotUsed(i_ActiveVessel) * v_IdleVessel(i_ActiveVessel));
+			}
+			Variable v_TotalStorageCostVessel {
+				Range: free;
+				Unit: $;
+				Definition: sum(i_ActiveCargo, p_SpotCostVessel(i_ActiveCargo) * v_CargoOnCharteredVessel(i_ActiveCargo));
+			}
+		}
+		Section OutputModel {
+			Procedure pr_ExportData {
+				Body: {
+					dex::AddMapping(
+					    mappingName : "Import",
+					    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+					
+					dex::WriteToFile(
+					    dataFile : "data\\FormatDataScheduling.xlsx",
+					    mappingName : "Import");
+				}
+			}
+			Procedure pr_determineCargoOnVessel {
+				Body: {
+					for (i_allcRoute,i_cargo) | (StringOccurrences(sp_CargoesOnRoute(i_allcRoute),i_cargo)=1) do
+					    ep_CargoOnVessel(i_cargo) := ep_VesselOnRoute(i_allcRoute);
+					endfor;
+				}
+			}
+			Procedure pr_determineLoadingAndDelivering {
+				Body: {
+					for i_allcRoute do
+					    !Selecteer alle cargoes
+					    for i_ActiveCargo | p_CargoesOnRouteBin(i_allcRoute, i_ActiveCargo)=1 do
+					
+					        p_LoadingTimeCargo(i_ActiveCargo) := p_LoadingTimeCargoRoute(i_ActiveCargo, i_allcRoute);
+					        p_DeleveringTimeCargo(i_ActiveCargo) := p_DeleveringTimeCargoRoute(i_ActiveCargo, i_allcRoute);
+					
+					    endfor; 
+					
+					endfor;
+				}
+			}
+			Procedure pr_DeleteData {
+				Body: {
+					CaseFileLoad("data\\StandardWebUI.data");
+				}
+			}
+			Procedure pr_ConvertToDate {
+				Body: {
+					for i_allcRoute do   
+					    for i_ActiveCargo | p_CargoesOnRouteBin(i_allcRoute, i_ActiveCargo)=1 do
+					        sp_LoadingTimeCargoRoute(i_ActiveCargo):=
+					            MomentToString("%d/%m/%y",[day],ep_StartHorizonDate,p_LoadingTimeCargoRoute(i_ActiveCargo, i_allcRoute));
+					        sp_DeleveringTimeCargoRoute(i_ActiveCargo):=
+					            MomentToString("%d/%m/%y",[day],ep_StartHorizonDate,p_DeleveringTimeCargoRoute(i_ActiveCargo, i_allcRoute));        
+					    endfor;
+					endfor;
+				}
+			}
+			DeclarationSection Declaration_Results {
+				Set s_allocatedRoutes {
+					SubsetOf: s_FeasibleRoutes;
+					Index: i_allcRoute;
+					Parameter: ep_allcRoute;
+					Definition: {
+						{(i_route) | exists((i_ActiveVessel) | v_AllocateVesselToRoute(i_ActiveVessel, i_route))};
+					}
+				}
+				Parameter p_Allocatedroutes {
+					IndexDomain: i_allcRoute;
+					webui::UponChangeProcedure: pr_CalculateAllArcs;
+				}
+				Parameter p_LoadingTimeCargo {
+					IndexDomain: i_ActiveCargo;
+					Unit: day;
+				}
+				Parameter p_DeleveringTimeCargo {
+					IndexDomain: i_ActiveCargo;
+					Unit: day;
+				}
+				Parameter p_CargoCostRoute {
+					IndexDomain: i_ActiveCargo;
+					Unit: $;
+					Definition: {
+						if i_ActiveCargo $ v_CargoOnCharteredVessel(i_ActiveCargo) then
+						    p_SpotCostVessel(i_ActiveCargo)
+						else 
+						    sum(i_ActiveCostType, p_CargoCost(i_ActiveCargo, i_ActiveCostType))
+						endif;
+					}
+					webui::FlagsIdentifier: sp_ReadsOnly;
+				}
+				ElementParameter ep_CargoOnVessel {
+					IndexDomain: i_ActiveCargo;
+					Range: s_FleetVessels;
+					Definition: {
+						pr_determineCargoOnVessel;
+					}
+					Comment: "sp_CargoesOnRoute(i_allcRoute)";
+					webui::FlagsIdentifier: sp_ReadsOnly;
+				}
+				StringParameter sp_CargoesOnRoute {
+					IndexDomain: i_route;
+					webui::FlagsIdentifier: sp_ReadsOnly;
+				}
+			}
+		}
+	}
+	Section WebUIVessel {
+		Procedure pr_LegendRouteViz {
+			Body: {
+				for i_CargLocLoadRoute do
+				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_CargLocLoadRoute));
+				endfor;
+				
+				for i_CargLocDelRoute do   
+				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_CargLocDelRoute));   
+				endfor;
+				
+				for i_VesselPortOrigin do
+				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_VesselPortOrigin)); 
+				endfor;
+			}
+		}
+		Procedure pr_LegendCargoViz {
+			Body: {
+				for i_CargoLocLoad do
+				    setelementadd(s_SortOfPortsCargo,ep_SortOfPortsCargo,sp_PortsCargoPageAnnotation(i_CargoLocLoad));
+				endfor;
+				
+				for i_CargoLocDel do   
+				    setelementadd(s_SortOfPortsCargo,ep_SortOfPortsCargo,sp_PortsCargoPageAnnotation(i_CargoLocDel));   
+				endfor;
+			}
+		}
+		Procedure pr_DeselectCargoes {
+			Body: {
+				p_AllocatedCargoes(i_ActiveCargo):=0;
+			}
+		}
+		Procedure pr_CloseDataOverView {
+			Body: {
+				!Close Overview dataset
+				MyWorkflowStepsFoldingStates(1, 4, 'openclose') := "close";
+			}
+		}
+		DeclarationSection Declaration_Workflow {
+			StringParameter sp_MyWorkFlows {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexWorkflowSpec);
+				Definition: data { ( 1, title ) : "Vessel Scheduling" };
+			}
+			StringParameter sp_MyWorkFlowSteps {
+				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
+				InitialData: {
+					data 
+					{ ( 1, 1, displayText       ) : "Welcome",
+					  ( 1, 1, icon              ) : "aimms-home2",
+					  ( 1, 1, pageId            ) : "introduction_problem",
+					  ( 1, 1, tooltip           ) : "Welcome ",
+					  ( 1, 1, workflowPageState ) : "Active",
+					  ( 1, 2, displayText       ) : "Problem Statement",
+					  ( 1, 2, icon              ) : "aimms-book",
+					  ( 1, 2, pageId            ) : "problem_statement",
+					  ( 1, 2, tooltip           ) : "Short statement about the problem",
+					  ( 1, 2, workflowPageState ) : "Active",
+					  ( 1, 3, displayText       ) : "Master",
+					  ( 1, 3, icon              ) : "aimms-equalizer2",
+					  ( 1, 3, pageId            ) : "overview_costs",
+					  ( 1, 3, tooltip           ) : "Overview of all the sets",
+					  ( 1, 3, workflowPageState ) : "Active",
+					  ( 1, 4, displayText       ) : "Overview Datasets",
+					  ( 1, 4, icon              ) : "aimms-equalizer2",
+					  ( 1, 4, pageId            ) : "overview_datasets",
+					  ( 1, 4, tooltip           ) : "Overview of all the data",
+					  ( 1, 4, workflowPageState ) : "Inactive",
+					  ( 1, 4, redirectPageId    ) : "vessel_overview",
+					  ( 1, 5, displayText       ) : "Locations",
+					  ( 1, 5, icon              ) : "aimms-location5",
+					  ( 1, 5, pageId            ) : "locations_overview",
+					  ( 1, 5, tooltip           ) : "Location data",
+					  ( 1, 5, workflowPageState ) : "Active",
+					  ( 1, 5, parentPageId      ) : "overview_datasets",
+					  ( 1, 6, displayText       ) : "Cargoes",
+					  ( 1, 6, icon              ) : "aimms-package",
+					  ( 1, 6, pageId            ) : "cargoes_overview",
+					  ( 1, 6, tooltip           ) : "Cargoes data",
+					  ( 1, 6, workflowPageState ) : "Active",
+					  ( 1, 6, parentPageId      ) : "overview_datasets",
+					  ( 1, 7, displayText       ) : "Vessel",
+					  ( 1, 7, icon              ) : "aimms-ship",
+					  ( 1, 7, pageId            ) : "vessel_overview",
+					  ( 1, 7, tooltip           ) : "Vessel data",
+					  ( 1, 7, workflowPageState ) : "Active",
+					  ( 1, 7, parentPageId      ) : "overview_datasets",
+					  ( 1, 8, displayText       ) : "Optimized Results",
+					  ( 1, 8, icon              ) : "aimms-stats-decline",
+					  ( 1, 8, pageId            ) : "optimized_results",
+					  ( 1, 8, tooltip           ) : "Results after solving the model",
+					  ( 1, 8, workflowPageState ) : "active",
+					  ( 1, 9, displayText       ) : "Visualisations",
+					  ( 1, 9, icon              ) : "aimms-pie-chart8",
+					  ( 1, 9, pageId            ) : "all_visualisations",
+					  ( 1, 9, tooltip           ) : "All visualisations explaining results",
+					  ( 1, 9, workflowPageState ) : "active" }
+				}
+			}
+			StringParameter MyWorkflowStepsFoldingStates {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexNoOfPages,webui::indexOpenCloseProps);
+				InitialData: data { ( 1, 3, openClose ) : "open",  ( 1, 7, openClose ) : "close" };
+			}
+		}
+		DeclarationSection Declaration_Page_Actions {
+			StringParameter sp_MySecondaryActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexPageActionSpec);
+				InitialData: {
+					data 
+					{ ( 1, displaytext ) : "Import"                         ,  ( 1, icon        ) : "aimms-database-insert"          ,
+					  ( 1, procedure   ) : "pr_ImportDataExcel"             ,  ( 1, state       ) : "Active"                         ,
+					  ( 2, displaytext ) : "Export"                         ,  ( 2, icon        ) : "aimms-database-export"          ,
+					  ( 2, procedure   ) : "pr_ExportData"                  ,  ( 2, state       ) : "Active"                         ,
+					  ( 3, displaytext ) : "Generate Routes"                ,  ( 3, icon        ) : "aimms-database-refresh"         ,
+					  ( 3, procedure   ) : "pr_ActivecalculateRoutesAndCost",  ( 3, state       ) : "inactive"                       ,
+					  ( 4, displaytext ) : "Solve"                          ,  ( 4, icon        ) : "aimms-spinner3"                 ,
+					  ( 4, procedure   ) : "MainExecution"                  ,  ( 4, state       ) : "inactive"                       ,
+					  ( 5, displaytext ) : "Delete Data"                    ,  ( 5, icon        ) : "aimms-bin2"                     ,
+					  ( 5, procedure   ) : "pr_DeleteData"                  ,  ( 5, state       ) : "Active"                          }
+				}
+			}
+		}
+		DeclarationSection Declaration_SidePanels {
+			StringParameter sp_ResultsPageSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "KPIs "             ,  ( 1, pageId      ) : "side_panel_results",
+					  ( 1, icon        ) : "aimms-meter-fast"  ,  ( 1, iconcolor   ) : "blue"              ,
+					  ( 1, state       ) : "Active"            ,  ( 2, displayText ) : "Select Route"      ,
+					  ( 2, pageId      ) : "select_route_panel",  ( 2, icon        ) : "aimms-select2"     ,
+					  ( 2, iconcolor   ) : "blue"              ,  ( 2, state       ) : "Active"             }
+				}
+			}
+			StringParameter sp_RandomDataPageSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Random Data"          ,  ( 1, pageId      ) : "side_panel_randomdata",
+					  ( 1, icon        ) : "aimms-shuffle"        ,  ( 1, iconcolor   ) : "blue"                 ,
+					  ( 1, state       ) : "Active"                }
+				}
+			}
+			StringParameter sp_SelectRouteSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Map Options"            ,  ( 1, pageId      ) : "select_route_side_panel",
+					  ( 1, icon        ) : "aimms-menu4"            ,  ( 1, iconcolor   ) : "blue"                   ,
+					  ( 1, state       ) : "Active"                  }
+				}
+			}
+			StringParameter sp_CargoLegendSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Map Info"               ,  ( 1, pageId      ) : "side_panel_legend_cargo",
+					  ( 1, icon        ) : "aimms-list2"            ,  ( 1, iconcolor   ) : "blue"                   ,
+					  ( 1, state       ) : "Active"                  }
+				}
+			}
+		}
+		DeclarationSection Declaration_Statusbar {
+			StringParameter sp_MyStatusBar {
+				IndexDomain: (webui::indexApplicationExtension,webui::indexStatusBarSpec);
+				InitialData: {
+					data 
+					{ ( 1, header    ) : "Import"                           ,  ( 1, icon      ) : "aimms-circle2"                    ,
+					  ( 1, color     ) : "Orange"                           ,  ( 1, text      ) : "."                                ,
+					  ( 1, tooltip   ) : "Application ready for import."    ,  ( 1, procedure ) : "pr_ImportDataExcel"               ,
+					  ( 1, state     ) : "Active"                           ,  ( 2, header    ) : "Generated Routes"                 ,
+					  ( 2, icon      ) : "aimms-cancel-circle2"             ,  ( 2, color     ) : "Red"                              ,
+					  ( 2, text      ) : "."                                ,  ( 2, tooltip   ) : "Routes not ready to be generated.",
+					  ( 2, procedure ) : "pr_ActiveCalculateRoutesAndCost"  ,  ( 2, state     ) : "InActive"                         ,
+					  ( 3, header    ) : "Model Solved"                     ,  ( 3, icon      ) : "aimms-cancel-circle2"             ,
+					  ( 3, color     ) : "Red"                              ,  ( 3, text      ) : "."                                ,
+					  ( 3, tooltip   ) : "Model not ready to be solved."    ,  ( 3, procedure ) : "MainExecution"                    ,
+					  ( 3, state     ) : "InActive"                         ,  ( 4, header    ) : "ExcelFile"                        ,
+					  ( 4, icon      ) : "aimms-briefcase"                  ,  ( 4, text      ) : "DataForImport.xlsx"               ,
+					  ( 4, state     ) : "Inactive"                          }
+				}
+			}
+		}
+		DeclarationSection Declaration_Master_Active_Page {
+			Parameter p_ActiveVessels {
+				IndexDomain: i_vessel;
+				Range: binary;
+				InitialData: 1;
+			}
+			Parameter p_ActiveTypeCost {
+				IndexDomain: i_CostType;
+				Range: binary;
+				InitialData: 1;
+			}
+			Parameter p_ActiveCargoes {
+				IndexDomain: i_cargo;
+				Range: binary;
+				webui::FlagsIdentifier: ;
+			}
+			Set s_MasterCargoes {
+				SubsetOf: s_Cargoes;
+				Index: i_ActiveCargo, i_ActiveCargo1;
+				Definition: {
+					{i_cargo | p_ActiveCargoes(i_cargo)}
+				}
+			}
+			Set s_MasterVessels {
+				SubsetOf: s_FleetVessels;
+				Index: i_ActiveVessel;
+				Definition: {
+					{i_vessel | p_ActiveVessels(i_vessel)}
+				}
+			}
+			Set s_MasterLocations {
+				SubsetOf: s_Locations;
+				Index: i_ActiveLoc, i_ActiveLoc2;
+				Definition: {
+					!{i_Loc | ep_LoadingPortsCargo(i_ActiveCargo)}
+					{i_Loc|exists(i_ActiveCargo | i_Loc = ep_LoadingPortsCargo(i_ActiveCargo))}+
+					{i_Loc|exists(i_ActiveCargo | i_Loc = ep_DeliveringPortsCargo(i_ActiveCargo))}+
+					{i_Loc|exists(i_ActiveVessel | i_Loc = ep_LoadingPortsVessel(i_ActiveVessel))}
+					!Als de locatie gebruikt wordt bij de loading en delevering ports
+				}
+			}
+			Set s_MasterTypeCost {
+				SubsetOf: s_TypeOfCost;
+				Index: i_ActiveCostType;
+				Definition: {
+					{i_CostType | p_ActiveCargoesCost(i_CostType)}
+				}
+			}
+		}
+		DeclarationSection Declaration_Master_Active_CostType_Page {
+			Parameter p_ActiveCargoesCost {
+				IndexDomain: i_CostType;
+				Range: binary;
+				dex::ColumnName: Cargoes;
+				dex::Dataset: Import;
+				dex::TableName: Type Cost Group;
+			}
+			Parameter p_ActiveVesselCost {
+				IndexDomain: i_CostType;
+				Range: binary;
+				dex::ColumnName: Vessel;
+				dex::Dataset: Import;
+				dex::TableName: Type Cost Group;
+			}
+			Parameter p_ActiveLocationCost {
+				IndexDomain: i_CostType;
+				Range: binary;
+				dex::ColumnName: Location;
+				dex::Dataset: Import;
+				dex::TableName: Type Cost Group;
+			}
+			Parameter p_TestActiveLoc {
+				IndexDomain: (i_Loc,i_CostType);
+				Range: binary;
+				Definition: p_ActiveLocationCost(i_CostType);
+			}
+			Set s_ActiveTypeCostCargoes {
+				SubsetOf: s_TypeOfCost;
+				Index: i_ActiveCargoesCost;
+				Definition: {
+					{i_CostType | p_ActiveCargoesCost(i_CostType)}
+				}
+			}
+			Set s_ActiveTypeCostVessel {
+				SubsetOf: s_TypeOfCost;
+				Index: i_ActiveVesselCost;
+				Definition: {
+					{i_CostType | p_ActiveVesselCost(i_CostType)}
+				}
+			}
+			Set s_ActiveTypeCostLocation {
+				SubsetOf: s_TypeOfCost;
+				Index: i_ActiveLocationCost;
+				Definition: {
+					{i_CostType | p_ActiveLocationCost(i_CostType)}
+				}
+			}
+		}
+		DeclarationSection Declaration_Mapping_CargoData {
+			Set s_SortOfPortsCargo {
+				Index: i_SortOfPort;
+				Parameter: ep_SortOfPortsCargo;
+				Definition: pr_LegendCargoViz;
+			}
+			Set s_SelectedCargoesInMap {
+				SubsetOf: s_MasterCargoes;
+				Index: i_selectedCargo;
+				Definition: {
+					{i_ActiveCargo | p_AllocatedCargoes(i_ActiveCargo)}
+				}
+			}
+			StringParameter sp_PortsCargoPageAnnotation {
+				IndexDomain: i_Loc;
+				Definition: {
+					if (i_Loc in s_SubsetCargoLoadingPorts) and (i_loc in s_SubsetCargoDeleveringPorts) then
+					    "LoadAndDelPort"    
+					elseif i_Loc in s_SubsetCargoLoadingPorts then
+					    "LoadPort"
+					else
+					    "DelPort"
+					endif;
+				}
+			}
+			Set s_SubsetCargoLoadingPorts {
+				SubsetOf: s_Locations;
+				Index: i_CargoLocLoad;
+				Definition: {
+					{i_Loc|exists(i_selectedCargo | i_Loc = ep_LoadingPortsCargo(i_selectedCargo))}
+				}
+			}
+			Set s_SubsetCargoDeleveringPorts {
+				SubsetOf: s_Locations;
+				Index: i_CargoLocDel;
+				Definition: {
+					{i_Loc|exists(i_selectedCargo | i_Loc = ep_DeliveringPortsCargo(i_selectedCargo))}
+				}
+			}
+			Set s_SubsetVesselPortOrigin {
+				SubsetOf: s_Locations;
+				Index: i_LocVesselPort;
+				Definition: {
+					{i_Loc| exists(i_ActiveVessel | i_Loc = ep_LoadingPortsVessel(i_ActiveVessel))}
+				}
+			}
+			Parameter p_SizeCargoesLocation {
+				IndexDomain: i_Loc;
+				Definition: 1;
+				webui::AnnotationsIdentifier: sp_PortsCargoPageAnnotation(i_Loc);
+			}
+			Parameter p_AllocatedCargoes {
+				IndexDomain: i_ActiveCargo;
+				Range: binary;
+			}
+		}
+		DeclarationSection Declaration_Mapping_LocAndVessel_Data {
+			StringParameter sp_LocationIc {
+				IndexDomain: i_Loc;
+				Definition: "aimms-location";
+			}
+			StringParameter sp_VesselIcons {
+				IndexDomain: i_Loc;
+				Definition: "aimms-ship";
+			}
+			Parameter p_SizeIconLocation {
+				IndexDomain: i_Loc;
+				Definition: 10;
+			}
+		}
+		DeclarationSection Declaration_Results_page {
+			Set s_SubsetRoutes {
+				SubsetOf: s_allocatedRoutes;
+				Index: i_selectedRoute;
+				Definition: {
+					{i_allcRoute | p_Allocatedroutes(i_allcRoute)}
+				}
+				Comment: "Used by selecting routes in resultpage";
+			}
+			Parameter p_VesselsNotUsed {
+				IndexDomain: i_ActiveVessel;
+				Range: binary;
+				Definition: v_IdleVessel(i_ActiveVessel);
+				webui::FlagsIdentifier: sp_ReadsOnly;
+			}
+			Parameter p_LoadingTimeCargoRoute {
+				IndexDomain: (i_ActiveCargo,i_route);
+				Unit: day;
+				webui::FlagsIdentifier: sp_ReadsOnly;
+			}
+			StringParameter sp_LoadingTimeCargoRoute {
+				IndexDomain: i_ActiveCargo;
+				webui::FlagsIdentifier: sp_ReadsOnly;
+			}
+			Parameter p_DeleveringTimeCargoRoute {
+				IndexDomain: (i_ActiveCargo,i_route) | p_CargoesOnRouteBin(i_route,i_ActiveCargo);
+				Unit: day;
+				Definition: (p_LoadingTimeCargoRoute(i_ActiveCargo, i_route) + p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_ActiveCargo), ep_DeliveringPortsCargo(i_ActiveCargo)));
+				webui::FlagsIdentifier: sp_ReadsOnly;
+			}
+			StringParameter sp_DeleveringTimeCargoRoute {
+				IndexDomain: i_ActiveCargo;
+				webui::FlagsIdentifier: sp_ReadsOnly;
+			}
+			StringParameter sp_ReadsOnly {
+				Definition: "readonly";
+			}
+		}
+		DeclarationSection Declaration_Mapping_Visualisation_Route {
+			Set s_CargoesOnSelectedRoutes {
+				SubsetOf: s_Cargoes;
+				Index: i_SelectedCargoOnRoute;
+				Definition: {
+					{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo))}
+				}
+				Comment: "{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo)}";
+			}
+			Set s_VesselOnSelectedRoutes {
+				SubsetOf: s_FleetVessels;
+				Index: i_ActiveVesselUsed;
+				Definition: {
+					{i_ActiveVessel | exists(i_selectedRoute|ep_VesselOnRoute(i_selectedRoute)=i_ActiveVessel)}
+				}
+			}
+			Set s_SubsetCargoLoadingRoutePorts {
+				SubsetOf: s_Locations;
+				Index: i_CargLocLoadRoute;
+				Definition: {
+					{i_Loc|exists(i_SelectedCargoOnRoute | i_Loc = ep_LoadingPortsCargo(i_SelectedCargoOnRoute))}
+				}
+			}
+			Set s_SubsetCargoDeliveringRoutePorts {
+				SubsetOf: s_Locations;
+				Index: i_CargLocDelRoute;
+				Definition: {
+					{i_Loc|exists(i_SelectedCargoOnRoute | i_Loc = ep_DeliveringPortsCargo(i_SelectedCargoOnRoute))}
+				}
+			}
+			Set s_SubsetVesselLoadingPorts {
+				SubsetOf: s_Locations;
+				Index: i_VesselPortOrigin;
+				Definition: {
+					!{i_Loc|exists(i_ActiveVessel | i_Loc = ep_LoadingPortsVessel(i_ActiveVessel)| v_IdleVessel(i_ActiveVessel)<1)}
+					{i_Loc|exists(i_ActiveVesselUsed | i_Loc = ep_LoadingPortsVessel(i_ActiveVesselUsed))}
+				}
+			}
+			StringParameter sp_PortsVisualisationPageAnnotation {
+				IndexDomain: i_Loc;
+				Definition: {
+					if (i_Loc in s_SubsetCargoLoadingRoutePorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) and 
+					    (i_Loc in s_SubsetVesselLoadingPorts) then
+					    "AllThreePorts"
+					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) then
+					    "VesAndDelPort"
+					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoLoadingRoutePorts) then
+					    "VesAndLoadPort"
+					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) then
+					    "LoadAndDelPort"    
+					elseif i_Loc in s_SubsetVesselLoadingPorts then
+					    "VesPort"
+					elseif i_Loc in s_SubsetCargoLoadingPorts then
+					    "LoadPort"
+					else
+					    "DelPort"
+					endif;
+				}
+			}
+			Set s_SortPortsRouteVis {
+				Index: i_SortRouteVis;
+				Parameter: ep_SortPortsRouteVis;
+				Definition: pr_LegendRouteViz;
+			}
+			Parameter p_SizeRoutesLocation {
+				IndexDomain: i_Loc;
+				Definition: 1;
+				webui::AnnotationsIdentifier: sp_PortsVisualisationPageAnnotation(i_Loc);
+			}
+		}
+		DeclarationSection Declaration_GanttChart {
+			Parameter p_DurationCargoOnRoute {
+				IndexDomain: (i_ActiveCargo,i_route);
+				Unit: day;
+				Definition: (p_DeleveringTimeCargoRoute(i_ActiveCargo, i_route)-p_LoadingTimeCargoRoute(i_ActiveCargo, i_route))*24;
+			}
+			Parameter p_LoadingTimeCargoRouteInHours {
+				IndexDomain: (i_ActiveCargo,i_route);
+				Unit: day;
+				Definition: p_LoadingTimeCargoRoute(i_ActiveCargo, i_route)*24;
+			}
+			StringParameter sp_StartGanttChart {
+				Definition: formatstring("%e",ep_StartHorizonDate);
+			}
+		}
+		Section Arcs {
+			Procedure pr_CalculateAllArcs {
+				Body: {
+					empty p_mapArcPerCargo, p_mapArcPerCargoConsideringPickupDropoff,p_FromBerthToCargoTest,p_FromBerthToCargo,p_MapArcPerCargoLocations,sp_RouteInformation;
+					sp_RouteInformation(i_Loc,i_Loc2):=FormatString("%e <br>to<br>%s",i_Loc,i_loc2);
+					
+					for i_selectedRoute do
+					
+					    !Calculate location from berth to the location of the loading of the first cargo
+					    p_FromBerthToCargoTest(ep_LoadingPortsVessel(ep_VesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_ActiveCargo|p_CargoesOnRoute(i_selectedRoute,i_ActiveCargo)=1))):=1;
+					    ep_allcRoute := i_selectedRoute;
+					    s_loc_currentCargos := {i_ActiveCargo | p_CargoesOnRoute(ep_allcRoute, i_ActiveCargo)};
+					    sp_RouteInformation(ep_LoadingPortsVessel(ep_VesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_ActiveCargo|p_CargoesOnRoute(i_selectedRoute,i_ActiveCargo)=1)))+="<br>Picking up cargo: "+first(i_ActiveCargo|p_CargoesOnRoute(i_selectedRoute,i_ActiveCargo)=1);
+					
+					    for i_loc_cargo | p_CargoesOnRoute(i_selectedRoute, i_loc_cargo) do 
+					    	!Calculate location of the loading and delivering of the cargo
+					        p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo)) := 1;
+						sp_RouteInformation(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo))+="<br>Deliver cargo: "+i_loc_cargo;
+					
+						!Calculate the location from delivering to the loading point of the new cargo
+					        for i_loc_cargo1 | 
+					                p_CargoesOnRoute(i_selectedRoute, i_loc_cargo) < p_CargoesOnRoute(i_selectedRoute, i_loc_cargo1) 
+					                and i_loc_cargo1 <> i_loc_cargo do
+					
+					            p_mapArcPerCargo(i_selectedRoute, i_loc_cargo, i_loc_cargo1) := 1;
+					
+					            if ep_DeliveringPortsCargo(i_loc_cargo) = ep_LoadingPortsCargo(i_loc_cargo1) then
+					                p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo1), ep_DeliveringPortsCargo(i_loc_cargo1)) := 1;
+					                p_loc_aux := 1;
+					            else
+					                p_MapArcPerCargoLocations(ep_DeliveringPortsCargo(i_loc_cargo), ep_LoadingPortsCargo(i_loc_cargo1)) := 1;
+					                p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo1), ep_DeliveringPortsCargo(i_loc_cargo1)) := 1;
+					
+					                sp_RouteInformation(ep_DeliveringPortsCargo(i_loc_cargo), ep_LoadingPortsCargo(i_loc_cargo1))+="<br>Picking up cargo: "+i_loc_cargo1;
+					
+					            endif;
+					
+					            break;
+					        endfor;
+					    endfor;
+					endfor;
+				}
+				Set s_loc_currentCargos {
+					SubsetOf: s_Cargoes;
+					Index: i_loc_cargo, i_loc_cargo1;
+					OrderBy: p_CargoesOnRoute(ep_allcRoute, i_cargo);
+				}
+				Parameter p_loc_aux;
+			}
+			DeclarationSection Declaration_Arcs {
+				StringParameter sp_CargoLoadingtoCargoDelivery {
+					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					Definition: {
+						FormatString("%e <br>to<br>%s <br> %n Days",i_ActiveLoc,i_ActiveLoc2,p_DeliveringToLoadingports(i_ActiveLoc,i_ActiveLoc2));
+					}
+				}
+				StringParameter sp_CargoRoute {
+					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					Definition: {
+						FormatString("%e <br>to<br>%s",i_ActiveLoc,i_ActiveLoc2);
+					}
+				}
+				StringParameter sp_RouteInformation {
+					IndexDomain: (i_Loc,i_Loc2);
+				}
+				ElementParameter ep_AllocatedRoute {
+					IndexDomain: i_allcRoute;
+					Range: s_allocatedRoutes;
+				}
+				Parameter p_FromToDestination {
+					IndexDomain: i_route;
+				}
+				Parameter p_FromBerthToCargo {
+					IndexDomain: (i_allcRoute,i_Loc,i_Loc2);
+				}
+				Parameter p_FromBerthToCargoTest {
+					IndexDomain: (i_Loc,i_Loc2);
+					webui::TooltipIdentifier: sp_RouteInformation( i_Loc, i_Loc2 );
+				}
+				Parameter p_MapArcPerCargoLocations {
+					IndexDomain: (i_Loc,i_Loc2);
+					webui::TooltipIdentifier: sp_RouteInformation;
+				}
+				Parameter p_mapArcPerCargo {
+					IndexDomain: (i_allcRoute,i_Cargo,i_Cargo1);
+					Range: binary;
+				}
+				Parameter p_mapArcPerCargoConsideringPickupDropoff {
+					IndexDomain: (i_allcRoute,i_Loc,i_Loc2);
+					Range: binary;
+				}
+				Parameter p_DeliveringToLoadingports {
+					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					Unit: day;
+					Definition: {
+						!p_DistanceBetweenLocations(i_loc,i_loc2)|exists(i_cargo|(i_loc=ep_LoadingPortsCargo(i_cargo)and i_loc2=ep_DeliveringPortsCargo(i_cargo)))
+						p_DistanceBetweenLocations(i_ActiveLoc,i_ActiveLoc2)$exists(i_ActiveCargo|(i_ActiveLoc=ep_LoadingPortsCargo(i_ActiveCargo)and i_ActiveLoc2=ep_DeliveringPortsCargo(i_ActiveCargo)))
+					}
+					webui::TooltipIdentifier: sp_CargoRoute;
+				}
+			}
+		}
+		Section Add_Edit_Data {
+			StringParameter sp_Logo {
+				Definition: "aimms_logo.png";
+			}
+			Section CRUD {
+				Procedure pr_Empty;
+				StringParameter sp_AddEditElement {
+					webui::AnnotationsIdentifier: sp_AnnotationCRUD;
+				}
+				StringParameter sp_AnnotationCRUD {
+					Definition: {
+						if sp_addEditElement then 
+						    "green-input"
+						else 
+						    "red-input"
+						endif;
+					}
+				}
+				Section CRUD_TypeOfCost {
+					Procedure pr_OpenAddTypeOfCost {
+						Body: {
+							empty sp_addEditElement;
+							
+							webui::OpenDialogPage(
+								pageId  :  'CRUD', 
+								title   :  "Add Type Cost", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_AddTypeOfCost');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_AddTypeOfCost {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    ep_TypeofCost := StringToElement(s_TypeOfCost, sp_addEditElement, 1);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_OpenEditTypeOfCost {
+						Body: {
+							sp_addEditElement := ep_TypeofCost;
+							
+							webui::OpenDialogPage(
+								pageId  :  'CRUD', 
+								title   :  "Edit Type of Cost", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_EditTypeOfCost');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_EditTypeOfCost {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    SetElementRename(s_TypeOfCost, ep_TypeofCost , sp_addEditElement);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_DeleteTypeOfCost {
+						Body: {
+							s_TypeOfCost -= ep_TypeofCost;
+							
+							ep_TypeofCost := first(i_CostType);
+						}
+					}
+				}
+				Section CRUD_Vessel {
+					Procedure pr_OpenAddVessel {
+						Body: {
+							empty sp_addEditElement;
+							
+							webui::OpenDialogPage(
+								pageId  :  'CRUD', 
+								title   :  "Add Vessel", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_AddVessel');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_AddVessel {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    ep_Vessel := StringToElement(s_FleetVessels, sp_addEditElement, 1);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_OpenEditVessel {
+						Body: {
+							sp_addEditElement := ep_Vessel;
+							
+							webui::OpenDialogPage(
+								pageId  :  'crud', 
+								title   :  "Edit Vessel", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_EditVessel');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_EditVessel {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    SetElementRename(s_FleetVessels , ep_Vessel , sp_addEditElement);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_DeleteVessel {
+						Body: {
+							s_FleetVessels -= ep_Vessel;
+							
+							ep_Vessel := first(i_vessel);
+						}
+					}
+				}
+				Section CRUD_Cargoes {
+					Procedure pr_OpenAddCargoes {
+						Body: {
+							empty sp_addEditElement;
+							
+							webui::OpenDialogPage(
+								pageId  :  'CRUD', 
+								title   :  "Add Cargoes", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_AddCargoes');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_AddCargoes {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    ep_cargo := StringToElement(s_Cargoes, sp_addEditElement, 1);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_OpenEditCargoes {
+						Body: {
+							sp_addEditElement := ep_cargo;
+							
+							webui::OpenDialogPage(
+								pageId  :  'crud', 
+								title   :  "Edit Cargoes", 
+								actions :  s_loc_actions, 
+								onDone  :  'pr_EditCargoes');
+						}
+						Set s_loc_actions {
+							InitialData: {
+								{'Cancel', 'OK'}
+							}
+						}
+					}
+					Procedure pr_EditCargoes {
+						Arguments: sp_arg_action;
+						Body: {
+							if sp_arg_action = 'OK' then
+							    SetElementRename(s_Cargoes, ep_cargo , sp_addEditElement);
+							endif;
+						}
+						StringParameter sp_arg_action {
+							Property: Input;
+						}
+					}
+					Procedure pr_DeleteCargoes {
+						Body: {
+							s_Cargoes -= ep_cargo;
+							
+							ep_cargo := first(i_cargo);
+						}
+					}
+				}
+			}
+			Section Pages {
+				DeclarationSection Master_PageAction {
+					StringParameter sp_masterSecondaryActions;
+					StringParameter sp_TypeOfCostItemActions {
+						IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+						Text: "z";
+						Definition: {
+							data 
+							{
+							  ( p_ActiveCargoesCost      , 2, displaytext ) : "Edit",
+							  ( p_ActiveCargoesCost      , 2, icon        ) : "aimms-pencil2",
+							  ( p_ActiveCargoesCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+							  ( p_ActiveCargoesCost      , 2, state       ) : "active",
+							  ( p_ActiveCargoesCost      , 3, displaytext ) : "Delete",
+							  ( p_ActiveCargoesCost      , 3, icon        ) : "aimms-eraser2",
+							  ( p_ActiveCargoesCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+							  ( p_ActiveCargoesCost      , 3, state       ) : "active",
+							  ( p_ActiveLocationCost      , 2, displaytext ) : "Edit",
+							  ( p_ActiveLocationCost      , 2, icon        ) : "aimms-pencil2",
+							  ( p_ActiveLocationCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+							  ( p_ActiveLocationCost      , 2, state       ) : "active",
+							  ( p_ActiveLocationCost      , 3, displaytext ) : "Delete",
+							  ( p_ActiveLocationCost      , 3, icon        ) : "aimms-eraser2",
+							  ( p_ActiveLocationCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+							  ( p_ActiveLocationCost      , 3, state       ) : "active" ,
+							  ( p_ActiveVesselCost      , 2, displaytext ) : "Edit",
+							  ( p_ActiveVesselCost      , 2, icon        ) : "aimms-pencil2",
+							  ( p_ActiveVesselCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+							  ( p_ActiveVesselCost      , 2, state       ) : "active",
+							  ( p_ActiveVesselCost      , 3, displaytext ) : "Delete",
+							  ( p_ActiveVesselCost      , 3, icon        ) : "aimms-eraser2",
+							  ( p_ActiveVesselCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+							  ( p_ActiveVesselCost      , 3, state       ) : "active"  }
+						}
+					}
+					StringParameter sp_VesselItemActions {
+						IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+						Definition: {
+							data 
+							{  ( p_ActiveVessels     , 2, displaytext ) : "Edit",
+							  ( p_ActiveVessels      , 2, icon        ) : "aimms-pencil2",
+							  ( p_ActiveVessels      , 2, procedure   ) : "pr_OpenEditVessel",
+							  ( p_ActiveVessels      , 2, state       ) : "active",
+							  ( p_ActiveVessels      , 3, displaytext ) : "Delete",
+							  ( p_ActiveVessels      , 3, icon        ) : "aimms-eraser2",
+							  ( p_ActiveVessels      , 3, procedure   ) : "pr_DeleteVessel",
+							  ( p_ActiveVessels      , 3, state       ) : "active" }
+						}
+					}
+					StringParameter sp_CargoesItemActions {
+						IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+						Definition: {
+							data 
+							{  (p_ActiveCargoes      , 2, displaytext ) : "Edit",
+							  (p_ActiveCargoes      , 2, icon        ) : "aimms-pencil2",
+							  (p_ActiveCargoes      , 2, procedure   ) : "pr_OpenEditCargoes",
+							  (p_ActiveCargoes      , 2, state       ) : "active",
+							  (p_ActiveCargoes      , 3, displaytext ) : "Delete",
+							  (p_ActiveCargoes      , 3, icon        ) : "aimms-eraser2",
+							  (p_ActiveCargoes      , 3, procedure   ) : "pr_DeleteCargoes",
+							  (p_ActiveCargoes      , 3, state       ) : "active" }
+						}
+					}
+				}
+			}
+		}
+	}
+	Procedure PostMainInitialization {
+		Comment: {
+			"Add initialization statements here that require that the libraries are already initialized properly,
+			or add statements that require the Data Management module to be initialized."
+		}
+	}
+	Procedure MainInitialization {
+		Body: {
+			!Random see
+		}
+		Comment: "Add initialization statements here that do NOT require any library being initialized already.";
+	}
+	Procedure MainExecution {
+		Body: {
+			solve mp_SchedullingVessels;
+			sp_MyWorkFlowSteps(1,8,'workflowPageState') := "active";
+			sp_MyWorkFlowSteps(1,9,'workflowPageState') := "active";
+			
+			!Changes statusbar
+			sp_MyStatusBar(3,'icon') := "aimms-checkmark-circle";
+			sp_MyStatusBar(3,'color') := "Green";
+			sp_MyStatusBar(3,'tooltip') := "The model has been solved.";
+			
+			!Active Routes
+			p_Allocatedroutes(i_allcRoute) := 1;
+			
+			!Determine time cargoes
+			pr_determineLoadingAndDelivering;
+			
+			!Na het oplossen moeten sommige waarden omgezet worden naar datums
+			pr_ConvertToDate;
+			
+			!Get the arcs
+			pr_CalculateAllArcs;
+		}
+	}
+	Procedure PreMainTermination {
+		Body: {
+			return DataManagementExit();
+		}
+		Comment: {
+			"Add termination statements here that require all libraries to be still alive.
+			Return 1 if you allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence."
+		}
+	}
+	Procedure MainTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that do not require all libraries to be still alive.
+			Return 1 to allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence.
+			It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+		}
+	}
+	Section Quantities_and_Units {
+		Comment: {
+			"This section contains all the units and quantities that are added automatically by AIMMS.
+			It is recommended to declare all your quantities here."
+		}
+		Quantity SI_Time_Duration {
+			BaseUnit: s;
+			Conversions: {
+				day->s : #-># * 86400,
+				minute->s : #-># * 60
+			}
+			Comment: {
+				"Expresses the value for the duration of periods.
+				
+				The unit s has been added automatically because it is a required unit for AimmsWebUI.
+				
+				The unit minute has been added automatically because it is a required unit for AimmsWebUI.
+				
+				The unit minute has been added automatically because it is a required unit for AimmsWebUI."
+			}
+		}
+		Quantity Q_Currency {
+			BaseUnit: $;
+		}
+	}
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping>
+	<ObjectMapping>
+		<ArrayMapping name="rows">
+			<ObjectMapping>
+				<ValueMapping name="i_CostType" binds-to="i_CostType" />
+				<ValueMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
+				<ValueMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
+				<ValueMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+			</ObjectMapping>
+		</ArrayMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

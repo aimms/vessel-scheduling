@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping>
+	<ObjectMapping>
+		<RowMapping name="rows">
+			<ColumnMapping name="i_Loc" binds-to="i_Loc" />
+			<ColumnMapping name="i_Loc2" binds-to="i_Loc2" />
+			<ColumnMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
+		</RowMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

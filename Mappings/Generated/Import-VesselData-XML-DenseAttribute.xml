@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<AimmsXMLMapping>
+	<ElementObjectMapping name="VesselData">
+		<ElementObjectMapping name="Row" dense-children="1">
+			<AttributeMapping name="i_vessel" binds-to="i_vessel" />
+			<AttributeMapping name="Port of Origin" maps-to="ep_LoadingPortsVessel(i_vessel)" />
+		</ElementObjectMapping>
+	</ElementObjectMapping>
+</AimmsXMLMapping>

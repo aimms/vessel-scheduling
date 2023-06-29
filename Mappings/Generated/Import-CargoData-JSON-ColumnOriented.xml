@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping>
+	<ObjectMapping>
+		<ColumnMapping name="columns">
+			<RowMapping name="i_cargo" binds-to="i_cargo" />
+			<RowMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
+			<RowMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
+			<RowMapping name="Spotcost on Vessel" maps-to="p_SpotCostVessel(i_cargo)" />
+			<RowMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
+			<RowMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
+		</ColumnMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

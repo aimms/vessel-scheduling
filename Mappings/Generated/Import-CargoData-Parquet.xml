@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AimmsParquetMapping>
+	<RowMapping name="CargoData">
+		<ColumnMapping name="i_cargo" binds-to="i_cargo" />
+		<ColumnMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
+		<ColumnMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
+		<ColumnMapping name="Spotcost on Vessel" maps-to="p_SpotCostVessel(i_cargo)" />
+		<ColumnMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
+		<ColumnMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
+	</RowMapping>
+</AimmsParquetMapping>

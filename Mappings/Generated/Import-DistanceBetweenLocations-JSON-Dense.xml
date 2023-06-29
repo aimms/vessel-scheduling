@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping>
+	<ObjectMapping>
+		<ArrayMapping name="rows">
+			<ObjectMapping dense-children="1">
+				<ValueMapping name="i_Loc" binds-to="i_Loc" />
+				<ValueMapping name="i_Loc2" binds-to="i_Loc2" />
+				<ValueMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
+			</ObjectMapping>
+		</ArrayMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsXMLMapping>
+	<ElementObjectMapping name="DistanceBetweenLocations">
+		<ElementObjectMapping name="Row">
+			<AttributeMapping name="i_Loc" binds-to="i_Loc" />
+			<AttributeMapping name="i_Loc2" binds-to="i_Loc2" />
+			<AttributeMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
+		</ElementObjectMapping>
+	</ElementObjectMapping>
+</AimmsXMLMapping>

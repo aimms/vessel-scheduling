@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<AimmsParquetMapping>
+	<RowMapping name="VesselData">
+		<ColumnMapping name="i_vessel" binds-to="i_vessel" />
+		<ColumnMapping name="Port of Origin" maps-to="ep_LoadingPortsVessel(i_vessel)" />
+	</RowMapping>
+</AimmsParquetMapping>
