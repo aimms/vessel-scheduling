@@ -1,0 +1,35 @@
+:root {
+  --primaryDark: #DA2063;
+  --primaryDarker: #FF4940;
+  --secondary90Transparent: #2e324f38;
+  --secondary: #2E324F;
+
+  --bg_app-logo: 15px 50% / 40px 40px no-repeat url(/app-resources/resources/images/schedule.png); /*app logo*/
+  --spacing_app-logo_width: 60px;
+  --color_border_app-header-divider: var(--secondary); /*line color after header*/
+
+  --color_workflow-item-divider: var(--secondary90Transparent); /*workflow step divider color*/
+  --color_bg_workflow_current: var(--primaryDark); /*bg color when step is selected*/
+  --color_workflow_active: var(--primaryDark); /*font and icon color when step is active*/
+  --color_workflow-icon-border: var(--primaryDark); /*round border of the step*/
+  --color_bg_workflow_active: none;
+
+  --color_bg_app-canvas: rgb(249, 249, 249); /*background color*/
+  --color_bg_widget-header: linear-gradient(90deg, rgba(255,73,64,0.75) 0%, rgba(218,32,99,0.75)  100%); /*widget header background color*/
+  --border_widget-header: 2px solid var(--secondary); /*line color after widget header*/
+
+  --color_text_widget-header: var(--secondary); 
+  --color_text_edit-select-link: var(--primaryDark);
+
+  --color_bg_button_primary: var(--primaryDark);
+  --color_bg_button_primary_hover: var(--primaryDarker);
+
+}
+
+.tag-slider .slider-value {
+  color: var(--color_text_edit-select-link);
+}
+
+.widget-menu__item .title {
+  color: var(--color_text_app-footer);
+}

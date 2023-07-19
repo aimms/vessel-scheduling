@@ -2309,6 +2309,27 @@
           "type": "rowHeader",
           "colKey": "i_ActiveLoc",
           "width": 36.95
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_IdleCostLocation"
+          },
+          "width": 21.02
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_Longitude"
+          },
+          "width": 18.21
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_Latitude"
+          },
+          "width": 15.41
         }
       ]
     },
@@ -2479,6 +2500,20 @@
           "type": "rowHeader",
           "colKey": "i_ActiveLoc",
           "width": 36.99
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_CostType": "Loading"
+          },
+          "width": 21.63
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_CostType": "Admin"
+          },
+          "width": 21.63
         }
       ]
     },
@@ -2710,10 +2745,10 @@
       }
     },
     "center.latitude": {
-      "literal": -10.418662120649854
+      "literal": -9.275622176792098
     },
     "center.longitude": {
-      "literal": 31.816686369266344
+      "literal": 47.33197288687847
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -2993,10 +3028,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 0.4099385563204084
+      "literal": -18.81271785640776
     },
     "center.longitude": {
-      "literal": 1.4667906727926905
+      "literal": 77.71619245524298
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3376,10 +3411,10 @@
       }
     },
     "center.latitude": {
-      "literal": -16.096495143738986
+      "literal": -4.390228926463384
     },
     "center.longitude": {
-      "literal": 30.769001850924594
+      "literal": 58.21882060055026
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4520,10 +4555,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -1.3358229028065652
+      "literal": -1.5818302639606457
     },
     "center.longitude": {
-      "literal": 23.33867633587976
+      "literal": -24.609375000000005
     },
     "heatmaps.__display_order__": {
       "literal": [

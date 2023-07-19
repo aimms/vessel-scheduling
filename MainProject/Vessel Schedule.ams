@@ -875,7 +875,7 @@ Model Main_Vessel_Schedule {
 		DeclarationSection Declaration_Workflow {
 			StringParameter sp_MyWorkFlows {
 				IndexDomain: (webui::indexWorkflowOrder,webui::indexWorkflowSpec);
-				Definition: data { ( 1, title ) : "Vessel Scheduling" };
+				Definition: data { ( 1, title ) : "" };
 			}
 			StringParameter sp_MyWorkFlowSteps {
 				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
@@ -886,7 +886,7 @@ Model Main_Vessel_Schedule {
 					  ( 1, 1, pageId            ) : "introduction_problem",
 					  ( 1, 1, tooltip           ) : "Welcome ",
 					  ( 1, 1, workflowPageState ) : "Active",
-					  ( 1, 2, displayText       ) : "Problem Statement",
+					  ( 1, 2, displayText       ) : "Story",
 					  ( 1, 2, icon              ) : "aimms-book",
 					  ( 1, 2, pageId            ) : "problem_statement",
 					  ( 1, 2, tooltip           ) : "Short statement about the problem",
@@ -901,7 +901,6 @@ Model Main_Vessel_Schedule {
 					  ( 1, 4, pageId            ) : "overview_datasets",
 					  ( 1, 4, tooltip           ) : "Overview of all the data",
 					  ( 1, 4, workflowPageState ) : "Inactive",
-					  ( 1, 4, redirectPageId    ) : "vessel_overview",
 					  ( 1, 5, displayText       ) : "Locations",
 					  ( 1, 5, icon              ) : "aimms-location5",
 					  ( 1, 5, pageId            ) : "locations_overview",
@@ -924,12 +923,12 @@ Model Main_Vessel_Schedule {
 					  ( 1, 8, icon              ) : "aimms-stats-decline",
 					  ( 1, 8, pageId            ) : "optimized_results",
 					  ( 1, 8, tooltip           ) : "Results after solving the model",
-					  ( 1, 8, workflowPageState ) : "active",
+					  ( 1, 8, workflowPageState ) : "Inactive",
 					  ( 1, 9, displayText       ) : "Visualisations",
 					  ( 1, 9, icon              ) : "aimms-pie-chart8",
 					  ( 1, 9, pageId            ) : "all_visualisations",
 					  ( 1, 9, tooltip           ) : "All visualisations explaining results",
-					  ( 1, 9, workflowPageState ) : "active" }
+					  ( 1, 9, workflowPageState ) : "Inactive" }
 				}
 			}
 			StringParameter MyWorkflowStepsFoldingStates {
@@ -972,8 +971,7 @@ Model Main_Vessel_Schedule {
 				Definition: {
 					data 
 					{ ( 1, displayText ) : "Random Data"          ,  ( 1, pageId      ) : "side_panel_randomdata",
-					  ( 1, icon        ) : "aimms-shuffle"        ,  ( 1, iconcolor   ) : "blue"                 ,
-					  ( 1, state       ) : "Active"                }
+					  ( 1, icon        ) : "aimms-shuffle"        ,  ( 1, state       ) : "Active"                }
 				}
 			}
 			StringParameter sp_SelectRouteSidePanel {
