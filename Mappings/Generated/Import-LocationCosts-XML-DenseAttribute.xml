@@ -2,9 +2,9 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="LocationCosts">
 		<ElementObjectMapping name="Row" dense-children="1">
-			<AttributeMapping name="i_Loc" binds-to="i_Loc" />
-			<AttributeMapping name="i_CostType" binds-to="i_CostType" />
-			<AttributeMapping name="Costs" maps-to="p_LocationCost(i_Loc,i_CostType)" />
+			<AttributeMapping name="Location" binds-to="i_loc" />
+			<AttributeMapping name="Cost Type" binds-to="i_ct" />
+			<AttributeMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

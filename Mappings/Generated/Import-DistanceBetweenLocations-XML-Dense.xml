@@ -2,9 +2,9 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="DistanceBetweenLocations">
 		<ElementObjectMapping name="Row" dense-children="1">
-			<AttributeMapping name="i_Loc" binds-to="i_Loc" />
-			<AttributeMapping name="i_Loc2" binds-to="i_Loc2" />
-			<ElementValueMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
+			<AttributeMapping name="Location (From)" binds-to="i_loc_from" />
+			<AttributeMapping name="Location (To)" binds-to="i_loc_to" />
+			<ElementValueMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_loc_from,i_loc_to)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

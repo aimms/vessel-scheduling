@@ -1,0 +1,585 @@
+## ams_version=1.0
+
+LibraryModule UserInterface {
+	Prefix: ui;
+	Interface: UserInterface;
+	StringParameter sp_Logo {
+		Definition: "aimms_logo.png";
+	}
+	Section CRUD {
+		Procedure pr_empty;
+		StringParameter sp_addEditElement;
+		Section CRUD_Vessel {
+			Procedure pr_openAddVessel {
+				Body: {
+					empty sp_AddEditElement;
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Vessel", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_AddVessel');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addVessel {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_Vessel := StringToElement(s_vessels, sp_AddEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditVessel {
+				Body: {
+					sp_AddEditElement := ep_Vessel;
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Vessel", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_EditVessel');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editVessel {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_vessels , ep_Vessel , sp_AddEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteVessel {
+				Body: {
+					s_vessels -= ep_Vessel;
+					
+					ep_Vessel := first(i_vessel);
+				}
+			}
+		}
+		Section CRUD_Cargo {
+			Procedure pr_openAddCargo {
+				Body: {
+					empty sp_AddEditElement;
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Cargoes", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_AddCargoes');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addCargo {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_cargo := StringToElement(s_cargoes, sp_AddEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditCargo {
+				Body: {
+					sp_AddEditElement := ep_cargo;
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Cargoes", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_EditCargoes');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editCargo {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_cargoes, ep_cargo , sp_AddEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteCargo {
+				Body: {
+					s_cargoes -= ep_cargo;
+					
+					ep_cargo := first(i_cargo);
+				}
+			}
+		}
+		Section CRUD_Cost_Type {
+			Procedure pr_openAddCostType {
+				Body: {
+					empty sp_AddEditElement;
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Cost Type", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_AddTypeOfCost');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addCostType {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_costType := StringToElement(s_costTypes, sp_AddEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditCostType {
+				Body: {
+					sp_AddEditElement := ep_costType;
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Edit Cost Type", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_EditTypeOfCost');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editCostType {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_costTypes, ep_costType , sp_AddEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteCostType {
+				Body: {
+					s_costTypes -= ep_costType;
+					
+					ep_costType := first(i_ct);
+				}
+			}
+		}
+	}
+	Section System {
+		DeclarationSection System_Workflow {
+			StringParameter sp_systemWorkFlows {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexWorkflowSpec);
+				Definition: data { ( 1, title ) : "" };
+			}
+			StringParameter sp_systemWorkFlowSteps {
+				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
+				InitialData: {
+					data 
+					{ ( 1, 1, displayText       ) : "Welcome",
+					  ( 1, 1, icon              ) : "aimms-happy",
+					  ( 1, 1, pageId            ) : "introduction_problem",
+					  ( 1, 1, tooltip           ) : "Welcome ",
+					  ( 1, 1, workflowPageState ) : "Active",
+					  ( 1, 2, displayText       ) : "Story",
+					  ( 1, 2, icon              ) : "aimms-book",
+					  ( 1, 2, pageId            ) : "problem_statement",
+					  ( 1, 2, tooltip           ) : "Short statement about the problem",
+					  ( 1, 2, workflowPageState ) : "Active",
+					  ( 1, 3, displayText       ) : "Master",
+					  ( 1, 3, icon              ) : "aimms-equalizer2",
+					  ( 1, 3, pageId            ) : "overview_costs",
+					  ( 1, 3, tooltip           ) : "Overview of all the sets",
+					  ( 1, 3, workflowPageState ) : "Active",
+					  ( 1, 4, displayText       ) : "Overview Datasets",
+					  ( 1, 4, icon              ) : "aimms-equalizer2",
+					  ( 1, 4, pageId            ) : "overview_datasets",
+					  ( 1, 4, tooltip           ) : "Overview of all the data",
+					  ( 1, 4, workflowPageState ) : "Inactive",
+					  ( 1, 5, displayText       ) : "Locations",
+					  ( 1, 5, icon              ) : "aimms-location5",
+					  ( 1, 5, pageId            ) : "locations_overview",
+					  ( 1, 5, tooltip           ) : "Location data",
+					  ( 1, 5, workflowPageState ) : "Active",
+					  ( 1, 5, parentPageId      ) : "overview_datasets",
+					  ( 1, 6, displayText       ) : "Cargoes",
+					  ( 1, 6, icon              ) : "aimms-package",
+					  ( 1, 6, pageId            ) : "cargoes_overview",
+					  ( 1, 6, tooltip           ) : "Cargoes data",
+					  ( 1, 6, workflowPageState ) : "Active",
+					  ( 1, 6, parentPageId      ) : "overview_datasets",
+					  ( 1, 7, displayText       ) : "Vessel",
+					  ( 1, 7, icon              ) : "aimms-ship",
+					  ( 1, 7, pageId            ) : "vessel_overview",
+					  ( 1, 7, tooltip           ) : "Vessel data",
+					  ( 1, 7, workflowPageState ) : "Active",
+					  ( 1, 7, parentPageId      ) : "overview_datasets",
+					  ( 1, 8, displayText       ) : "Optimized Results",
+					  ( 1, 8, icon              ) : "aimms-stats-decline",
+					  ( 1, 8, pageId            ) : "optimized_results",
+					  ( 1, 8, tooltip           ) : "Results after solving the model",
+					  ( 1, 8, workflowPageState ) : "active",
+					  ( 1, 9, displayText       ) : "Visualizations",
+					  ( 1, 9, icon              ) : "aimms-pie-chart8",
+					  ( 1, 9, pageId            ) : "all_visualisations",
+					  ( 1, 9, tooltip           ) : "All visualisations explaining results",
+					  ( 1, 9, workflowPageState ) : "active" }
+				}
+			}
+			StringParameter sp_systemWorkflowFoldingStates {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexNoOfPages,webui::indexOpenCloseProps);
+				InitialData: data { ( 1, 3, openClose ) : "open",  ( 1, 7, openClose ) : "close" };
+			}
+		}
+		DeclarationSection System_Page_Action {
+			StringParameter sp_systemSecondaryActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexPageActionSpec);
+				InitialData: {
+					data 
+					{ ( 1, displaytext ) : "Import"                         ,  ( 1, icon        ) : "aimms-database-insert"          ,
+					  ( 1, procedure   ) : "pr_ImportDataExcel"             ,  ( 1, state       ) : "Active"                         ,
+					  ( 2, displaytext ) : "Export"                         ,  ( 2, icon        ) : "aimms-database-export"          ,
+					  ( 2, procedure   ) : "pr_ExportData"                  ,  ( 2, state       ) : "Active"                         ,
+					  ( 3, displaytext ) : "Generate Routes"                ,  ( 3, icon        ) : "aimms-database-refresh"         ,
+					  ( 3, procedure   ) : "pr_ActivecalculateRoutesAndCost",  ( 3, state       ) : "inactive"                       ,
+					  ( 4, displaytext ) : "Solve"                          ,  ( 4, icon        ) : "aimms-spinner3"                 ,
+					  ( 4, procedure   ) : "MainExecution"                  ,  ( 4, state       ) : "inactive"                       ,
+					  ( 5, displaytext ) : "Delete Data"                    ,  ( 5, icon        ) : "aimms-bin2"                     ,
+					  ( 5, procedure   ) : "pr_DeleteData"                  ,  ( 5, state       ) : "Active"                          }
+				}
+			}
+		}
+		DeclarationSection System_Status_Bar {
+			StringParameter sp_systemStatusBar {
+				IndexDomain: (webui::indexApplicationExtension,webui::indexStatusBarSpec);
+				InitialData: {
+					data 
+					{ ( 1, header    ) : "Import"                           ,  ( 1, icon      ) : "aimms-circle2"                    ,
+					  ( 1, color     ) : "Orange"                           ,  ( 1, text      ) : "."                                ,
+					  ( 1, tooltip   ) : "Application ready for import."    ,  ( 1, procedure ) : "pr_ImportDataExcel"               ,
+					  ( 1, state     ) : "Active"                           ,  ( 2, header    ) : "Generated Routes"                 ,
+					  ( 2, icon      ) : "aimms-cancel-circle2"             ,  ( 2, color     ) : "Red"                              ,
+					  ( 2, text      ) : "."                                ,  ( 2, tooltip   ) : "Routes not ready to be generated.",
+					  ( 2, procedure ) : "pr_ActiveCalculateRoutesAndCost"  ,  ( 2, state     ) : "InActive"                         ,
+					  ( 3, header    ) : "Model Solved"                     ,  ( 3, icon      ) : "aimms-cancel-circle2"             ,
+					  ( 3, color     ) : "Red"                              ,  ( 3, text      ) : "."                                ,
+					  ( 3, tooltip   ) : "Model not ready to be solved."    ,  ( 3, procedure ) : "MainExecution"                    ,
+					  ( 3, state     ) : "InActive"                         ,  ( 4, header    ) : "ExcelFile"                        ,
+					  ( 4, icon      ) : "aimms-briefcase"                  ,  ( 4, text      ) : "DataForImport.xlsx"               ,
+					  ( 4, state     ) : "Inactive"                          }
+				}
+			}
+		}
+	}
+	Section Pages {
+		Section Story_Page;
+		Section Master_Page {
+			Section Random_Data {
+				Procedure pr_generateRandomData {
+					Body: {
+						empty s_vessels;
+						empty s_cargoes;
+						empty s_locations;
+						empty s_costTypes;
+						
+						!Importeren van de data
+						dex::AddMapping(
+						    mappingName : "ImportData", 
+						    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+						
+						dex::ReadFromFile(
+						    dataFile : "data\\LocationData.xlsx", 
+						    mappingName : "ImportData");
+						
+						!Define char
+						sp_CharacterCargo := "a";
+						
+						!Making vessel en vesselcost data
+						setelementadd(s_costTypes,ep_costType,"Fuel");
+						setelementadd(s_costTypes,ep_costType,"Crew");
+						
+						while card(s_vessels)<p_totalVessels do
+						    !VesselData
+						    setelementadd(s_vessels,ep_Vessel,"Vessel"+(1+card(s_vessels)));
+						    ep_originPortOfVessel(ep_Vessel):= nth(i_Loc,round(uniform(1,card(s_Locations))));
+						
+						    !VesselCost Data
+						    p_VesselCostDay(ep_Vessel, 'Fuel') := (round(uniform(50,200)))[$/day];
+						    p_VesselCostDay(ep_Vessel, 'Crew') := (round(uniform(50,200)))[$/day];
+						endwhile;
+						
+						
+						!Making CargoData
+						setelementadd(s_costTypes,ep_costType,"Loading");
+						setelementadd(s_costTypes,ep_costType,"Admin");
+						setelementadd(s_costTypes,ep_costType,"Unloading");
+						p_NumCharacter :=0;
+						
+						while card(s_cargoes)<p_totalCargoes do
+						    !Change Character for Cargo   
+						    if mod(card(s_cargoes),5) = 0 then
+						        p_NumCharacter+=1;
+						    endif;
+						    sp_CharacterCargo := substring(sp_Alphabet,p_NumCharacter,p_NumCharacter);
+						
+						    !CargoData
+						    setelementadd(s_cargoes,ep_cargo,sp_CharacterCargo+(1+mod(card(s_cargoes),5)));
+						    ep_LoadingPortsCargo(ep_cargo) := nth(i_Loc,round(uniform(1,card(s_Locations))));
+						    ep_DeliveringPortsCargo(ep_cargo) := nth(i_Loc | i_Loc <> ep_LoadingPortsCargo(ep_cargo),round(uniform(1,card(s_Locations))));
+						
+						    !CargoCost Data
+						    p_SpotCostVessel(ep_cargo) := (round(uniform(10000,20000)))[$];
+						    p_CargoCost(ep_cargo, 'Loading') := (round(uniform(1000,4000)))[$];
+						    p_CargoCost(ep_cargo, 'Unloading') := (round(uniform(1000,4000)))[$];
+						    p_CargoCost(ep_cargo, 'Admin') := (round(uniform(100,400)))[$];
+						
+						    !Dates
+						    ep_MinTimeWindow(ep_cargo) := ep_StartHorizonDate+round(uniform(0,182));
+						    ep_MaxTimeWindow(ep_cargo) := ep_MinTimeWindow(ep_cargo)+round(uniform(0,10));
+						
+						endwhile;
+						
+						!Making Location Data
+						p_LocationCost(i_Loc, 'Loading'):=(round(uniform(1000,4000)))[$];
+						p_LocationCost(i_Loc, 'Admin') := (round(uniform(100,400)))[$];
+						
+						!Generating Distance Matrix
+						p_DistanceBetweenLocations(i_Loc, i_loc_from) | i_loc_from<i_Loc  := (round(uniform(5,60)))[day];
+						p_DistanceBetweenLocations(i_Loc, i_loc_from) | i_loc_from>i_Loc  := p_DistanceBetweenLocations(i_loc_from, i_Loc);    
+						
+						!Activate all master data
+						bp_activeCargoes(i_cargo):= 1;
+						bp_activeVessels(i_vessel) := 1;
+						p_AllocatedCargoes(i_act_cargo) :=1;
+						
+						!Activate generating routes
+						sp_systemSecondaryActions(3,'state'):= 'active';
+						sp_systemSecondaryActions(4,'state') := 'inactive';
+						
+						!Changes to status bar
+						sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
+						sp_systemStatusBar(1,'color') := "Green";
+						sp_systemStatusBar(1,'tooltip') := "Data is succesfully imported.";
+						sp_systemStatusBar(2,'color') := "Orange";
+						sp_systemStatusBar(2,'icon'):= "aimms-circle2";
+						sp_systemStatusBar(2,'tooltip') := "Application ready to generate routes.";
+						sp_systemStatusBar(2,'state') := "active";
+						sp_systemStatusBar(3,'color') := "red";
+						sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
+						sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
+						sp_systemStatusBar(3,'state') := 'inactive';
+						
+						!Pages connecting
+						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
+						sp_systemWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+						
+						!Open Overview dataset
+						sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
+					}
+					StringParameter sp_CharacterCargo {
+						InitialData: "a";
+					}
+					StringParameter sp_Alphabet {
+						InitialData: "abcdefghijklmnopqrstuvwxyz";
+					}
+					Parameter p_NumCharacter;
+				}
+				Parameter p_totalCargoes {
+					Range: nonnegative;
+					InitialData: 1;
+				}
+				Parameter p_totalVessels {
+					Range: nonnegative;
+					InitialData: 1;
+				}
+			}
+			StringParameter sp_masterSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Random Data"          ,  ( 1, pageId      ) : "side_panel_randomdata",
+					  ( 1, icon        ) : "aimms-shuffle"        ,  ( 1, state       ) : "Active"                }
+				}
+			}
+			StringParameter sp_cargoesItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  (p_ActiveCargoes      , 2, displaytext ) : "Edit",
+					  (p_ActiveCargoes      , 2, icon        ) : "aimms-pencil2",
+					  (p_ActiveCargoes      , 2, procedure   ) : "pr_OpenEditCargoes",
+					  (p_ActiveCargoes      , 2, state       ) : "active",
+					  (p_ActiveCargoes      , 3, displaytext ) : "Delete",
+					  (p_ActiveCargoes      , 3, icon        ) : "aimms-eraser2",
+					  (p_ActiveCargoes      , 3, procedure   ) : "pr_DeleteCargoes",
+					  (p_ActiveCargoes      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_VesselItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  ( p_ActiveVessels     , 2, displaytext ) : "Edit",
+					  ( p_ActiveVessels      , 2, icon        ) : "aimms-pencil2",
+					  ( p_ActiveVessels      , 2, procedure   ) : "pr_OpenEditVessel",
+					  ( p_ActiveVessels      , 2, state       ) : "active",
+					  ( p_ActiveVessels      , 3, displaytext ) : "Delete",
+					  ( p_ActiveVessels      , 3, icon        ) : "aimms-eraser2",
+					  ( p_ActiveVessels      , 3, procedure   ) : "pr_DeleteVessel",
+					  ( p_ActiveVessels      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_TypeOfCostItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{
+					  ( p_ActiveCargoesCost      , 2, displaytext ) : "Edit",
+					  ( p_ActiveCargoesCost      , 2, icon        ) : "aimms-pencil2",
+					  ( p_ActiveCargoesCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+					  ( p_ActiveCargoesCost      , 2, state       ) : "active",
+					  ( p_ActiveCargoesCost      , 3, displaytext ) : "Delete",
+					  ( p_ActiveCargoesCost      , 3, icon        ) : "aimms-eraser2",
+					  ( p_ActiveCargoesCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+					  ( p_ActiveCargoesCost      , 3, state       ) : "active",
+					  ( p_ActiveLocationCost      , 2, displaytext ) : "Edit",
+					  ( p_ActiveLocationCost      , 2, icon        ) : "aimms-pencil2",
+					  ( p_ActiveLocationCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+					  ( p_ActiveLocationCost      , 2, state       ) : "active",
+					  ( p_ActiveLocationCost      , 3, displaytext ) : "Delete",
+					  ( p_ActiveLocationCost      , 3, icon        ) : "aimms-eraser2",
+					  ( p_ActiveLocationCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+					  ( p_ActiveLocationCost      , 3, state       ) : "active" ,
+					  ( p_ActiveVesselCost      , 2, displaytext ) : "Edit",
+					  ( p_ActiveVesselCost      , 2, icon        ) : "aimms-pencil2",
+					  ( p_ActiveVesselCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
+					  ( p_ActiveVesselCost      , 2, state       ) : "active",
+					  ( p_ActiveVesselCost      , 3, displaytext ) : "Delete",
+					  ( p_ActiveVesselCost      , 3, icon        ) : "aimms-eraser2",
+					  ( p_ActiveVesselCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
+					  ( p_ActiveVesselCost      , 3, state       ) : "active"  }
+				}
+			}
+		}
+		Section Locations_Page;
+		Section Cargoes_Page {
+			StringParameter sp_cargoesSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Map Info"               ,  ( 1, pageId      ) : "side_panel_legend_cargo",
+					  ( 1, icon        ) : "aimms-list2"            ,  ( 1, state       ) : "Active"                  }
+				}
+			}
+			Parameter p_AllocatedCargoes {
+				IndexDomain: i_act_cargo;
+				Range: binary;
+			}
+			Parameter p_SizeCargoesLocation {
+				IndexDomain: i_Loc;
+				Definition: 1;
+				webui::AnnotationsIdentifier: sp_PortsCargoPageAnnotation(i_Loc);
+			}
+			Set s_SubsetCargoLoadingPorts {
+				SubsetOf: s_locations;
+				Index: i_CargoLocLoad;
+				Definition: {
+					{i_Loc|exists(i_selectedCargo | i_Loc = ep_LoadingPortsCargo(i_selectedCargo))}
+				}
+			}
+			Set s_SubsetCargoDeleveringPorts {
+				SubsetOf: s_locations;
+				Index: i_CargoLocDel;
+				Definition: {
+					{i_Loc|exists(i_selectedCargo | i_Loc = ep_DeliveringPortsCargo(i_selectedCargo))}
+				}
+			}
+		}
+		Section Vessel_Page;
+		Section Optimized_Results_Page {
+			StringParameter sp_optimizedResultsPageSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "KPIs "             ,  ( 1, pageId      ) : "side_panel_results",
+					  ( 1, icon        ) : "aimms-meter-fast"  ,  ( 1, state       ) : "Active"            ,
+					  ( 2, displayText ) : "Select Route"      ,  ( 2, pageId      ) : "select_route_panel",
+					  ( 2, icon        ) : "aimms-select2"     ,  ( 2, state       ) : "Active"             }
+				}
+			}
+		}
+		Section Visualizations_Page {
+			StringParameter sp_visualizationsSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Map Options"            ,  ( 1, pageId      ) : "select_route_side_panel",
+					  ( 1, icon        ) : "aimms-menu4"            ,  ( 1, state       ) : "Active"                  }
+				}
+			}
+		}
+	}
+	Procedure LibraryInitialization {
+		Comment: "Add initialization statements here that do not require any other library being initialized already.";
+	}
+	Procedure PostLibraryInitialization {
+		Comment: {
+			"Add initialization statements here that require another library to be initialized already,
+			or add statements that require the Data Management module to be initialized."
+		}
+	}
+	Procedure PreLibraryTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that require all other libraries to be still alive.
+			Return 1 if you allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence."
+		}
+	}
+	Procedure LibraryTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that do not require other libraries to be still alive.
+			Return 1 to allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence.
+			It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+		}
+	}
+}

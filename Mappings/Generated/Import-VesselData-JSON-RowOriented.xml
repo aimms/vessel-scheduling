@@ -2,8 +2,8 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<RowMapping name="rows">
-			<ColumnMapping name="i_vessel" binds-to="i_vessel" />
-			<ColumnMapping name="Port of Origin" maps-to="ep_LoadingPortsVessel(i_vessel)" />
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
 		</RowMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

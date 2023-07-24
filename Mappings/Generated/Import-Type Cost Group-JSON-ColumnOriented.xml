@@ -2,10 +2,10 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<ColumnMapping name="columns">
-			<RowMapping name="i_CostType" binds-to="i_CostType" />
-			<RowMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
-			<RowMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
-			<RowMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+			<RowMapping name="Cost Type" binds-to="i_ct" />
+			<RowMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
+			<RowMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
+			<RowMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
 		</ColumnMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

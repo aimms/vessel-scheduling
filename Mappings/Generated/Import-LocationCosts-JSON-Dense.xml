@@ -3,9 +3,9 @@
 	<ObjectMapping>
 		<ArrayMapping name="rows">
 			<ObjectMapping dense-children="1">
-				<ValueMapping name="i_Loc" binds-to="i_Loc" />
-				<ValueMapping name="i_CostType" binds-to="i_CostType" />
-				<ValueMapping name="Costs" maps-to="p_LocationCost(i_Loc,i_CostType)" />
+				<ValueMapping name="Location" binds-to="i_loc" />
+				<ValueMapping name="Cost Type" binds-to="i_ct" />
+				<ValueMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

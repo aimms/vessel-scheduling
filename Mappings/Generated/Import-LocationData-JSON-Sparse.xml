@@ -3,10 +3,10 @@
 	<ObjectMapping>
 		<ArrayMapping name="rows">
 			<ObjectMapping>
-				<ValueMapping name="i_Loc" binds-to="i_Loc" />
-				<ValueMapping name="Latitude" maps-to="p_Latitude(i_Loc)" />
-				<ValueMapping name="Longitude" maps-to="p_Longitude(i_Loc)" />
-				<ValueMapping name="Idle Cost" maps-to="p_IdleCostLocation(i_Loc)" />
+				<ValueMapping name="Location" binds-to="i_loc" />
+				<ValueMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+				<ValueMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+				<ValueMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

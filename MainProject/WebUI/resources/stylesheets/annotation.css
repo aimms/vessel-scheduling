@@ -1,12 +1,12 @@
 /*Colloring datapoints*/
 .annotation-LoadPort{
-    fill:blue;
-    background: blue !important;
+    fill:#00A6F3;
+    background: #00A6F3 !important;
 }
 
 .annotation-DelPort{
-    fill:red;
-    background: red !important;    
+    fill: #ff3b30;
+    background: #ff3b30 !important;    
 }
 
 .annotation-VesPort{
@@ -15,13 +15,13 @@
 }
 
 .annotation-LoadAndDelPort{
-    fill:purple;
-    background: purple !important;
+    fill: rgb(97, 51, 156);
+    background: rgb(97, 51, 156) !important;
 }
 
 .annotation-VesAndLoadPort{
-    fill:rgb(255, 251, 0);
-    background: rgb(255, 251, 0) !important;
+    fill:#FFC100;
+    background: #FFC100 !important;
 }
 
 .annotation-VesAndDelPort{
@@ -33,18 +33,11 @@
     fill:rgb(0, 0, 0);
     background: rgb(0, 0, 0) !important;
 }
-.annotation-s_MasterLocations{
-    fill:blue;
-}
-
-.annotation-s_SubsetVesselPortOrigin{
-    fill:blue;
-}
 
 /*Color the cargoes on gantt chart*/
 .gantt-chart .chart-item{
-    fill: #44a8e2 !important;
-    stroke: black!important;
+    fill: #3D4368 !important;
+    stroke: #3D4368!important;
     stroke-width: 0.5 !important;
 }
 

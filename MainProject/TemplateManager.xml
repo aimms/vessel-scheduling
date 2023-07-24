@@ -1,10 +1,1 @@
 <?xml version="1.0"?>
-<TemplateManager>
-	<Page Name="All Data Pages" PageGUID="0919F6AD-CF3E-41A7-8B65-9EDFD6A4269A" />
-	<Page Name="[Data Page] p_CargoesOnRoute" PageGUID="F2C3AE95-BF2B-4E5A-B4A5-B97D95437309" />
-	<Page Name="[Data Page] p_CargoOnVesselForRoute" PageGUID="BA52C35C-5E41-44DF-9C43-6FBBBD1E5B87" Marked="true" />
-	<Page Name="[Data Page] p_CargoesOnRouteBin" PageGUID="D8FAC741-57D7-425D-BC18-AD40C80C17DA" />
-	<Page Name="[Data Page] v_CargoOnCharteredVessel" PageGUID="24CDCD21-7271-419A-8000-D8FC88181FD8" />
-	<Page Name="[Data Page] sp_MyPrimaryAction" PageGUID="1A9FF1A0-EFC6-4705-99F8-58626D72FDB0" Marked="true" />
-	<Page Name="[Data Page] v_AllocateVesselToRoute" PageGUID="1F26D9A4-FD82-48E6-9C92-84BB306C2729" />
-</TemplateManager>

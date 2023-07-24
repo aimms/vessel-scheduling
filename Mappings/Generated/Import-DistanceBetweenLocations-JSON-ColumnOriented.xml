@@ -2,9 +2,9 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<ColumnMapping name="columns">
-			<RowMapping name="i_Loc" binds-to="i_Loc" />
-			<RowMapping name="i_Loc2" binds-to="i_Loc2" />
-			<RowMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
+			<RowMapping name="Location (From)" binds-to="i_loc_from" />
+			<RowMapping name="Location (To)" binds-to="i_loc_to" />
+			<RowMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_loc_from,i_loc_to)" />
 		</ColumnMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

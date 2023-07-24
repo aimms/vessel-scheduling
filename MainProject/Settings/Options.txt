@@ -3,19 +3,27 @@ constraint_listing 3
 constraint_listing_variable_values 1
 rounding_compatibility Aimms_3_7
 use_UTC_forCaseAndStartEndDate 1
+* BARON 21
 * CBC 2.9
 * CONOPT 4.1
+* COPT 6.0
+* CPLEX 12.10
 * CPLEX 22.1
 * CPOptimizer 22.1
 * GUROBI 10.0
+* GUROBI 9.5
 * IPOPT 3.11
+* Knitro 12.3
+* Knitro 13.1
+* Knitro 13.2
 * MINOS
 * ODH-CPLEX 5.3
-* Octeract 4.3
+* Octeract 4.7
 * PATH 4.7
 * SNOPT 7.2
 * NETSOL
 * Environment
+Project_Title "Vessel Scheduling"
 Startup_Case "data\StandardWebUI.data"
 Default_UI 0
 Open_WebUI_on_Startup 1

@@ -2,12 +2,12 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="CargoData">
 		<ElementObjectMapping name="Row">
-			<AttributeMapping name="i_cargo" binds-to="i_cargo" />
-			<AttributeMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
-			<AttributeMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
-			<AttributeMapping name="Spotcost on Vessel" maps-to="p_SpotCostVessel(i_cargo)" />
+			<AttributeMapping name="Cargo" binds-to="i_cargo" />
+			<AttributeMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />
 			<AttributeMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
 			<AttributeMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
+			<AttributeMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
+			<AttributeMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

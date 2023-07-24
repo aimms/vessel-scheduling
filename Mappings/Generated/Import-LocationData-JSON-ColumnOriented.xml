@@ -2,10 +2,10 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<ColumnMapping name="columns">
-			<RowMapping name="i_Loc" binds-to="i_Loc" />
-			<RowMapping name="Latitude" maps-to="p_Latitude(i_Loc)" />
-			<RowMapping name="Longitude" maps-to="p_Longitude(i_Loc)" />
-			<RowMapping name="Idle Cost" maps-to="p_IdleCostLocation(i_Loc)" />
+			<RowMapping name="Location" binds-to="i_loc" />
+			<RowMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+			<RowMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+			<RowMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
 		</ColumnMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

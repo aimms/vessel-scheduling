@@ -2,10 +2,10 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="Type Cost Group">
 		<ElementObjectMapping name="Row" dense-children="1">
-			<AttributeMapping name="i_CostType" binds-to="i_CostType" />
-			<ElementValueMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
-			<ElementValueMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
-			<ElementValueMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+			<AttributeMapping name="Cost Type" binds-to="i_ct" />
+			<ElementValueMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
+			<ElementValueMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
+			<ElementValueMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

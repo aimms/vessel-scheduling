@@ -2,10 +2,10 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="LocationData">
 		<ElementObjectMapping name="Row">
-			<AttributeMapping name="i_Loc" binds-to="i_Loc" />
-			<AttributeMapping name="Latitude" maps-to="p_Latitude(i_Loc)" />
-			<AttributeMapping name="Longitude" maps-to="p_Longitude(i_Loc)" />
-			<AttributeMapping name="Idle Cost" maps-to="p_IdleCostLocation(i_Loc)" />
+			<AttributeMapping name="Location" binds-to="i_loc" />
+			<AttributeMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+			<AttributeMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+			<AttributeMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

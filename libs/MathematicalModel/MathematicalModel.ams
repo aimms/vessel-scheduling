@@ -1,0 +1,120 @@
+## ams_version=1.0
+
+LibraryModule MathematicalModel {
+	Prefix: mm;
+	Interface: MathematicalModel;
+	DeclarationSection SV_Constraints {
+		Constraint c_assignCargoToOneVessel {
+			IndexDomain: i_act_cargo;
+			Definition: {
+				sum(i_route | p_CargoesOnRoute(i_route, i_act_cargo), 
+				    v_allocateVesselToRoute(ep_VesselOnRoute(i_route), i_route)) 
+				+  v_cargoOnCharteredVessel(i_act_cargo) 
+				= 1
+			}
+		}
+		Constraint c_vesselMaxOneRoute {
+			IndexDomain: i_act_vessel;
+			Definition: {
+				sum(i_route, v_AllocateVesselToRoute(i_act_vessel, i_route)) 
+				+ v_IdleVessel(i_act_vessel) 
+				= 1
+			}
+		}
+	}
+	DeclarationSection SV_Variables {
+		Variable v_allocateVesselToRoute {
+			IndexDomain: (i_act_vessel,i_route) | p_def_domainAllocateVesselToRoute(i_act_vessel, i_route);
+			Range: binary;
+		}
+		Parameter p_def_domainAllocateVesselToRoute {
+			IndexDomain: (i_act_vessel,i_route);
+			Range: binary;
+			Property: NoSave;
+			Definition: 1 $ (i_act_vessel = ep_VesselOnRoute(i_route));
+		}
+		Variable v_cargoOnCharteredVessel {
+			IndexDomain: i_act_cargo;
+			Range: binary;
+		}
+		Variable v_idleVessel {
+			IndexDomain: i_act_vessel;
+			Range: binary;
+		}
+	}
+	DeclarationSection SV_Model {
+		MathematicalProgram mp_schedullingVessels {
+			Objective: v_objectiveFunction;
+			Direction: minimize;
+			Constraints: AllConstraints;
+			Variables: AllVariables;
+			Type: Automatic;
+		}
+		Variable v_objectiveFunction {
+			Range: free;
+			Unit: $;
+			Definition: {
+				v_totalOperationalCost
+				+ v_totalMaitenanceCost
+				+ v_totalStorageCostVessel
+			}
+		}
+		Variable v_totalOperationalCost {
+			Range: free;
+			Unit: $;
+			Definition: {
+				sum((i_act_vessel,i_route), 
+				    p_OperationalCostVessel(i_route) 
+				    * v_allocateVesselToRoute(i_act_vessel, i_route))
+			}
+		}
+		Variable v_totalMaitenanceCost {
+			Range: free;
+			Unit: $;
+			Definition: {
+				sum(i_act_vessel, 
+				    p_def_idleCostVesselNotUsed(i_act_vessel) 
+				    * v_idleVessel(i_act_vessel))
+			}
+		}
+		Variable v_totalStorageCostVessel {
+			Range: free;
+			Unit: $;
+			Definition: {
+				sum(i_act_cargo, 
+				    p_SpotCostVessel(i_act_cargo) 
+				    * v_cargoOnCharteredVessel(i_act_cargo))
+			}
+		}
+	}
+	Procedure LibraryInitialization {
+		Comment: "Add initialization statements here that do not require any other library being initialized already.";
+	}
+	Procedure PostLibraryInitialization {
+		Comment: {
+			"Add initialization statements here that require another library to be initialized already,
+			or add statements that require the Data Management module to be initialized."
+		}
+	}
+	Procedure PreLibraryTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that require all other libraries to be still alive.
+			Return 1 if you allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence."
+		}
+	}
+	Procedure LibraryTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that do not require other libraries to be still alive.
+			Return 1 to allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence.
+			It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+		}
+	}
+}

@@ -3,10 +3,10 @@
 	<ObjectMapping>
 		<ArrayMapping name="rows">
 			<ObjectMapping dense-children="1">
-				<ValueMapping name="i_CostType" binds-to="i_CostType" />
-				<ValueMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
-				<ValueMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
-				<ValueMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+				<ValueMapping name="Cost Type" binds-to="i_ct" />
+				<ValueMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
+				<ValueMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
+				<ValueMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

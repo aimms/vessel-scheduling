@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <AimmsCSVMapping>
 	<RowMapping name="Type Cost Group">
-		<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-		<ColumnMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
-		<ColumnMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
-		<ColumnMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+		<ColumnMapping name="Cost Type" binds-to="i_ct" />
+		<ColumnMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
+		<ColumnMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
+		<ColumnMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
 	</RowMapping>
 </AimmsCSVMapping>

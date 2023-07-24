@@ -33,3 +33,7 @@
 .widget-menu__item .title {
   color: var(--color_text_app-footer);
 }
+
+.ql-snow a {
+  color: var(--color_text_edit-select-link) !important;
+}

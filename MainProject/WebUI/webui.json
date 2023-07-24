@@ -18,12 +18,18 @@
         ]
       }
     },
+    "data.manager.hidden": {
+      "literal": false
+    },
     "ignoredst": {
       "aimms": {
         "contents": [
           "webui::IgnoreDST"
         ]
       }
+    },
+    "menu.hidden": {
+      "literal": false
     },
     "pages": {
       "literal": {
@@ -134,11 +140,11 @@
     "statusmessages": {
       "aimms": {
         "contents": [
-          "sp_MyStatusBar"
+          "ui::sp_systemStatusBar"
         ],
         "slices": [
           {
-            "identifier": "sp_MyStatusBar",
+            "identifier": "ui::sp_systemStatusBar",
             "slice": [
               {
                 "index": "webui::indexApplicationExtension",
@@ -156,7 +162,7 @@
       }
     },
     "theme.classic": {
-      "literal": "NOT_ALLOWED"
+      "literal": false
     },
     "timezone": {
       "aimms": {
@@ -177,7 +183,7 @@
     },
     "workflows.configuration": {
       "literal": {
-        "identifier": "sp_MyWorkFlowSteps",
+        "identifier": "ui::sp_systemWorkFlowSteps",
         "slice": [
           {
             "index": "webui::indexWorkflowOrder",
@@ -200,11 +206,11 @@
     "workflows.information": {
       "aimms": {
         "contents": [
-          "sp_MyWorkFlows"
+          "ui::sp_systemWorkFlows"
         ],
         "slices": [
           {
-            "identifier": "sp_MyWorkFlows",
+            "identifier": "ui::sp_systemWorkFlows",
             "slice": [
               {
                 "index": "webui::indexWorkflowOrder",
@@ -223,7 +229,7 @@
     },
     "workflows.state.openClose": {
       "literal": {
-        "identifier": "MyWorkflowStepsFoldingStates",
+        "identifier": "ui::sp_systemWorkflowFoldingStates",
         "slice": [
           {
             "index": "webui::indexWorkflowOrder",
@@ -534,11 +540,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -558,11 +564,11 @@
     "sidepanels": {
       "aimms": {
         "contents": [
-          "sp_SelectRouteSidePanel"
+          "ui::sp_visualizationsSidePanel"
         ],
         "slices": [
           {
-            "identifier": "sp_SelectRouteSidePanel",
+            "identifier": "ui::sp_visualizationsSidePanel",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -668,11 +674,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -692,11 +698,11 @@
     "sidepanels": {
       "aimms": {
         "contents": [
-          "sp_CargoLegendSidePanel"
+          "ui::sp_cargoesSidePanel"
         ],
         "slices": [
           {
-            "identifier": "sp_CargoLegendSidePanel",
+            "identifier": "ui::sp_cargoesSidePanel",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -895,11 +901,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -995,11 +1001,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1019,11 +1025,11 @@
     "sidepanels": {
       "aimms": {
         "contents": [
-          "sp_ResultsPageSidePanel"
+          "ui::sp_optimizedResultsPageSidePanel"
         ],
         "slices": [
           {
-            "identifier": "sp_ResultsPageSidePanel",
+            "identifier": "ui::sp_optimizedResultsPageSidePanel",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1124,11 +1130,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1148,11 +1154,11 @@
     "sidepanels": {
       "aimms": {
         "contents": [
-          "sp_RandomDataPageSidePanel"
+          "ui::sp_masterSidePanel"
         ],
         "slices": [
           {
-            "identifier": "sp_RandomDataPageSidePanel",
+            "identifier": "ui::sp_masterSidePanel",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1254,11 +1260,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1576,11 +1582,11 @@
     "secondarypageactions": {
       "aimms": {
         "contents": [
-          "sp_MySecondaryActions"
+          "ui::sp_systemSecondaryActions"
         ],
         "slices": [
           {
-            "identifier": "sp_MySecondaryActions",
+            "identifier": "ui::sp_systemSecondaryActions",
             "slice": [
               {
                 "index": "webui::indexPageExtension",
@@ -1850,7 +1856,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "v_CargoOnCharteredVessel",
+          "mm::v_cargoOnCharteredVessel",
           "ep_CargoOnVessel",
           "sp_LoadingTimeCargoRoute",
           "sp_DeleveringTimeCargoRoute",
@@ -1861,7 +1867,7 @@
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_ActiveCargo",
+          "i_act_cargo",
           "i_cargo"
         ],
         "colHeader": [
@@ -1906,29 +1912,15 @@
     },
     "contents": {
       "aimms": {
+        "slices": [],
         "contents": [
-          "p_ActiveCargoes",
-          "s_Cargoes"
-        ],
-        "prefix": "aimms",
-        "partition": {
-          "rowHeader": [
-            "i_cargo"
-          ],
-          "colHeader": [
-            "<IDENTIFIER-SET>"
-          ],
-          "aggregated": []
-        },
-        "displaydomain": {
-          "p_activecargoes": "1"
-        },
-        "slices": []
+          "bp_activeCargoes"
+        ]
       }
     },
     "contents.displaydomain": {
       "literal": {
-        "p_activecargoes": "1",
+        "bp_activecargoes": "1",
         "s_cargoes": "0"
       }
     },
@@ -1946,11 +1938,11 @@
     "contextmenu": {
       "aimms": {
         "contents": [
-          "sp_CargoesItemActions"
+          "ui::sp_cargoesItemActions"
         ],
         "slices": [
           {
-            "identifier": "sp_CargoesItemActions",
+            "identifier": "ui::sp_cargoesItemActions",
             "slice": [
               {
                 "index": "webui::indexWidgetItemActionSpec",
@@ -2004,12 +1996,12 @@
               {
                 "index": "i_cargo",
                 "type": "subset",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               },
               {
-                "index": "i_CostType",
+                "index": "i_ct",
                 "type": "free",
-                "value": "i_CostType"
+                "value": "i_ct"
               }
             ]
           }
@@ -2018,16 +2010,16 @@
     },
     "contents.displaydomain": {
       "literal": {
-        "p_cargocost": "p_ActiveCargoesCost"
+        "p_cargocost": "bp_activeCostsForCargoes"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_ActiveCargo"
+          "i_act_cargo"
         ],
         "colHeader": [
-          "i_CostType"
+          "i_ct"
         ],
         "aggregated": [
           "<IDENTIFIER-SET>"
@@ -2057,7 +2049,7 @@
               {
                 "index": "i_cargo",
                 "type": "subset",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               }
             ]
           },
@@ -2067,7 +2059,7 @@
               {
                 "index": "i_cargo",
                 "type": "subset",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               }
             ]
           },
@@ -2077,7 +2069,7 @@
               {
                 "index": "i_cargo",
                 "type": "subset",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               }
             ]
           }
@@ -2085,35 +2077,20 @@
         "contents": [
           "p_SpotCostVessel",
           "ep_MinTimeWindow",
-          "ep_MaxTimeWindow",
-          "p_AllocatedCargoes"
-        ],
-        "prefix": "aimms",
-        "partition": {
-          "rowHeader": [
-            "i_cargo",
-            "i_ActiveCargo"
-          ],
-          "colHeader": [
-            "<IDENTIFIER-SET>"
-          ],
-          "aggregated": []
-        },
-        "displaydomain": {
-          "p_allocatedcargoes": "1"
-        }
+          "ep_MaxTimeWindow"
+        ]
       }
     },
     "contents.displaydomain": {
       "literal": {
-        "p_allocatedcargoes": "1"
+        "ui::p_allocatedcargoes": "1"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
           "i_cargo",
-          "i_ActiveCargo"
+          "i_act_cargo"
         ],
         "colHeader": [
           "<IDENTIFIER-SET>"
@@ -2167,7 +2144,7 @@
     "action": {
       "literal": {
         "type": "procedure",
-        "value": "pr_AimmsGeneratingData"
+        "value": "ui::pr_generateRandomData"
       }
     },
     "aimms.widget.type": {
@@ -2241,22 +2218,6 @@
     },
     "contents": {
       "aimms": {
-        "contents": [
-          "p_Latitude",
-          "p_Longitude",
-          "p_IdleCostLocation"
-        ],
-        "prefix": "aimms",
-        "partition": {
-          "rowHeader": [
-            "i_Loc",
-            "<IDENTIFIER-SET>"
-          ],
-          "colHeader": [
-            "i_ActiveLoc"
-          ],
-          "aggregated": []
-        },
         "slices": [
           {
             "identifier": "p_IdleCostLocation",
@@ -2288,6 +2249,11 @@
               }
             ]
           }
+        ],
+        "contents": [
+          "p_latitude",
+          "p_longitude",
+          "p_idleCostLocation"
         ]
       }
     },
@@ -2467,9 +2433,9 @@
                 "value": "i_ActiveLoc"
               },
               {
-                "index": "i_CostType",
+                "index": "i_ct",
                 "type": "free",
-                "value": "i_CostType"
+                "value": "i_ct"
               }
             ]
           }
@@ -2478,7 +2444,7 @@
     },
     "contents.displaydomain": {
       "literal": {
-        "p_locationcost": "p_ActiveLocationCost"
+        "p_locationcost": "bp_activeCostsForLocations"
       }
     },
     "contents.partition": {
@@ -2487,7 +2453,7 @@
           "i_Loc"
         ],
         "colHeader": [
-          "i_CostType"
+          "i_ct"
         ],
         "aggregated": [
           "<IDENTIFIER-SET>"
@@ -2625,7 +2591,7 @@
       "literal": "text"
     },
     "contents": {
-      "literal": "<div><span style=\"background-color: inherit; font-size: 32px;\">Welcome!</span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You are in an AIMMS Example. Feel free to play around and create something more in this app!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">&nbsp;</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">If you do, please fork this repository and commit your changes.&nbsp;This ensures our GitHub stays up-to-date for the entire community!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">For questions that can't be posted on the community, contact us at&nbsp;</span><i style=\"background-color: rgb(255, 255, 204); font-size: 18px;\">support@aimms.com</i><span style=\"background-color: inherit; font-size: 18px;\">.</span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You can also check our other interactive resources:</span></div><div><br></div><ul><li><span style=\"background-color: inherit; font-size: 18px;\">In the Online&nbsp;</span><a href=\"https://community.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Community</span></a><span style=\"background-color: inherit; font-size: 18px;\">, talk to other developers and AIMMSians about the product, modeling, use cases, and more.</span></li><li><span style=\"background-color: inherit; font-size: 18px;\">In the&nbsp;</span><a href=\"https://academy.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Academy</span></a><span style=\"background-color: inherit; font-size: 18px;\">, learn new skills and challenge yourself. We are busy creating new courses, so keep an eye out!</span></li></ul>"
+      "literal": "<div><span style=\"background-color: inherit; font-size: 32px;\"><b>Welcome!</b></span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You are in an AIMMS Example. Feel free to play around and create something more in this app!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">&nbsp;</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">If you do, please fork this repository and commit your changes.&nbsp;This ensures our GitHub stays up-to-date for the entire community!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">For questions that can't be posted on the community, contact us at&nbsp;</span><i style=\"background-color: rgb(255, 255, 204); font-size: 18px;\">support@aimms.com</i><span style=\"background-color: inherit; font-size: 18px;\">.</span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You can also check our other interactive resources:</span></div><div><br></div><ul><li><span style=\"background-color: inherit; font-size: 18px;\">In the Online&nbsp;</span><a href=\"https://community.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Community</span></a><span style=\"background-color: inherit; font-size: 18px;\">, talk to other developers and AIMMSians about the product, modeling, use cases, and more.</span></li><li><span style=\"background-color: inherit; font-size: 18px;\">In the&nbsp;</span><a href=\"https://academy.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Academy</span></a><span style=\"background-color: inherit; font-size: 18px;\">, learn new skills and challenge yourself. We are busy creating new courses, so keep an eye out!</span></li></ul>"
     },
     "name": {
       "literal": "text_Intro"
@@ -2745,10 +2711,10 @@
       }
     },
     "center.latitude": {
-      "literal": -9.275622176792098
+      "literal": 10.660607953624777
     },
     "center.longitude": {
-      "literal": 47.33197288687847
+      "literal": 45.52017638213915
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3028,10 +2994,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -18.81271785640776
+      "literal": 1.2303741774326145
     },
     "center.longitude": {
-      "literal": 77.71619245524298
+      "literal": 2.45144661125321
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3244,7 +3210,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocLoad"
+                "value": "ui::i_CargoLocLoad"
               }
             ]
           },
@@ -3254,7 +3220,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocLoad"
+                "value": "ui::i_CargoLocLoad"
               }
             ]
           }
@@ -3263,7 +3229,7 @@
     },
     "nodes.0.index": {
       "literal": {
-        "identifier": "i_CargoLocLoad"
+        "identifier": "ui::i_CargoLocLoad"
       }
     },
     "nodes.0.latitude": {
@@ -3273,7 +3239,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocLoad"
+            "value": "ui::i_CargoLocLoad"
           }
         ]
       }
@@ -3285,7 +3251,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocLoad"
+            "value": "ui::i_CargoLocLoad"
           }
         ]
       }
@@ -3303,7 +3269,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocDel"
+                "value": "ui::i_CargoLocDel"
               }
             ]
           },
@@ -3313,7 +3279,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocDel"
+                "value": "ui::i_CargoLocDel"
               }
             ]
           }
@@ -3323,7 +3289,7 @@
     },
     "nodes.1.index": {
       "literal": {
-        "identifier": "i_CargoLocDel"
+        "identifier": "ui::i_CargoLocDel"
       }
     },
     "nodes.1.latitude": {
@@ -3333,7 +3299,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocDel"
+            "value": "ui::i_CargoLocDel"
           }
         ]
       }
@@ -3345,7 +3311,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocDel"
+            "value": "ui::i_CargoLocDel"
           }
         ]
       }
@@ -3411,10 +3377,10 @@
       }
     },
     "center.latitude": {
-      "literal": -4.390228926463384
+      "literal": 0.5273363048115169
     },
     "center.longitude": {
-      "literal": 58.21882060055026
+      "literal": 7.6129813024277859
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3435,7 +3401,7 @@
         "contents": [
           "p_Longitude",
           "p_Latitude",
-          "p_SizeCargoesLocation"
+          "ui::p_SizeCargoesLocation"
         ],
         "slices": [
           {
@@ -3444,7 +3410,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocDel"
+                "value": "ui::i_CargoLocDel"
               }
             ]
           },
@@ -3454,17 +3420,17 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocDel"
+                "value": "ui::i_CargoLocDel"
               }
             ]
           },
           {
-            "identifier": "p_SizeCargoesLocation",
+            "identifier": "ui::p_SizeCargoesLocation",
             "slice": [
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocDel"
+                "value": "ui::i_CargoLocDel"
               }
             ]
           }
@@ -3473,7 +3439,7 @@
     },
     "nodes.0.index": {
       "literal": {
-        "identifier": "i_CargoLocDel"
+        "identifier": "ui::i_CargoLocDel"
       }
     },
     "nodes.0.latitude": {
@@ -3483,7 +3449,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocDel"
+            "value": "ui::i_CargoLocDel"
           }
         ]
       }
@@ -3495,19 +3461,22 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocDel"
+            "value": "ui::i_CargoLocDel"
           }
         ]
       }
     },
+    "nodes.0.maximumreferencesize": {
+      "literal": 20
+    },
     "nodes.0.size": {
       "literal": {
-        "identifier": "p_SizeCargoesLocation",
+        "identifier": "ui::p_SizeCargoesLocation",
         "slice": [
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocDel"
+            "value": "ui::i_CargoLocDel"
           }
         ]
       }
@@ -3517,7 +3486,7 @@
         "contents": [
           "p_Longitude",
           "p_Latitude",
-          "p_SizeCargoesLocation"
+          "ui::p_SizeCargoesLocation"
         ],
         "slices": [
           {
@@ -3526,7 +3495,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocLoad"
+                "value": "ui::i_CargoLocLoad"
               }
             ]
           },
@@ -3536,17 +3505,17 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocLoad"
+                "value": "ui::i_CargoLocLoad"
               }
             ]
           },
           {
-            "identifier": "p_SizeCargoesLocation",
+            "identifier": "ui::p_SizeCargoesLocation",
             "slice": [
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_CargoLocLoad"
+                "value": "ui::i_CargoLocLoad"
               }
             ]
           }
@@ -3555,7 +3524,7 @@
     },
     "nodes.1.index": {
       "literal": {
-        "identifier": "i_CargoLocLoad"
+        "identifier": "ui::i_CargoLocLoad"
       }
     },
     "nodes.1.latitude": {
@@ -3565,7 +3534,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocLoad"
+            "value": "ui::i_CargoLocLoad"
           }
         ]
       }
@@ -3577,19 +3546,22 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocLoad"
+            "value": "ui::i_CargoLocLoad"
           }
         ]
       }
     },
+    "nodes.1.maximumreferencesize": {
+      "literal": 20
+    },
     "nodes.1.size": {
       "literal": {
-        "identifier": "p_SizeCargoesLocation",
+        "identifier": "ui::p_SizeCargoesLocation",
         "slice": [
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_CargoLocLoad"
+            "value": "ui::i_CargoLocLoad"
           }
         ]
       }
@@ -3666,7 +3638,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "sp_AddEditElement"
+          "ui::sp_addEditElement"
         ]
       }
     },
@@ -3709,7 +3681,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_AllocatedCargoes"
+          "ui::p_AllocatedCargoes"
         ]
       }
     },
@@ -3778,8 +3750,9 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_TotalCargoes"
-        ]
+          "ui::p_totalCargoes"
+        ],
+        "slices": []
       }
     },
     "contents.numdecimals": {
@@ -3811,7 +3784,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_TotalVessels"
+          "ui::p_totalCargoes"
         ],
         "slices": []
       }
@@ -3842,7 +3815,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "sp_Logo"
+          "ui::sp_Logo"
         ]
       }
     },
@@ -3857,7 +3830,7 @@
     "contents": {
       "aimms": {
         "contents": [
-          "sp_Logo"
+          "ui::sp_Logo"
         ]
       }
     },
@@ -3872,23 +3845,23 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_ActiveCargoesCost",
-          "p_ActiveLocationCost",
-          "p_ActiveVesselCost"
+          "bp_activeCostsForCargoes",
+          "bp_activeCostsForLocations",
+          "bp_activeCostsForVessels"
         ]
       }
     },
     "contents.displaydomain": {
       "literal": {
-        "p_activecargoescost": "1",
-        "p_activelocationcost": "1",
-        "p_activevesselcost": "1"
+        "bp_activecostsforcargoes": "1",
+        "bp_activecostsforlocations": "1",
+        "bp_activecostsforvessels": "1"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_CostType"
+          "i_ct"
         ],
         "colHeader": [
           "<IDENTIFIER-SET>"
@@ -4094,7 +4067,7 @@
       "literal": "text"
     },
     "contents": {
-      "literal": "<div><span style=\"font-size: 32px;\">Problem</span></div><div><br></div><div><span style=\"font-size: 18px;\">In this practical example, an efficient plan is devoloped for delevering oil tankers which are pre-coupled to a set of cargoes. Prior to the optimization, all feasible routes need to be generated after importing the data. When creating the routes, the loading window of the cargo is taken into consideration, as all cargoes must be delivered on time. Afterwards, each cargo will be allocated to a time-chartered or voyage-chartered vessel within the model. The objective of the model is to determine the minimum costs for combinations of cargoes and routes.&nbsp;</span></div><div><br></div><div><span style=\"font-size: 18px;\">Additionaly, the model has some assumptions and constraints. One of these assumptions is that the ship can only carry one cargo at a time. Furthermore, it is assumed that all used vessels will go directly to the loading port once the timehorizon begins. The two constraints are as follows: each cargo can ultimately be transported by only one vessel, and charter vessels can only be assigned to one route at a time.&nbsp;</span></div><div><br></div>"
+      "literal": "<div><span style=\"font-size: 32px;\"><b>Problem</b></span></div><div><br></div><div><span style=\"font-size: 18px;\">In this practical example, an efficient plan is devoloped for delevering oil tankers which are pre-coupled to a set of cargoes. Prior to the optimization, all feasible routes need to be generated after importing the data. When creating the routes, the loading window of the cargo is taken into consideration, as all cargoes must be delivered on time. Afterwards, each cargo will be allocated to a time-chartered or voyage-chartered vessel within the model. The objective of the model is to determine the minimum costs for combinations of cargoes and routes.&nbsp;</span></div><div><br></div><div><span style=\"font-size: 18px;\">Additionaly, the model has some assumptions and constraints. One of these assumptions is that the ship can only carry one cargo at a time. Furthermore, it is assumed that all used vessels will go directly to the loading port once the timehorizon begins. The two constraints are as follows: each cargo can ultimately be transported by only one vessel, and charter vessels can only be assigned to one route at a time.&nbsp;</span></div><div><br></div>"
     },
     "name": {
       "literal": "text_problemDescription (1)"
@@ -4107,10 +4080,10 @@
     "contents": {
       "aimms": {
         "contents": [
-          "v_TotalOperationalCost",
-          "v_TotalMaitenanceCost",
-          "v_TotalStorageCostVessel",
-          "v_ObjectiveFunction"
+          "mm::v_totalOperationalCost",
+          "mm::v_totalMaitenanceCost",
+          "mm::v_totalStorageCostVessel",
+          "mm::v_objectiveFunction"
         ]
       }
     },
@@ -4128,25 +4101,25 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_ActiveCargoesCost",
-          "p_ActiveLocationCost",
-          "p_ActiveVesselCost"
+          "bp_activeCostsForCargoes",
+          "bp_activeCostsForLocations",
+          "bp_activeCostsForVessels"
         ]
       }
     },
     "contents.displaydomain": {
       "literal": {
         "p_activetypecost": "1",
-        "s_typeofcost": "0",
-        "p_activecargoescost": "1",
-        "p_activelocationcost": "1",
-        "p_activevesselcost": "1"
+        "s_costtypes": "0",
+        "bp_activecostsforcargoes": "1",
+        "bp_activecostsforlocations": "1",
+        "bp_activecostsforvessels": "1"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_CostType"
+          "i_ct"
         ],
         "colHeader": [
           "<IDENTIFIER-SET>"
@@ -4159,11 +4132,11 @@
     "contextmenu": {
       "aimms": {
         "contents": [
-          "sp_TypeOfCostItemActions"
+          "ui::sp_TypeOfCostItemActions"
         ],
         "slices": [
           {
-            "identifier": "sp_TypeOfCostItemActions",
+            "identifier": "ui::sp_TypeOfCostItemActions",
             "slice": [
               {
                 "index": "webui::indexWidgetItemActionSpec",
@@ -4234,7 +4207,7 @@
     },
     "store.focus.in": {
       "literal": {
-        "i_CostType": "ep_TypeofCost"
+        "i_ct": "ep_costType"
       }
     },
     "title": {
@@ -4271,9 +4244,9 @@
             "identifier": "p_LoadingTimeCargoRouteInHours",
             "slice": [
               {
-                "index": "i_ActiveCargo",
+                "index": "i_act_cargo",
                 "type": "free",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               },
               {
                 "index": "i_route",
@@ -4286,9 +4259,9 @@
             "identifier": "p_DurationCargoOnRoute",
             "slice": [
               {
-                "index": "i_ActiveCargo",
+                "index": "i_act_cargo",
                 "type": "free",
-                "value": "i_ActiveCargo"
+                "value": "i_act_cargo"
               },
               {
                 "index": "i_route",
@@ -4313,7 +4286,7 @@
         ],
         "jobs": [
           "<IDENTIFIER-SET>",
-          "i_ActiveCargo"
+          "i_act_cargo"
         ],
         "aggregated": []
       }
@@ -4376,12 +4349,12 @@
               {
                 "index": "i_vessel",
                 "type": "subset",
-                "value": "i_ActiveVessel"
+                "value": "i_act_vessel"
               },
               {
-                "index": "i_CostType",
+                "index": "i_ct",
                 "type": "free",
-                "value": "i_CostType"
+                "value": "i_ct"
               }
             ]
           }
@@ -4390,17 +4363,17 @@
     },
     "contents.displaydomain": {
       "literal": {
-        "p_vesselcostday": "p_ActiveVesselCost"
+        "p_vesselcostday": "bp_activeCostsForVessels"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
           "i_vessel",
-          "i_ActiveVessel"
+          "i_act_vessel"
         ],
         "colHeader": [
-          "i_CostType"
+          "i_ct"
         ],
         "aggregated": [
           "<IDENTIFIER-SET>"
@@ -4477,29 +4450,29 @@
       "aimms": {
         "slices": [
           {
-            "identifier": "ep_LoadingPortsVessel",
+            "identifier": "ep_originPortOfVessel",
             "slice": [
               {
                 "index": "i_vessel",
                 "type": "subset",
-                "value": "i_ActiveVessel"
+                "value": "i_act_vessel"
               }
             ]
           },
           {
-            "identifier": "p_IdleCostVesselNotUsed",
+            "identifier": "p_def_idleCostVesselNotUsed",
             "slice": [
               {
                 "index": "i_vessel",
                 "type": "subset",
-                "value": "i_ActiveVessel"
+                "value": "i_act_vessel"
               }
             ]
           }
         ],
         "contents": [
-          "ep_LoadingPortsVessel",
-          "p_IdleCostVesselNotUsed"
+          "ep_originPortOfVessel",
+          "p_def_idleCostVesselNotUsed"
         ],
         "prefix": "aimms",
         "partition": {
@@ -4692,15 +4665,14 @@
     "contents": {
       "aimms": {
         "contents": [
-          "p_ActiveVessels",
-          "s_FleetVessels"
+          "bp_activeVessels"
         ]
       }
     },
     "contents.displaydomain": {
       "literal": {
-        "p_activevessels": "1",
-        "s_fleetvessels": "0"
+        "bp_activevessels": "1",
+        "s_vessels": "0"
       }
     },
     "contents.partition": {
@@ -4717,11 +4689,11 @@
     "contextmenu": {
       "aimms": {
         "contents": [
-          "sp_VesselItemActions"
+          "ui::sp_VesselItemActions"
         ],
         "slices": [
           {
-            "identifier": "sp_VesselItemActions",
+            "identifier": "ui::sp_VesselItemActions",
             "slice": [
               {
                 "index": "webui::indexWidgetItemActionSpec",

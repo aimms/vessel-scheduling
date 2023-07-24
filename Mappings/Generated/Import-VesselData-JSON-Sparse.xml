@@ -3,8 +3,8 @@
 	<ObjectMapping>
 		<ArrayMapping name="rows">
 			<ObjectMapping>
-				<ValueMapping name="i_vessel" binds-to="i_vessel" />
-				<ValueMapping name="Port of Origin" maps-to="ep_LoadingPortsVessel(i_vessel)" />
+				<ValueMapping name="Vessel" binds-to="i_vessel" />
+				<ValueMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

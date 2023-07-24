@@ -1,63 +1,63 @@
 <?xml version="1.0"?>
 <AimmsDatabaseMapping>
-	<TableMapping name="VesselData">
-		<RowMapping>
-			<ColumnMapping name="i_vessel" binds-to="i_vessel" />
-			<ColumnMapping name="Port of Origin" maps-to="ep_LoadingPortsVessel(i_vessel)" />
-		</RowMapping>
-	</TableMapping>
 	<TableMapping name="CargoData">
 		<RowMapping>
-			<ColumnMapping name="i_cargo" binds-to="i_cargo" />
-			<ColumnMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
-			<ColumnMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
-			<ColumnMapping name="Spotcost on Vessel" maps-to="p_SpotCostVessel(i_cargo)" />
+			<ColumnMapping name="Cargo" binds-to="i_cargo" />
+			<ColumnMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />
 			<ColumnMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
 			<ColumnMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
+			<ColumnMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
+			<ColumnMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
 		</RowMapping>
 	</TableMapping>
-	<TableMapping name="LocationData">
+	<TableMapping name="VesselData">
 		<RowMapping>
-			<ColumnMapping name="i_Loc" binds-to="i_Loc" />
-			<ColumnMapping name="Latitude" maps-to="p_Latitude(i_Loc)" />
-			<ColumnMapping name="Longitude" maps-to="p_Longitude(i_Loc)" />
-			<ColumnMapping name="Idle Cost" maps-to="p_IdleCostLocation(i_Loc)" />
-		</RowMapping>
-	</TableMapping>
-	<TableMapping name="DistanceBetweenLocations">
-		<RowMapping>
-			<ColumnMapping name="i_Loc" binds-to="i_Loc" />
-			<ColumnMapping name="i_Loc2" binds-to="i_Loc2" />
-			<ColumnMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_Loc,i_Loc2)" />
-		</RowMapping>
-	</TableMapping>
-	<TableMapping name="VesselCosts">
-		<RowMapping>
-			<ColumnMapping name="i_vessel" binds-to="i_vessel" />
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="DailyCost" maps-to="p_VesselCostDay(i_vessel,i_CostType)" />
-		</RowMapping>
-	</TableMapping>
-	<TableMapping name="LocationCosts">
-		<RowMapping>
-			<ColumnMapping name="i_Loc" binds-to="i_Loc" />
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="Costs" maps-to="p_LocationCost(i_Loc,i_CostType)" />
-		</RowMapping>
-	</TableMapping>
-	<TableMapping name="CargoCosts">
-		<RowMapping>
-			<ColumnMapping name="i_cargo" binds-to="i_cargo" />
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_CostType)" />
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
 		</RowMapping>
 	</TableMapping>
 	<TableMapping name="Type Cost Group">
 		<RowMapping>
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="Cargoes" maps-to="p_ActiveCargoesCost(i_CostType)" />
-			<ColumnMapping name="Vessel" maps-to="p_ActiveVesselCost(i_CostType)" />
-			<ColumnMapping name="Location" maps-to="p_ActiveLocationCost(i_CostType)" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
+			<ColumnMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
+			<ColumnMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
+		</RowMapping>
+	</TableMapping>
+	<TableMapping name="LocationData">
+		<RowMapping>
+			<ColumnMapping name="Location" binds-to="i_loc" />
+			<ColumnMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+			<ColumnMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+			<ColumnMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
+		</RowMapping>
+	</TableMapping>
+	<TableMapping name="LocationCosts">
+		<RowMapping>
+			<ColumnMapping name="Location" binds-to="i_loc" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
+		</RowMapping>
+	</TableMapping>
+	<TableMapping name="CargoCosts">
+		<RowMapping>
+			<ColumnMapping name="Cargo" binds-to="i_cargo" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_ct)" />
+		</RowMapping>
+	</TableMapping>
+	<TableMapping name="VesselCosts">
+		<RowMapping>
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="DailyCost" maps-to="p_VesselCostDay(i_vessel,i_ct)" />
+		</RowMapping>
+	</TableMapping>
+	<TableMapping name="DistanceBetweenLocations">
+		<RowMapping>
+			<ColumnMapping name="Location (From)" binds-to="i_loc_from" />
+			<ColumnMapping name="Location (To)" binds-to="i_loc_to" />
+			<ColumnMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_loc_from,i_loc_to)" />
 		</RowMapping>
 	</TableMapping>
 </AimmsDatabaseMapping>

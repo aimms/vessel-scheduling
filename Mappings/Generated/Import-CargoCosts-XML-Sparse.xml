@@ -2,9 +2,9 @@
 <AimmsXMLMapping>
 	<ElementObjectMapping name="CargoCosts">
 		<ElementObjectMapping name="Row">
-			<AttributeMapping name="i_cargo" binds-to="i_cargo" />
-			<AttributeMapping name="i_CostType" binds-to="i_CostType" />
-			<ElementValueMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_CostType)" />
+			<AttributeMapping name="Cargo" binds-to="i_cargo" />
+			<AttributeMapping name="Cost Type" binds-to="i_ct" />
+			<ElementValueMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_ct)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

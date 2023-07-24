@@ -3,12 +3,12 @@
 	<ObjectMapping>
 		<ArrayMapping name="rows">
 			<ObjectMapping dense-children="1">
-				<ValueMapping name="i_cargo" binds-to="i_cargo" />
-				<ValueMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
-				<ValueMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
-				<ValueMapping name="Spotcost on Vessel" maps-to="p_SpotCostVessel(i_cargo)" />
+				<ValueMapping name="Cargo" binds-to="i_cargo" />
+				<ValueMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />
 				<ValueMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
 				<ValueMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
+				<ValueMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
+				<ValueMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

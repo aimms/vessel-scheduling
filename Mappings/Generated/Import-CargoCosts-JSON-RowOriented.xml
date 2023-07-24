@@ -2,9 +2,9 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<RowMapping name="rows">
-			<ColumnMapping name="i_cargo" binds-to="i_cargo" />
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_CostType)" />
+			<ColumnMapping name="Cargo" binds-to="i_cargo" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_ct)" />
 		</RowMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

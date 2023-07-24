@@ -2,9 +2,9 @@
 <AimmsJSONMapping>
 	<ObjectMapping>
 		<RowMapping name="rows">
-			<ColumnMapping name="i_vessel" binds-to="i_vessel" />
-			<ColumnMapping name="i_CostType" binds-to="i_CostType" />
-			<ColumnMapping name="DailyCost" maps-to="p_VesselCostDay(i_vessel,i_CostType)" />
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Cost Type" binds-to="i_ct" />
+			<ColumnMapping name="DailyCost" maps-to="p_VesselCostDay(i_vessel,i_ct)" />
 		</RowMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>
