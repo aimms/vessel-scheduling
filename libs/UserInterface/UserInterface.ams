@@ -12,7 +12,9 @@ LibraryModule UserInterface {
 		Section CRUD_Vessel {
 			Procedure pr_openAddVessel {
 				Body: {
-					empty sp_AddEditElement;
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'CRUD', 
@@ -39,7 +41,9 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_openEditVessel {
 				Body: {
-					sp_AddEditElement := ep_Vessel;
+					sp_addEditElement := ep_vessel;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'crud', 
@@ -57,7 +61,7 @@ LibraryModule UserInterface {
 				Arguments: sp_arg_action;
 				Body: {
 					if sp_arg_action = 'OK' then
-					    SetElementRename(s_vessels , ep_Vessel , sp_AddEditElement);
+					    SetElementRename(s_vessels , ep_vessel , sp_addEditElement);
 					endif;
 				}
 				StringParameter sp_arg_action {
@@ -66,22 +70,91 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_deleteVessel {
 				Body: {
-					s_vessels -= ep_Vessel;
+					s_vessels -= ep_vessel;
 					
-					ep_Vessel := first(i_vessel);
+					ep_vessel := first(i_vessel);
+				}
+			}
+		}
+		Section CRUD_Location {
+			Procedure pr_openAddLocation {
+				Body: {
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Location", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_addLocation');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addLocation {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_location := StringToElement(s_locations, sp_addEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditLocation {
+				Body: {
+					sp_addEditElement := ep_location;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Location", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_editLocation');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editLocation {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_locations , ep_location , sp_addEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteLocation {
+				Body: {
+					s_locations -= ep_location;
+					
+					ep_location := first(i_loc);
 				}
 			}
 		}
 		Section CRUD_Cargo {
 			Procedure pr_openAddCargo {
 				Body: {
-					empty sp_AddEditElement;
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'CRUD', 
 						title   :  "Add Cargoes", 
 						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_AddCargoes');
+						onDone  :  'ui::pr_AddCargo');
 				}
 				Set s_loc_actions {
 					InitialData: {
@@ -93,7 +166,7 @@ LibraryModule UserInterface {
 				Arguments: sp_arg_action;
 				Body: {
 					if sp_arg_action = 'OK' then
-					    ep_cargo := StringToElement(s_cargoes, sp_AddEditElement, 1);
+					    ep_cargo := StringToElement(s_cargoes, sp_addEditElement, 1);
 					endif;
 				}
 				StringParameter sp_arg_action {
@@ -102,13 +175,15 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_openEditCargo {
 				Body: {
-					sp_AddEditElement := ep_cargo;
+					sp_addEditElement := ep_cargo;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'crud', 
 						title   :  "Edit Cargoes", 
 						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_EditCargoes');
+						onDone  :  'ui::pr_EditCargo');
 				}
 				Set s_loc_actions {
 					InitialData: {
@@ -120,7 +195,7 @@ LibraryModule UserInterface {
 				Arguments: sp_arg_action;
 				Body: {
 					if sp_arg_action = 'OK' then
-					    SetElementRename(s_cargoes, ep_cargo , sp_AddEditElement);
+					    SetElementRename(s_cargoes, ep_cargo , sp_addEditElement);
 					endif;
 				}
 				StringParameter sp_arg_action {
@@ -138,13 +213,15 @@ LibraryModule UserInterface {
 		Section CRUD_Cost_Type {
 			Procedure pr_openAddCostType {
 				Body: {
-					empty sp_AddEditElement;
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'CRUD', 
 						title   :  "Add Cost Type", 
 						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_AddTypeOfCost');
+						onDone  :  'ui::pr_addCostType');
 				}
 				Set s_loc_actions {
 					InitialData: {
@@ -156,7 +233,7 @@ LibraryModule UserInterface {
 				Arguments: sp_arg_action;
 				Body: {
 					if sp_arg_action = 'OK' then
-					    ep_costType := StringToElement(s_costTypes, sp_AddEditElement, 1);
+					    ep_costType := StringToElement(s_costTypes, sp_addEditElement, 1);
 					endif;
 				}
 				StringParameter sp_arg_action {
@@ -165,13 +242,15 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_openEditCostType {
 				Body: {
-					sp_AddEditElement := ep_costType;
+					sp_addEditElement := ep_costType;
+					
+					s_loc_actions:= {'Cancel','OK'};
 					
 					webui::OpenDialogPage(
 						pageId  :  'CRUD', 
 						title   :  "Edit Cost Type", 
 						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_EditTypeOfCost');
+						onDone  :  'ui::pr_editCostType');
 				}
 				Set s_loc_actions {
 					InitialData: {
@@ -183,7 +262,7 @@ LibraryModule UserInterface {
 				Arguments: sp_arg_action;
 				Body: {
 					if sp_arg_action = 'OK' then
-					    SetElementRename(s_costTypes, ep_costType , sp_AddEditElement);
+					    SetElementRename(s_costTypes, ep_costType , sp_addEditElement);
 					endif;
 				}
 				StringParameter sp_arg_action {
@@ -210,11 +289,11 @@ LibraryModule UserInterface {
 				InitialData: {
 					data 
 					{ ( 1, 1, displayText       ) : "Welcome",
-					  ( 1, 1, icon              ) : "aimms-happy",
+					  ( 1, 1, icon              ) : "aimms-home2",
 					  ( 1, 1, pageId            ) : "introduction_problem",
 					  ( 1, 1, tooltip           ) : "Welcome ",
 					  ( 1, 1, workflowPageState ) : "Active",
-					  ( 1, 2, displayText       ) : "Story",
+					  ( 1, 2, displayText       ) : "Problem Statement",
 					  ( 1, 2, icon              ) : "aimms-book",
 					  ( 1, 2, pageId            ) : "problem_statement",
 					  ( 1, 2, tooltip           ) : "Short statement about the problem",
@@ -228,7 +307,7 @@ LibraryModule UserInterface {
 					  ( 1, 4, icon              ) : "aimms-equalizer2",
 					  ( 1, 4, pageId            ) : "overview_datasets",
 					  ( 1, 4, tooltip           ) : "Overview of all the data",
-					  ( 1, 4, workflowPageState ) : "Inactive",
+					  ( 1, 4, workflowPageState ) : "active",
 					  ( 1, 5, displayText       ) : "Locations",
 					  ( 1, 5, icon              ) : "aimms-location5",
 					  ( 1, 5, pageId            ) : "locations_overview",
@@ -251,12 +330,12 @@ LibraryModule UserInterface {
 					  ( 1, 8, icon              ) : "aimms-stats-decline",
 					  ( 1, 8, pageId            ) : "optimized_results",
 					  ( 1, 8, tooltip           ) : "Results after solving the model",
-					  ( 1, 8, workflowPageState ) : "active",
-					  ( 1, 9, displayText       ) : "Visualizations",
+					  ( 1, 8, workflowPageState ) : "Inactive",
+					  ( 1, 9, displayText       ) : "Visualisations",
 					  ( 1, 9, icon              ) : "aimms-pie-chart8",
 					  ( 1, 9, pageId            ) : "all_visualisations",
 					  ( 1, 9, tooltip           ) : "All visualisations explaining results",
-					  ( 1, 9, workflowPageState ) : "active" }
+					  ( 1, 9, workflowPageState ) : "Inactive" }
 				}
 			}
 			StringParameter sp_systemWorkflowFoldingStates {
@@ -438,63 +517,170 @@ LibraryModule UserInterface {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
 				Definition: {
 					data 
-					{  (p_ActiveCargoes      , 2, displaytext ) : "Edit",
-					  (p_ActiveCargoes      , 2, icon        ) : "aimms-pencil2",
-					  (p_ActiveCargoes      , 2, procedure   ) : "pr_OpenEditCargoes",
-					  (p_ActiveCargoes      , 2, state       ) : "active",
-					  (p_ActiveCargoes      , 3, displaytext ) : "Delete",
-					  (p_ActiveCargoes      , 3, icon        ) : "aimms-eraser2",
-					  (p_ActiveCargoes      , 3, procedure   ) : "pr_DeleteCargoes",
-					  (p_ActiveCargoes      , 3, state       ) : "active" }
+					{  (bp_activeCargoes      , 2, displaytext ) : "Edit",
+					  (bp_activeCargoes      , 2, icon        ) : "aimms-pencil2",
+					  (bp_activeCargoes      , 2, procedure   ) : "ui::pr_openEditCargo",
+					  (bp_activeCargoes      , 2, state       ) : "active",
+					  (bp_activeCargoes      , 3, displaytext ) : "Delete",
+					  (bp_activeCargoes      , 3, icon        ) : "aimms-eraser2",
+					  (bp_activeCargoes      , 3, procedure   ) : "ui::pr_deleteCargo",
+					  (bp_activeCargoes      , 3, state       ) : "active" }
 				}
 			}
-			StringParameter sp_VesselItemActions {
+			StringParameter sp_vesselItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
 				Definition: {
 					data 
-					{  ( p_ActiveVessels     , 2, displaytext ) : "Edit",
-					  ( p_ActiveVessels      , 2, icon        ) : "aimms-pencil2",
-					  ( p_ActiveVessels      , 2, procedure   ) : "pr_OpenEditVessel",
-					  ( p_ActiveVessels      , 2, state       ) : "active",
-					  ( p_ActiveVessels      , 3, displaytext ) : "Delete",
-					  ( p_ActiveVessels      , 3, icon        ) : "aimms-eraser2",
-					  ( p_ActiveVessels      , 3, procedure   ) : "pr_DeleteVessel",
-					  ( p_ActiveVessels      , 3, state       ) : "active" }
+					{  ( bp_activeVessels     , 2, displaytext ) : "Edit",
+					  ( bp_activeVessels      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeVessels      , 2, procedure   ) : "ui::pr_openEditVessel",
+					  ( bp_activeVessels      , 2, state       ) : "active",
+					  ( bp_activeVessels      , 3, displaytext ) : "Delete",
+					  ( bp_activeVessels      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeVessels      , 3, procedure   ) : "ui::pr_deleteVessel",
+					  ( bp_activeVessels      , 3, state       ) : "active" }
 				}
 			}
-			StringParameter sp_TypeOfCostItemActions {
+			StringParameter sp_typeOfCostItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
 				Definition: {
 					data 
 					{
-					  ( p_ActiveCargoesCost      , 2, displaytext ) : "Edit",
-					  ( p_ActiveCargoesCost      , 2, icon        ) : "aimms-pencil2",
-					  ( p_ActiveCargoesCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
-					  ( p_ActiveCargoesCost      , 2, state       ) : "active",
-					  ( p_ActiveCargoesCost      , 3, displaytext ) : "Delete",
-					  ( p_ActiveCargoesCost      , 3, icon        ) : "aimms-eraser2",
-					  ( p_ActiveCargoesCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
-					  ( p_ActiveCargoesCost      , 3, state       ) : "active",
-					  ( p_ActiveLocationCost      , 2, displaytext ) : "Edit",
-					  ( p_ActiveLocationCost      , 2, icon        ) : "aimms-pencil2",
-					  ( p_ActiveLocationCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
-					  ( p_ActiveLocationCost      , 2, state       ) : "active",
-					  ( p_ActiveLocationCost      , 3, displaytext ) : "Delete",
-					  ( p_ActiveLocationCost      , 3, icon        ) : "aimms-eraser2",
-					  ( p_ActiveLocationCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
-					  ( p_ActiveLocationCost      , 3, state       ) : "active" ,
-					  ( p_ActiveVesselCost      , 2, displaytext ) : "Edit",
-					  ( p_ActiveVesselCost      , 2, icon        ) : "aimms-pencil2",
-					  ( p_ActiveVesselCost      , 2, procedure   ) : "pr_OpenEditTypeOfCost",
-					  ( p_ActiveVesselCost      , 2, state       ) : "active",
-					  ( p_ActiveVesselCost      , 3, displaytext ) : "Delete",
-					  ( p_ActiveVesselCost      , 3, icon        ) : "aimms-eraser2",
-					  ( p_ActiveVesselCost      , 3, procedure   ) : "pr_DeleteTypeOfCost",
-					  ( p_ActiveVesselCost      , 3, state       ) : "active"  }
+					  ( bp_activeCostsForCargoes      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForCargoes      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForCargoes      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForCargoes      , 2, state       ) : "active",
+					  ( bp_activeCostsForCargoes      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForCargoes      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForCargoes      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForCargoes      , 3, state       ) : "active",
+					  ( bp_activeCostsForLocations      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForLocations      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForLocations      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForLocations      , 2, state       ) : "active",
+					  ( bp_activeCostsForLocations      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForLocations      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForLocations      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForLocations      , 3, state       ) : "active" ,
+					  ( bp_activeCostsForVessels      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForVessels      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForVessels      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForVessels      , 2, state       ) : "active",
+					  ( bp_activeCostsForVessels      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForVessels      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForVessels      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForVessels      , 3, state       ) : "active"  }
+				}
+			}
+			StringParameter sp_locationsItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  (bp_ActiveLocations      , 2, displaytext ) : "Edit",
+					  (bp_ActiveLocations      , 2, icon        ) : "aimms-pencil2",
+					  (bp_ActiveLocations      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (bp_ActiveLocations      , 2, state       ) : "active",
+					  (bp_ActiveLocations      , 3, displaytext ) : "Delete",
+					  (bp_ActiveLocations      , 3, icon        ) : "aimms-eraser2",
+					  (bp_ActiveLocations      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (bp_ActiveLocations      , 3, state       ) : "active" ,
+					  (p_latitude      , 2, displaytext ) : "Edit",
+					  (p_latitude      , 2, icon        ) : "aimms-pencil2",
+					  (p_latitude      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (p_latitude      , 2, state       ) : "active",
+					  (p_latitude      , 3, displaytext ) : "Delete",
+					  (p_latitude      , 3, icon        ) : "aimms-eraser2",
+					  (p_latitude      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (p_latitude      , 3, state       ) : "active" ,
+					  (p_longitude      , 2, displaytext ) : "Edit",
+					  (p_longitude      , 2, icon        ) : "aimms-pencil2",
+					  (p_longitude      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (p_longitude      , 2, state       ) : "active",
+					  (p_longitude      , 3, displaytext ) : "Delete",
+					  (p_longitude      , 3, icon        ) : "aimms-eraser2",
+					  (p_longitude      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (p_longitude      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_cargoesWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddCargo",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_vesselWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddvessel",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_typeOfCostWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddCostType",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_locationWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddLocation",  ( 1, state       ) : "active"               }
 				}
 			}
 		}
-		Section Locations_Page;
+		Section Overview_Datasets_Page {
+			Procedure pr_onPageOpen {
+				Body: {
+					webui::OpenPage(pageId :  'locations_overview');
+				}
+			}
+		}
+		Section Locations_Page {
+			Set s_def_locationsNotInUsage {
+				SubsetOf: s_locations;
+				Index: i_loc_not_usag;
+				Definition: s_locations - s_def_locationsInUsage;
+			}
+			StringParameter sp_locationIcon {
+				IndexDomain: i_loc_not_usag;
+				Definition: "aimms-location5";
+			}
+			Parameter p_locationSize {
+				IndexDomain: i_loc_not_usag;
+				Definition: 5;
+			}
+			Set s_def_locationsInUsage {
+				SubsetOf: s_locations;
+				Index: i_loc_usag, i_loc_usag2;
+				Parameter: ep_locationInUsage;
+				Definition: {
+					{i_act_loc | 
+					        exists(i_act_cargo | i_act_loc = ep_LoadingPortsCargo(i_act_cargo))
+					        or exists(i_act_cargo | i_act_loc = ep_DeliveringPortsCargo(i_act_cargo))
+					        or exists(i_act_vessel | i_act_loc = ep_originPortOfVessel(i_act_vessel))}
+				}
+				webui::TooltipIdentifier: sp_locationInUsageNodeTooltip(ui::i_loc_usag);
+			}
+			StringParameter sp_locationInUsageIcon {
+				IndexDomain: i_loc_usag;
+				Definition: "aimms-location5";
+			}
+			Parameter p_locationInUsageSize {
+				IndexDomain: i_loc_usag;
+				Definition: 8;
+			}
+			StringParameter sp_locationInUsageNodeTooltip {
+				IndexDomain: i_loc_usag;
+				Definition: "There is at least one cargo or vessel that needs to come to this Location.";
+			}
+		}
 		Section Cargoes_Page {
 			StringParameter sp_cargoesSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);

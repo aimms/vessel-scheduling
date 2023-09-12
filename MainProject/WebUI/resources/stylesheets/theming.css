@@ -12,7 +12,7 @@
   --color_bg_workflow_current: var(--primaryDark); /*bg color when step is selected*/
   --color_workflow_active: var(--primaryDark); /*font and icon color when step is active*/
   --color_workflow-icon-border: var(--primaryDark); /*round border of the step*/
-  --color_bg_workflow_active: none;
+  --color_bg_workflow_active: #ff4a400e;;
 
   --color_bg_app-canvas: rgb(249, 249, 249); /*background color*/
   --color_bg_widget-header: linear-gradient(90deg, rgba(255,73,64,0.75) 0%, rgba(218,32,99,0.75)  100%); /*widget header background color*/
@@ -36,4 +36,12 @@
 
 .ql-snow a {
   color: var(--color_text_edit-select-link) !important;
+}
+
+input.boolean-cell-editor-contents {
+  accent-color: var(--primaryDark) /*boolean color*/
+}
+
+.react-contextmenu .react-contextmenu-item .display-text {
+  color: inherit;
 }

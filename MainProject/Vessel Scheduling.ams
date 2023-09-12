@@ -106,6 +106,14 @@ Model Main_Vessel_Schedule {
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
 			}
+			Parameter p_cargoCost {
+				IndexDomain: (i_cargo,i_ct) | bp_activeCostsForCargoes(i_ct);
+				Range: free;
+				Unit: $;
+				dex::ColumnName: Type Costs;
+				dex::Dataset: Import;
+				dex::TableName: CargoCosts;
+			}
 		}
 		Section Vessels {
 			Set s_vessels {
@@ -143,6 +151,16 @@ Model Main_Vessel_Schedule {
 					* max(i_cargo, p_MaxTimeWindow(i_cargo));
 				}
 				Comment: "todo: check if makes sense";
+			}
+			Parameter p_vesselCostDay {
+				IndexDomain: (i_vessel,i_ct) | bp_activeCostsForVessels(i_ct);
+				Unit: $/day;
+				Comment: {
+					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
+				}
+				dex::ColumnName: DailyCost;
+				dex::Dataset: Import;
+				dex::TableName: VesselCosts;
 			}
 		}
 		Section Cost_Types {
@@ -212,6 +230,18 @@ Model Main_Vessel_Schedule {
 				Range: s_locations;
 				dex::ColumnName: Location (To);
 			}
+			Set s_def_activeLocations {
+				SubsetOf: s_locations;
+				Index: i_act_loc;
+				Definition: {
+					{i_loc | bp_activeLocations(i_loc)}
+				}
+			}
+			Parameter bp_activeLocations {
+				IndexDomain: i_loc;
+				Range: binary;
+				InitialData: 1;
+			}
 			Parameter p_latitude {
 				IndexDomain: i_loc;
 				dex::ColumnName: Latitude;
@@ -231,9 +261,7 @@ Model Main_Vessel_Schedule {
 				dex::Dataset: Import;
 				dex::TableName: LocationData;
 			}
-		}
-		Section Section_1 {
-			Parameter p_LocationCost {
+			Parameter p_locationCost {
 				IndexDomain: (i_loc,i_ct) | bp_activeCostsForLocations(i_ct);
 				Unit: $;
 				Definition: {
@@ -243,24 +271,6 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Costs;
 				dex::Dataset: Import;
 				dex::TableName: LocationCosts;
-			}
-			Parameter p_CargoCost {
-				IndexDomain: (i_cargo,i_ct) | bp_activeCostsForCargoes(i_ct);
-				Range: free;
-				Unit: $;
-				dex::ColumnName: Type Costs;
-				dex::Dataset: Import;
-				dex::TableName: CargoCosts;
-			}
-			Parameter p_VesselCostDay {
-				IndexDomain: (i_vessel,i_ct) | bp_activeCostsForVessels(i_ct);
-				Unit: $/day;
-				Comment: {
-					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
-				}
-				dex::ColumnName: DailyCost;
-				dex::Dataset: Import;
-				dex::TableName: VesselCosts;
 			}
 		}
 		Section Routes {
@@ -588,6 +598,7 @@ Model Main_Vessel_Schedule {
 					!Activate all master data
 					bp_activeCargoes(i_cargo):= 1;
 					bp_activeVessels(i_vessel) := 1;
+					bp_activeLocations(i_loc) := 1;
 					ui::p_AllocatedCargoes(i_act_cargo) :=1;
 					
 					!Activate generating routes
@@ -794,17 +805,6 @@ Model Main_Vessel_Schedule {
 			}
 		}
 		DeclarationSection Declaration_Master_Active_Page {
-			Set s_MasterLocations {
-				SubsetOf: s_locations;
-				Index: i_ActiveLoc, i_ActiveLoc2;
-				Definition: {
-					!{i_Loc | ep_LoadingPortsCargo(i_ActiveCargo)}
-					{i_Loc|exists(i_act_cargo | i_Loc = ep_LoadingPortsCargo(i_act_cargo))}+
-					{i_Loc|exists(i_act_cargo | i_Loc = ep_DeliveringPortsCargo(i_act_cargo))}+
-					{i_Loc|exists(i_act_vessel | i_Loc = ep_originPortOfVessel(i_act_vessel))}
-					!Als de locatie gebruikt wordt bij de loading en delevering ports
-				}
-			}
 			Set s_MasterTypeCost {
 				SubsetOf: s_costTypes;
 				Index: i_ActiveCostType;
@@ -847,17 +847,9 @@ Model Main_Vessel_Schedule {
 			}
 		}
 		DeclarationSection Declaration_Mapping_LocAndVessel_Data {
-			StringParameter sp_LocationIc {
-				IndexDomain: i_Loc;
-				Definition: "aimms-location4";
-			}
 			StringParameter sp_VesselIcons {
 				IndexDomain: i_Loc;
 				Definition: "aimms-ship";
-			}
-			Parameter p_SizeIconLocation {
-				IndexDomain: i_Loc;
-				Definition: 10;
 			}
 		}
 		DeclarationSection Declaration_Results_page {
@@ -1034,15 +1026,15 @@ Model Main_Vessel_Schedule {
 			}
 			DeclarationSection Declaration_Arcs {
 				StringParameter sp_CargoLoadingtoCargoDelivery {
-					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					IndexDomain: (ui::i_loc_usag,ui::i_loc_usag2);
 					Definition: {
-						FormatString("%e <br>to<br>%s <br> %n Days",i_ActiveLoc,i_ActiveLoc2,p_DeliveringToLoadingports(i_ActiveLoc,i_ActiveLoc2));
+						FormatString("%e <br>to<br>%s <br> %n Days",ui::i_loc_usag,ui::i_loc_usag2,p_DeliveringToLoadingports(ui::i_loc_usag,ui::i_loc_usag2));
 					}
 				}
 				StringParameter sp_CargoRoute {
-					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					IndexDomain: (ui::i_loc_usag,ui::i_loc_usag2);
 					Definition: {
-						FormatString("%e <br>to<br>%s",i_ActiveLoc,i_ActiveLoc2);
+						FormatString("%e <br>to<br>%s",ui::i_loc_usag,ui::i_loc_usag2);
 					}
 				}
 				StringParameter sp_RouteInformation {
@@ -1075,11 +1067,11 @@ Model Main_Vessel_Schedule {
 					Range: binary;
 				}
 				Parameter p_DeliveringToLoadingports {
-					IndexDomain: (i_ActiveLoc,i_ActiveLoc2);
+					IndexDomain: (ui::i_loc_usag,ui::i_loc_usag2);
 					Unit: day;
 					Definition: {
 						!p_DistanceBetweenLocations(i_loc,i_loc_aux)|exists(i_cargo|(i_loc=ep_LoadingPortsCargo(i_cargo)and i_loc_aux=ep_DeliveringPortsCargo(i_cargo)))
-						p_DistanceBetweenLocations(i_ActiveLoc,i_ActiveLoc2)$exists(i_act_cargo|(i_ActiveLoc=ep_LoadingPortsCargo(i_act_cargo)and i_ActiveLoc2=ep_DeliveringPortsCargo(i_act_cargo)))
+						p_DistanceBetweenLocations(ui::i_loc_usag,ui::i_loc_usag2)$exists(i_act_cargo|(ui::i_loc_usag=ep_LoadingPortsCargo(i_act_cargo)and ui::i_loc_usag2=ep_DeliveringPortsCargo(i_act_cargo)))
 					}
 					webui::TooltipIdentifier: sp_CargoRoute;
 				}
