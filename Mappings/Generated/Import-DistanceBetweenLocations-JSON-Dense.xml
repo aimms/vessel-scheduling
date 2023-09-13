@@ -5,7 +5,7 @@
 			<ObjectMapping dense-children="1">
 				<ValueMapping name="Location (From)" binds-to="i_loc_from" />
 				<ValueMapping name="Location (To)" binds-to="i_loc_to" />
-				<ValueMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_loc_from,i_loc_to)" />
+				<ValueMapping name="DeleveringLocation" maps-to="p_distanceBetweenLocations(i_loc_from,i_loc_to)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

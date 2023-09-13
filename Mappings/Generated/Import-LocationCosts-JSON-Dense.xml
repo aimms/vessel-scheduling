@@ -5,7 +5,7 @@
 			<ObjectMapping dense-children="1">
 				<ValueMapping name="Location" binds-to="i_loc" />
 				<ValueMapping name="Cost Type" binds-to="i_ct" />
-				<ValueMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
+				<ValueMapping name="Costs" maps-to="p_locationCost(i_loc,i_ct)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

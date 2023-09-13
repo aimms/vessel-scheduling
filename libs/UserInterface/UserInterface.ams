@@ -307,7 +307,7 @@ LibraryModule UserInterface {
 					  ( 1, 4, icon              ) : "aimms-equalizer2",
 					  ( 1, 4, pageId            ) : "overview_datasets",
 					  ( 1, 4, tooltip           ) : "Overview of all the data",
-					  ( 1, 4, workflowPageState ) : "active",
+					  ( 1, 4, workflowPageState ) : "Active",
 					  ( 1, 5, displayText       ) : "Locations",
 					  ( 1, 5, icon              ) : "aimms-location5",
 					  ( 1, 5, pageId            ) : "locations_overview",
@@ -353,7 +353,7 @@ LibraryModule UserInterface {
 					  ( 2, displaytext ) : "Export"                         ,  ( 2, icon        ) : "aimms-database-export"          ,
 					  ( 2, procedure   ) : "pr_ExportData"                  ,  ( 2, state       ) : "Active"                         ,
 					  ( 3, displaytext ) : "Generate Routes"                ,  ( 3, icon        ) : "aimms-database-refresh"         ,
-					  ( 3, procedure   ) : "pr_ActivecalculateRoutesAndCost",  ( 3, state       ) : "inactive"                       ,
+					  ( 3, procedure   ) : "pr_calculateRoutesAndCost",  ( 3, state       ) : "inactive"                       ,
 					  ( 4, displaytext ) : "Solve"                          ,  ( 4, icon        ) : "aimms-spinner3"                 ,
 					  ( 4, procedure   ) : "MainExecution"                  ,  ( 4, state       ) : "inactive"                       ,
 					  ( 5, displaytext ) : "Delete Data"                    ,  ( 5, icon        ) : "aimms-bin2"                     ,
@@ -372,7 +372,7 @@ LibraryModule UserInterface {
 					  ( 1, state     ) : "Active"                           ,  ( 2, header    ) : "Generated Routes"                 ,
 					  ( 2, icon      ) : "aimms-cancel-circle2"             ,  ( 2, color     ) : "Red"                              ,
 					  ( 2, text      ) : "."                                ,  ( 2, tooltip   ) : "Routes not ready to be generated.",
-					  ( 2, procedure ) : "pr_ActiveCalculateRoutesAndCost"  ,  ( 2, state     ) : "InActive"                         ,
+					  ( 2, procedure ) : "pr_calculateRoutesAndCost"  ,  ( 2, state     ) : "InActive"                         ,
 					  ( 3, header    ) : "Model Solved"                     ,  ( 3, icon      ) : "aimms-cancel-circle2"             ,
 					  ( 3, color     ) : "Red"                              ,  ( 3, text      ) : "."                                ,
 					  ( 3, tooltip   ) : "Model not ready to be solved."    ,  ( 3, procedure ) : "MainExecution"                    ,
@@ -647,14 +647,24 @@ LibraryModule UserInterface {
 				SubsetOf: s_locations;
 				Index: i_loc_not_usag;
 				Definition: s_locations - s_def_locationsInUsage;
+				webui::AnnotationsIdentifier: sp_locationNotInUsageAnnotation(ui::i_loc_not_usag);
 			}
-			StringParameter sp_locationIcon {
+			StringParameter sp_locationNotInUsageIcon {
 				IndexDomain: i_loc_not_usag;
 				Definition: "aimms-location5";
 			}
-			Parameter p_locationSize {
+			Parameter p_locationNotInUsageSize {
 				IndexDomain: i_loc_not_usag;
 				Definition: 5;
+				webui::TooltipIdentifier: sp_locationNotInUsageTooltip(i_loc_not_usag);
+			}
+			StringParameter sp_locationNotInUsageTooltip {
+				IndexDomain: i_loc_not_usag;
+				Definition: "No cargo or vessel need to go to this Location.";
+			}
+			StringParameter sp_locationNotInUsageAnnotation {
+				IndexDomain: i_loc_not_usag;
+				Definition: "NotInUse";
 			}
 			Set s_def_locationsInUsage {
 				SubsetOf: s_locations;
@@ -666,7 +676,7 @@ LibraryModule UserInterface {
 					        or exists(i_act_cargo | i_act_loc = ep_DeliveringPortsCargo(i_act_cargo))
 					        or exists(i_act_vessel | i_act_loc = ep_originPortOfVessel(i_act_vessel))}
 				}
-				webui::TooltipIdentifier: sp_locationInUsageNodeTooltip(ui::i_loc_usag);
+				webui::AnnotationsIdentifier: sp_locationInUsageAnnotation(ui::i_loc_usag);
 			}
 			StringParameter sp_locationInUsageIcon {
 				IndexDomain: i_loc_usag;
@@ -675,10 +685,15 @@ LibraryModule UserInterface {
 			Parameter p_locationInUsageSize {
 				IndexDomain: i_loc_usag;
 				Definition: 8;
+				webui::TooltipIdentifier: sp_locationInUsageTooltip(ui::i_loc_usag);
 			}
-			StringParameter sp_locationInUsageNodeTooltip {
+			StringParameter sp_locationInUsageTooltip {
 				IndexDomain: i_loc_usag;
 				Definition: "There is at least one cargo or vessel that needs to come to this Location.";
+			}
+			StringParameter sp_locationInUsageAnnotation {
+				IndexDomain: i_loc_usag;
+				Definition: "InUse";
 			}
 		}
 		Section Cargoes_Page {
@@ -690,31 +705,64 @@ LibraryModule UserInterface {
 					  ( 1, icon        ) : "aimms-list2"            ,  ( 1, state       ) : "Active"                  }
 				}
 			}
-			Parameter p_AllocatedCargoes {
-				IndexDomain: i_act_cargo;
-				Range: binary;
-			}
-			Parameter p_SizeCargoesLocation {
+			Parameter p_def_typeOfPortsSize {
 				IndexDomain: i_Loc;
 				Definition: 1;
-				webui::AnnotationsIdentifier: sp_PortsCargoPageAnnotation(i_Loc);
+				webui::AnnotationsIdentifier: ui::sp_def_typeOfPortsAnnotation(i_Loc);
 			}
-			Set s_SubsetCargoLoadingPorts {
-				SubsetOf: s_locations;
-				Index: i_CargoLocLoad;
+			StringParameter sp_def_typeOfPortsAnnotation {
+				IndexDomain: i_loc;
 				Definition: {
-					{i_Loc|exists(i_selectedCargo | i_Loc = ep_LoadingPortsCargo(i_selectedCargo))}
+					if (i_loc in s_def_loadingPorts) 
+					    and (i_loc in s_def_deleveringPorts) then
+					    "LoadingAndDeliveringPort"    
+					
+					elseif i_loc in s_def_loadingPorts then
+					    "LoadingPort"
+					
+					else
+					    "DeliveringPort"
+					endif;
 				}
 			}
-			Set s_SubsetCargoDeleveringPorts {
-				SubsetOf: s_locations;
-				Index: i_CargoLocDel;
+			Parameter p_def_deliveringToLoadingPorts {
+				IndexDomain: (i_loc_usag,i_loc_usag2);
+				Unit: day;
 				Definition: {
-					{i_Loc|exists(i_selectedCargo | i_Loc = ep_DeliveringPortsCargo(i_selectedCargo))}
+					p_distanceBetweenLocations(i_loc_usag,i_loc_usag2) $ 
+					        exists(i_act_cargo |
+					                (i_loc_usag = ep_loadingPortsCargo(i_act_cargo)
+					                and i_loc_usag2 = ep_deliveringPortsCargo(i_act_cargo)))
+				}
+				webui::TooltipIdentifier: sp_def_deliveringToLoadingPortsTooltip(i_loc_usag,i_loc_usag2);
+			}
+			StringParameter sp_def_deliveringToLoadingPortsTooltip {
+				IndexDomain: (i_loc_usag,i_loc_usag2);
+				Definition: {
+					FormatString("%e<br>to<br>%e", i_loc_usag, i_loc_usag2);
 				}
 			}
 		}
-		Section Vessel_Page;
+		Section Vessel_Page {
+			Parameter p_def_vesselOriginPortSize {
+				IndexDomain: i_loc_ves;
+				Definition: 8;
+				webui::AnnotationsIdentifier: sp_vesselOriginPortAnnotation(i_loc_ves);
+				webui::TooltipIdentifier: sp_vesselOriginPortTooltip(i_loc_ves);
+			}
+			StringParameter sp_def_vesselOriginPortIcon {
+				IndexDomain: i_loc_ves;
+				Definition: "aimms-ship";
+			}
+			StringParameter sp_vesselOriginPortAnnotation {
+				IndexDomain: i_loc_ves;
+				Definition: "VesselOrigingPort";
+			}
+			StringParameter sp_vesselOriginPortTooltip {
+				IndexDomain: i_loc_ves;
+				Definition: first(i_vessel | ep_originPortOfVessel(i_vessel) = i_loc_ves);
+			}
+		}
 		Section Optimized_Results_Page {
 			StringParameter sp_optimizedResultsPageSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);

@@ -4,7 +4,7 @@
 		<RowMapping name="rows">
 			<ColumnMapping name="Location" binds-to="i_loc" />
 			<ColumnMapping name="Cost Type" binds-to="i_ct" />
-			<ColumnMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
+			<ColumnMapping name="Costs" maps-to="p_locationCost(i_loc,i_ct)" />
 		</RowMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

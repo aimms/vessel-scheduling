@@ -4,7 +4,7 @@
 		<ColumnMapping name="columns">
 			<RowMapping name="Location (From)" binds-to="i_loc_from" />
 			<RowMapping name="Location (To)" binds-to="i_loc_to" />
-			<RowMapping name="DeleveringLocation" maps-to="p_DistanceBetweenLocations(i_loc_from,i_loc_to)" />
+			<RowMapping name="DeleveringLocation" maps-to="p_distanceBetweenLocations(i_loc_from,i_loc_to)" />
 		</ColumnMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

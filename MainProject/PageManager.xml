@@ -1,1 +1,6 @@
 <?xml version="1.0"?>
+<PageManager>
+	<Page Name="All Data Pages" PageGUID="2BAE1906-819C-477A-820E-CFBEE122FC35">
+		<Page Name="[Data Page] p_totalRouteCargoCost" PageGUID="B05C313E-7967-40ED-8979-F465570C2323" />
+	</Page>
+</PageManager>

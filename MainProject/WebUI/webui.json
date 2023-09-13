@@ -711,34 +711,9 @@
           "dndId": "area-bMappingCargoesWithCollors0"
         },
         {
-          "widgetUri": "MappingCargoeLocations",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsMappingCargoeLocations2"
-        },
-        {
-          "widgetUri": "Legend Ports",
-          "gridArea": "Unassigned widgets",
-          "dndId": "area-bLegend Ports1"
-        },
-        {
-          "widgetUri": "SelectCargo",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsSelectCargo3"
-        },
-        {
           "widgetUri": "CargoInfoTable",
           "gridArea": "area-a",
           "dndId": "area-aCargoInfoTable4"
-        },
-        {
-          "widgetUri": "Test_1",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsTest_15"
-        },
-        {
-          "widgetUri": "CargoesCostTable",
-          "gridArea": "area-c",
-          "dndId": "area-cCargoesCostTable6"
         }
       ]
     },
@@ -796,13 +771,6 @@
     "widgets": {
       "literal": [
         {
-          "uri": "CargoesCostTable",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
           "uri": "CargoInfoTable",
           "layoutInfo": {
             "width": "2",
@@ -810,35 +778,7 @@
           }
         },
         {
-          "uri": "MappingCargoeLocations",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "SelectCargo",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Test_1",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
           "uri": "MappingCargoesWithCollors",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Legend Ports",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1567,24 +1507,19 @@
     "bindings": {
       "literal": [
         {
-          "widgetUri": "VesselInfoTable",
-          "gridArea": "area-b",
-          "dndId": "Unassigned widgetsVesselInfoTable2"
-        },
-        {
-          "widgetUri": "VesselCostTable",
-          "gridArea": "area-c",
-          "dndId": "area-cVesselCostTable0"
-        },
-        {
           "widgetUri": "VesselLocation",
-          "gridArea": "area-a",
+          "gridArea": "area-b",
           "dndId": "area-aVesselLocation1"
+        },
+        {
+          "widgetUri": "VesselInfoTable",
+          "gridArea": "area-a",
+          "dndId": "area-aVesselInfoTable0"
         }
       ]
     },
     "layoutId": {
-      "literal": "custom_9718d987-ea23-4b6f-8efa-dbf0dd23416b"
+      "literal": "custom_24197f78-2749-4faa-ae4d-8b84aed3376e"
     },
     "secondarypageactions": {
       "aimms": {
@@ -1614,13 +1549,6 @@
       "literal": [
         {
           "uri": "VesselInfoTable",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "VesselCostTable",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1752,7 +1680,7 @@
       "aimms": {
         "slices": [
           {
-            "identifier": "p_OperationalCostVessel",
+            "identifier": "p_def_operationalCostVessel",
             "slice": [
               {
                 "index": "i_route",
@@ -1794,7 +1722,7 @@
         ],
         "contents": [
           "ep_VesselOnRoute",
-          "p_OperationalCostVessel",
+          "p_def_operationalCostVessel",
           "sp_CargoesOnRoute",
           "p_TotalDaysTravel"
         ]
@@ -1839,21 +1767,6 @@
     },
     "title": {
       "literal": "RouteResults"
-    }
-  },
-  "widgets/Calendar": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "ep_StartHorizonDate"
-        ]
-      }
-    },
-    "name": {
-      "literal": "Calendar"
     }
   },
   "widgets/Cargo Results": {
@@ -2021,72 +1934,6 @@
       }
     }
   },
-  "widgets/CargoesCostTable": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "p_CargoCost"
-        ],
-        "prefix": "aimms",
-        "slices": [
-          {
-            "identifier": "p_CargoCost",
-            "slice": [
-              {
-                "index": "i_cargo",
-                "type": "subset",
-                "value": "i_act_cargo"
-              },
-              {
-                "index": "i_ct",
-                "type": "free",
-                "value": "i_ct"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "contents.displaydomain": {
-      "literal": {
-        "p_cargocost": "bp_activeCostsForCargoes"
-      }
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "i_act_cargo"
-        ],
-        "colHeader": [
-          "i_ct"
-        ],
-        "aggregated": [
-          "<IDENTIFIER-SET>"
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "rowHeader",
-          "colKey": "i_act_cargo",
-          "width": 19.02
-        }
-      ]
-    },
-    "default.column.width": {
-      "literal": 16
-    },
-    "name": {
-      "literal": "CargoesCostTable"
-    },
-    "title": {
-      "literal": "Type of costs on Cargoes"
-    }
-  },
   "widgets/CargoInfoTable": {
     "aimms.widget.type": {
       "literal": "table"
@@ -2183,7 +2030,7 @@
     },
     "contents.displaydomain": {
       "literal": {
-        "ui::p_allocatedcargoes": "1"
+        "p_allocatedcargoes": "1"
       }
     },
     "contents.partition": {
@@ -2335,21 +2182,6 @@
       "literal": "Deselect Cargo View"
     }
   },
-  "widgets/IdleCost": {
-    "aimms.widget.type": {
-      "literal": "scalar"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "p_IdleCostLocation"
-        ]
-      }
-    },
-    "name": {
-      "literal": "IdleCost"
-    }
-  },
   "widgets/Latitude": {
     "aimms.widget.type": {
       "literal": "table"
@@ -2363,7 +2195,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               }
             ]
           },
@@ -2373,7 +2205,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               }
             ]
           },
@@ -2383,7 +2215,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               }
             ]
           }
@@ -2404,7 +2236,7 @@
       "literal": {
         "rowHeader": [
           "i_Loc",
-          "i_loc_usag"
+          "ui::i_loc_usag"
         ],
         "colHeader": [
           "<IDENTIFIER-SET>"
@@ -2544,24 +2376,6 @@
     },
     "title": {
       "literal": "Legend Port"
-    }
-  },
-  "widgets/Legend Ports": {
-    "aimms.widget.type": {
-      "literal": "legend"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "ep_SortOfPortsCargo"
-        ]
-      }
-    },
-    "name": {
-      "literal": "Legend Ports"
-    },
-    "title": {
-      "literal": "Legend Color Ports"
     }
   },
   "widgets/LegendsPorts": {
@@ -2719,99 +2533,6 @@
       "literal": "Information per Location"
     }
   },
-  "widgets/Locations": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "p_ActiveLocations",
-          "s_Locations"
-        ]
-      }
-    },
-    "contents.displaydomain": {
-      "literal": {
-        "p_activelocations": "1",
-        "s_locations": "0"
-      }
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "i_Loc"
-        ],
-        "colHeader": [
-          "<IDENTIFIER-SET>"
-        ],
-        "aggregated": []
-      }
-    },
-    "contextmenu": {
-      "aimms": {
-        "contents": [
-          "sp_LocationItemActions"
-        ],
-        "slices": [
-          {
-            "identifier": "sp_LocationItemActions",
-            "slice": [
-              {
-                "index": "webui::indexWidgetItemActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetItemActionSpec"
-              },
-              {
-                "index": "webui::indexPageExtension",
-                "type": "free",
-                "value": "webui::indexPageExtension"
-              },
-              {
-                "index": "webui::indexWidgetActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetActionSpec"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_ActiveLocations"
-          },
-          "width": 23.54
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "s_Locations"
-          },
-          "width": 21.24
-        },
-        {
-          "type": "rowHeader",
-          "colKey": "i_Loc",
-          "width": 40.7
-        }
-      ]
-    },
-    "name": {
-      "literal": "Locations"
-    },
-    "store.focus.in": {
-      "literal": {
-        "i_Loc": "ep_Location"
-      }
-    },
-    "title": {
-      "literal": "Locations"
-    }
-  },
   "widgets/lol": {
     "aimms.widget.type": {
       "literal": "text"
@@ -2821,21 +2542,6 @@
     },
     "name": {
       "literal": "text_Intro"
-    }
-  },
-  "widgets/Longitude": {
-    "aimms.widget.type": {
-      "literal": "scalar"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "p_Longitude"
-        ]
-      }
-    },
-    "name": {
-      "literal": "Longitude"
     }
   },
   "widgets/Map": {
@@ -2860,7 +2566,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               },
               {
                 "index": "i_Loc2",
@@ -2882,7 +2588,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_loc_usag"
+            "value": "ui::i_loc_usag"
           },
           {
             "index": "i_Loc2",
@@ -2904,7 +2610,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               },
               {
                 "index": "i_Loc2",
@@ -2926,7 +2632,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_loc_usag"
+            "value": "ui::i_loc_usag"
           },
           {
             "index": "i_Loc2",
@@ -3220,10 +2926,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -11.350796722383672
+      "literal": -18.396230138028817
     },
     "center.longitude": {
-      "literal": 3.164062500000001
+      "literal": -61.1667953038919
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3244,8 +2950,8 @@
         "contents": [
           "p_longitude",
           "p_latitude",
-          "ui::p_locationSize",
-          "ui::sp_locationIcon"
+          "ui::p_locationNotInUsageSize",
+          "ui::sp_locationNotInUsageIcon"
         ],
         "slices": [
           {
@@ -3269,7 +2975,7 @@
             ]
           },
           {
-            "identifier": "ui::p_locationSize",
+            "identifier": "ui::p_locationNotInUsageSize",
             "slice": [
               {
                 "index": "ui::i_loc_not_usag",
@@ -3279,7 +2985,7 @@
             ]
           },
           {
-            "identifier": "ui::sp_locationIcon",
+            "identifier": "ui::sp_locationNotInUsageIcon",
             "slice": [
               {
                 "index": "ui::i_loc_not_usag",
@@ -3293,7 +2999,7 @@
     },
     "nodes.0.icon": {
       "literal": {
-        "identifier": "ui::sp_locationIcon",
+        "identifier": "ui::sp_locationNotInUsageIcon",
         "slice": [
           {
             "index": "ui::i_loc_not_usag",
@@ -3334,7 +3040,7 @@
     },
     "nodes.0.size": {
       "literal": {
-        "identifier": "ui::p_locationSize",
+        "identifier": "ui::p_locationNotInUsageSize",
         "slice": [
           {
             "index": "ui::i_loc_not_usag",
@@ -3453,206 +3159,7 @@
       "literal": "Map of Locations"
     },
     "zoom": {
-      "literal": 2
-    }
-  },
-  "widgets/MappingCargoeLocations": {
-    "aimms.widget.type": {
-      "literal": "map-v2"
-    },
-    "arcs.__display_order__": {
-      "literal": [
-        "arcs.0"
-      ]
-    },
-    "arcs.0": {
-      "aimms": {
-        "contents": [
-          "p_DeliveringToLoadingports"
-        ],
-        "slices": [
-          {
-            "identifier": "p_DeliveringToLoadingports",
-            "slice": [
-              {
-                "index": "i_loc_usag",
-                "type": "free",
-                "value": "i_loc_usag"
-              },
-              {
-                "index": "i_ActiveLoc2",
-                "type": "free",
-                "value": "i_ActiveLoc2"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "arcs.0.label.hide": {
-      "literal": true
-    },
-    "arcs.0.value": {
-      "literal": {
-        "identifier": "p_DeliveringToLoadingports",
-        "slice": [
-          {
-            "index": "i_loc_usag",
-            "type": "free",
-            "value": "i_loc_usag"
-          },
-          {
-            "index": "i_ActiveLoc2",
-            "type": "free",
-            "value": "i_ActiveLoc2"
-          }
-        ]
-      }
-    },
-    "center.latitude": {
-      "literal": 12.726084296948196
-    },
-    "center.longitude": {
-      "literal": 18.97947969948849
-    },
-    "heatmaps.__display_order__": {
-      "literal": [
-        "heatmaps.0"
-      ]
-    },
-    "name": {
-      "literal": "MappingCargoeLocations"
-    },
-    "nodes.__display_order__": {
-      "literal": [
-        "nodes.0",
-        "nodes.1"
-      ]
-    },
-    "nodes.0": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_CargoLocLoad"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_CargoLocLoad"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "nodes.0.index": {
-      "literal": {
-        "identifier": "ui::i_CargoLocLoad"
-      }
-    },
-    "nodes.0.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_CargoLocLoad"
-          }
-        ]
-      }
-    },
-    "nodes.0.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_CargoLocLoad"
-          }
-        ]
-      }
-    },
-    "nodes.1": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_CargoLocDel"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_CargoLocDel"
-              }
-            ]
-          }
-        ],
-        "prefix": "aimms"
-      }
-    },
-    "nodes.1.index": {
-      "literal": {
-        "identifier": "ui::i_CargoLocDel"
-      }
-    },
-    "nodes.1.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_CargoLocDel"
-          }
-        ]
-      }
-    },
-    "nodes.1.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_CargoLocDel"
-          }
-        ]
-      }
-    },
-    "title": {
-      "literal": "Map Destinations Cargo"
-    },
-    "zoom": {
-      "literal": 2
+      "literal": 3
     }
   },
   "widgets/MappingCargoesWithCollors": {
@@ -3667,21 +3174,21 @@
     "arcs.0": {
       "aimms": {
         "contents": [
-          "p_DeliveringToLoadingports"
+          "ui::p_def_deliveringToLoadingPorts"
         ],
         "slices": [
           {
-            "identifier": "p_DeliveringToLoadingports",
+            "identifier": "ui::p_def_deliveringToLoadingPorts",
             "slice": [
               {
-                "index": "i_loc_usag",
+                "index": "ui::i_loc_usag",
                 "type": "free",
-                "value": "i_loc_usag"
+                "value": "ui::i_loc_usag"
               },
               {
-                "index": "i_ActiveLoc2",
+                "index": "ui::i_loc_usag2",
                 "type": "free",
-                "value": "i_ActiveLoc2"
+                "value": "ui::i_loc_usag2"
               }
             ]
           }
@@ -3693,26 +3200,29 @@
     },
     "arcs.0.value": {
       "literal": {
-        "identifier": "p_DeliveringToLoadingports",
+        "identifier": "ui::p_def_deliveringToLoadingPorts",
         "slice": [
           {
-            "index": "i_loc_usag",
+            "index": "ui::i_loc_usag",
             "type": "free",
-            "value": "i_loc_usag"
+            "value": "ui::i_loc_usag"
           },
           {
-            "index": "i_ActiveLoc2",
+            "index": "ui::i_loc_usag2",
             "type": "free",
-            "value": "i_ActiveLoc2"
+            "value": "ui::i_loc_usag2"
           }
         ]
       }
     },
+    "arcs.0.width.dynamic": {
+      "literal": false
+    },
     "center.latitude": {
-      "literal": -3.169720412144742
+      "literal": -14.9476607141921
     },
     "center.longitude": {
-      "literal": 19.335937500000005
+      "literal": 19.863281250000005
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3733,7 +3243,7 @@
         "contents": [
           "p_Longitude",
           "p_Latitude",
-          "ui::p_SizeCargoesLocation"
+          "ui::p_def_typeOfPortsSize"
         ],
         "slices": [
           {
@@ -3742,7 +3252,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocDel"
+                "value": "i_loc_del"
               }
             ]
           },
@@ -3752,17 +3262,17 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocDel"
+                "value": "i_loc_del"
               }
             ]
           },
           {
-            "identifier": "ui::p_SizeCargoesLocation",
+            "identifier": "ui::p_def_typeOfPortsSize",
             "slice": [
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocDel"
+                "value": "i_loc_del"
               }
             ]
           }
@@ -3771,7 +3281,7 @@
     },
     "nodes.0.index": {
       "literal": {
-        "identifier": "ui::i_CargoLocDel"
+        "identifier": "i_loc_del"
       }
     },
     "nodes.0.latitude": {
@@ -3781,7 +3291,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocDel"
+            "value": "i_loc_del"
           }
         ]
       }
@@ -3793,7 +3303,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocDel"
+            "value": "i_loc_del"
           }
         ]
       }
@@ -3803,12 +3313,12 @@
     },
     "nodes.0.size": {
       "literal": {
-        "identifier": "ui::p_SizeCargoesLocation",
+        "identifier": "ui::p_def_typeOfPortsSize",
         "slice": [
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocDel"
+            "value": "i_loc_del"
           }
         ]
       }
@@ -3818,7 +3328,7 @@
         "contents": [
           "p_Longitude",
           "p_Latitude",
-          "ui::p_SizeCargoesLocation"
+          "ui::p_def_typeOfPortsSize"
         ],
         "slices": [
           {
@@ -3827,7 +3337,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocLoad"
+                "value": "i_loc_load"
               }
             ]
           },
@@ -3837,17 +3347,17 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocLoad"
+                "value": "i_loc_load"
               }
             ]
           },
           {
-            "identifier": "ui::p_SizeCargoesLocation",
+            "identifier": "ui::p_def_typeOfPortsSize",
             "slice": [
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "ui::i_CargoLocLoad"
+                "value": "i_loc_load"
               }
             ]
           }
@@ -3856,7 +3366,7 @@
     },
     "nodes.1.index": {
       "literal": {
-        "identifier": "ui::i_CargoLocLoad"
+        "identifier": "i_loc_load"
       }
     },
     "nodes.1.latitude": {
@@ -3866,7 +3376,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocLoad"
+            "value": "i_loc_load"
           }
         ]
       }
@@ -3878,7 +3388,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocLoad"
+            "value": "i_loc_load"
           }
         ]
       }
@@ -3888,12 +3398,12 @@
     },
     "nodes.1.size": {
       "literal": {
-        "identifier": "ui::p_SizeCargoesLocation",
+        "identifier": "ui::p_def_typeOfPortsSize",
         "slice": [
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "ui::i_CargoLocLoad"
+            "value": "i_loc_load"
           }
         ]
       }
@@ -3978,14 +3488,6 @@
       "literal": "scl_EditAddElements"
     }
   },
-  "widgets/Select Cargoes": {
-    "aimms.widget.type": {
-      "literal": "multiselect"
-    },
-    "name": {
-      "literal": "Select Cargoes"
-    }
-  },
   "widgets/Select Routes_1": {
     "aimms.widget.type": {
       "literal": "multiselect"
@@ -4004,21 +3506,6 @@
     },
     "title": {
       "literal": "Select Routes"
-    }
-  },
-  "widgets/SelectCargo": {
-    "aimms.widget.type": {
-      "literal": "multiselect"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "ui::p_AllocatedCargoes"
-        ]
-      }
-    },
-    "name": {
-      "literal": "SelectCargo"
     }
   },
   "widgets/SelectedRoutes": {
@@ -4293,146 +3780,6 @@
       "literal": "Test"
     }
   },
-  "widgets/Test_1": {
-    "aimms.widget.type": {
-      "literal": "map-v2"
-    },
-    "arcs.__display_order__": {
-      "literal": [
-        "arcs.0"
-      ]
-    },
-    "arcs.0": {
-      "aimms": {
-        "contents": [
-          "p_DeliveringToLoadingports"
-        ],
-        "slices": [
-          {
-            "identifier": "p_DeliveringToLoadingports",
-            "slice": [
-              {
-                "index": "i_loc_usag",
-                "type": "subset",
-                "value": "i_SelectedLocation"
-              },
-              {
-                "index": "i_ActiveLoc2",
-                "type": "free",
-                "value": "i_ActiveLoc2"
-              }
-            ]
-          }
-        ],
-        "prefix": "aimms"
-      }
-    },
-    "arcs.0.label.hide": {
-      "literal": true
-    },
-    "arcs.0.value": {
-      "literal": {
-        "identifier": "p_DeliveringToLoadingports",
-        "slice": [
-          {
-            "index": "i_loc_usag",
-            "type": "free",
-            "value": "i_loc_usag"
-          },
-          {
-            "index": "i_ActiveLoc2",
-            "type": "free",
-            "value": "i_ActiveLoc2"
-          }
-        ]
-      }
-    },
-    "center.latitude": {
-      "literal": 23.95011615840199
-    },
-    "center.longitude": {
-      "literal": 1.732090844961709
-    },
-    "heatmaps.__display_order__": {
-      "literal": [
-        "heatmaps.0"
-      ]
-    },
-    "name": {
-      "literal": "MappingCargoesLoc"
-    },
-    "nodes.__display_order__": {
-      "literal": [
-        "nodes.0"
-      ]
-    },
-    "nodes.0": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_SelectedLocation"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_SelectedLocation"
-              }
-            ]
-          }
-        ],
-        "prefix": "aimms"
-      }
-    },
-    "nodes.0.index": {
-      "literal": {
-        "identifier": "i_Loc"
-      }
-    },
-    "nodes.0.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "free",
-            "value": "i_Loc"
-          }
-        ]
-      }
-    },
-    "nodes.0.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "free",
-            "value": "i_Loc"
-          }
-        ]
-      }
-    },
-    "title": {
-      "literal": "Map Destination Cargo"
-    },
-    "zoom": {
-      "literal": 2
-    }
-  },
   "widgets/TestTabl": {
     "aimms.widget.type": {
       "literal": "table"
@@ -4482,126 +3829,6 @@
     },
     "title": {
       "literal": "Import KPIs"
-    }
-  },
-  "widgets/Type of Cosy": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "bp_activeCostsForCargoes",
-          "bp_activeCostsForLocations",
-          "bp_activeCostsForVessels"
-        ]
-      }
-    },
-    "contents.displaydomain": {
-      "literal": {
-        "p_activetypecost": "1",
-        "s_costtypes": "0",
-        "bp_activecostsforcargoes": "1",
-        "bp_activecostsforlocations": "1",
-        "bp_activecostsforvessels": "1"
-      }
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "i_ct"
-        ],
-        "colHeader": [
-          "<IDENTIFIER-SET>"
-        ],
-        "aggregated": [
-          "i_ActiveCostType"
-        ]
-      }
-    },
-    "contextmenu": {
-      "aimms": {
-        "contents": [
-          "ui::sp_TypeOfCostItemActions"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::sp_TypeOfCostItemActions",
-            "slice": [
-              {
-                "index": "webui::indexWidgetItemActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetItemActionSpec"
-              },
-              {
-                "index": "webui::indexPageExtension",
-                "type": "free",
-                "value": "webui::indexPageExtension"
-              },
-              {
-                "index": "webui::indexWidgetActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetActionSpec"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "s_TypeOfCost"
-          },
-          "width": 18.75
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_ActiveTypeCost"
-          },
-          "width": 25.49
-        },
-        {
-          "type": "rowHeader",
-          "colKey": "i_CostType",
-          "width": 21.16
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_ActiveLocationCost"
-          },
-          "width": 23.42
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_ActiveVesselCost"
-          },
-          "width": 26.63
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_ActiveCargoesCost"
-          },
-          "width": 26.61
-        }
-      ]
-    },
-    "name": {
-      "literal": "Type of Cosy"
-    },
-    "store.focus.in": {
-      "literal": {
-        "i_ct": "ep_costType"
-      }
-    },
-    "title": {
-      "literal": "Type of Cost"
     }
   },
   "widgets/Vessel loading": {
@@ -4712,126 +3939,6 @@
       "literal": "Planning routes"
     }
   },
-  "widgets/VesselCostTable": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "p_VesselCostDay"
-        ],
-        "prefix": "aimms",
-        "partition": {
-          "rowHeader": [
-            "i_vessel"
-          ],
-          "colHeader": [
-            "<IDENTIFIER-SET>",
-            "i_CostType"
-          ],
-          "aggregated": []
-        },
-        "slices": [
-          {
-            "identifier": "p_VesselCostDay",
-            "slice": [
-              {
-                "index": "i_vessel",
-                "type": "subset",
-                "value": "i_act_vessel"
-              },
-              {
-                "index": "i_ct",
-                "type": "free",
-                "value": "i_ct"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "contents.displaydomain": {
-      "literal": {
-        "p_vesselcostday": "bp_activeCostsForVessels"
-      }
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "i_vessel",
-          "i_act_vessel"
-        ],
-        "colHeader": [
-          "i_ct"
-        ],
-        "aggregated": [
-          "<IDENTIFIER-SET>"
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_VesselCostDay",
-            "i_CostType": "Fuel"
-          },
-          "width": 21.04
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "p_VesselCostDay",
-            "i_CostType": "Crew"
-          },
-          "width": 28.54
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_CostType": "Crew"
-          },
-          "width": 22.29
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_CostType": "Fuel"
-          },
-          "width": 23.12
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_CostType": "Unloading"
-          },
-          "width": 16.4
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_CostType": "Loading"
-          },
-          "width": 17.65
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_CostType": "Admin"
-          },
-          "width": 15.16
-        }
-      ]
-    },
-    "name": {
-      "literal": "VesselCostTable"
-    },
-    "title": {
-      "literal": "Type of costs on Vessels"
-    }
-  },
   "widgets/VesselInfoTable": {
     "aimms.widget.type": {
       "literal": "table"
@@ -4858,31 +3965,40 @@
                 "value": "i_act_vessel"
               }
             ]
+          },
+          {
+            "identifier": "p_vesselCostDay",
+            "slice": [
+              {
+                "index": "i_vessel",
+                "type": "subset",
+                "value": "i_act_vessel"
+              },
+              {
+                "index": "i_ct",
+                "type": "free",
+                "value": "i_ct"
+              }
+            ]
           }
         ],
         "contents": [
           "ep_originPortOfVessel",
-          "p_def_idleCostVesselNotUsed"
+          "p_def_idleCostVesselNotUsed",
+          "p_vesselCostDay"
         ],
-        "prefix": "aimms",
-        "partition": {
-          "rowHeader": [
-            "i_vessel"
-          ],
-          "colHeader": [
-            "<IDENTIFIER-SET>"
-          ],
-          "aggregated": []
-        }
+        "prefix": "aimms"
       }
     },
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_vessel"
+          "i_vessel",
+          "i_act_vessel"
         ],
         "colHeader": [
-          "<IDENTIFIER-SET>"
+          "<IDENTIFIER-SET>",
+          "i_ct"
         ],
         "aggregated": []
       }
@@ -4895,6 +4011,27 @@
             "<IDENTIFIER-SET>": "p_IdleCostVesselNotUsed"
           },
           "width": 24.82
+        },
+        {
+          "type": "rowHeader",
+          "colKey": "i_act_vessel",
+          "width": 19.1
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_originPortOfVessel",
+            "i_ct": ""
+          },
+          "width": 27.94
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_def_idleCostVesselNotUsed",
+            "i_ct": ""
+          },
+          "width": 18.92
         }
       ]
     },
@@ -4905,7 +4042,7 @@
       "literal": "VesselInfoTable"
     },
     "title": {
-      "literal": "Data Vessels"
+      "literal": "Information per Vessel"
     }
   },
   "widgets/VesselLocation": {
@@ -4921,7 +4058,7 @@
       "literal": -1.5818302639606457
     },
     "center.longitude": {
-      "literal": -24.609375000000005
+      "literal": -9.004881810522518
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4941,8 +4078,8 @@
         "contents": [
           "p_Longitude",
           "p_Latitude",
-          "p_SizeIconLocation",
-          "sp_VesselIcons"
+          "ui::p_def_vesselOriginPortSize",
+          "ui::sp_def_vesselOriginPortIcon"
         ],
         "slices": [
           {
@@ -4951,7 +4088,7 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_LocVesselPort"
+                "value": "i_loc_ves"
               }
             ]
           },
@@ -4961,27 +4098,27 @@
               {
                 "index": "i_Loc",
                 "type": "subset",
-                "value": "i_LocVesselPort"
+                "value": "i_loc_ves"
               }
             ]
           },
           {
-            "identifier": "p_SizeIconLocation",
+            "identifier": "ui::p_def_vesselOriginPortSize",
             "slice": [
               {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_LocVesselPort"
+                "index": "i_loc_ves",
+                "type": "free",
+                "value": "i_loc_ves"
               }
             ]
           },
           {
-            "identifier": "sp_VesselIcons",
+            "identifier": "ui::sp_def_vesselOriginPortIcon",
             "slice": [
               {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_LocVesselPort"
+                "index": "i_loc_ves",
+                "type": "free",
+                "value": "i_loc_ves"
               }
             ]
           }
@@ -4990,19 +4127,19 @@
     },
     "nodes.0.icon": {
       "literal": {
-        "identifier": "sp_VesselIcons",
+        "identifier": "ui::sp_def_vesselOriginPortIcon",
         "slice": [
           {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_LocVesselPort"
+            "index": "i_loc_ves",
+            "type": "free",
+            "value": "i_loc_ves"
           }
         ]
       }
     },
     "nodes.0.index": {
       "literal": {
-        "identifier": "i_LocVesselPort"
+        "identifier": "i_loc_ves"
       }
     },
     "nodes.0.latitude": {
@@ -5012,7 +4149,7 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_LocVesselPort"
+            "value": "i_loc_ves"
           }
         ]
       }
@@ -5024,25 +4161,25 @@
           {
             "index": "i_Loc",
             "type": "subset",
-            "value": "i_LocVesselPort"
+            "value": "i_loc_ves"
           }
         ]
       }
     },
     "nodes.0.size": {
       "literal": {
-        "identifier": "p_SizeIconLocation",
+        "identifier": "ui::p_def_vesselOriginPortSize",
         "slice": [
           {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_LocVesselPort"
+            "index": "i_loc_ves",
+            "type": "free",
+            "value": "i_loc_ves"
           }
         ]
       }
     },
     "title": {
-      "literal": "Map Berth Vessel"
+      "literal": "Map of Vessels"
     },
     "zoom": {
       "literal": 2

@@ -3,6 +3,18 @@
 LibraryModule MathematicalModel {
 	Prefix: mm;
 	Interface: MathematicalModel;
+	Section Pre_Execution {
+		Parameter p_def_operationalCostVessel {
+			IndexDomain: i_route;
+			Unit: $;
+			Definition: {
+				p_TotalRouteCargoCost(i_route)
+				+ p_TotalRouteLocationCost(i_route)
+				+ p_TotalRouteIdleCost(i_route)
+				+ p_TotalRouteMovementCost(i_route)
+			}
+		}
+	}
 	DeclarationSection SV_Constraints {
 		Constraint c_assignCargoToOneVessel {
 			IndexDomain: i_act_cargo;
@@ -64,7 +76,7 @@ LibraryModule MathematicalModel {
 			Unit: $;
 			Definition: {
 				sum((i_act_vessel,i_route), 
-				    p_OperationalCostVessel(i_route) 
+				    p_def_operationalCostVessel(i_route) 
 				    * v_allocateVesselToRoute(i_act_vessel, i_route))
 			}
 		}
@@ -85,6 +97,45 @@ LibraryModule MathematicalModel {
 				    p_SpotCostVessel(i_act_cargo) 
 				    * v_cargoOnCharteredVessel(i_act_cargo))
 			}
+		}
+	}
+	Section Pos_Execution {
+		Procedure pr_sol_determineLoadingAndDelivering {
+			Body: {
+				for i_allcRoute do
+				
+				    p_LoadingTimeCargo(i_act_cargo) | 
+				            bp_def_cargoesOnRouteBin(i_allcRoute, i_act_cargo) 
+				    := p_loadingTimeCargoRoute(i_act_cargo, i_allcRoute);
+				
+				    p_DeleveringTimeCargo(i_act_cargo) | 
+				            bp_def_cargoesOnRouteBin(i_allcRoute, i_act_cargo) 
+				    := p_DeleveringTimeCargoRoute(i_act_cargo, i_allcRoute);
+				
+				endfor;
+			}
+		}
+		Set s_def_allocatedRoutes {
+			SubsetOf: s_feasibleRoutes;
+			Index: i_allcRoute;
+			Parameter: ep_allcRoute;
+			Definition: {
+				{(i_route) | exists((i_act_vessel) | v_allocateVesselToRoute(i_act_vessel, i_route))};
+			}
+		}
+		Parameter p_def_vesselsNotUsed {
+			IndexDomain: i_act_vessel;
+			Range: binary;
+			Definition: v_idleVessel(i_act_vessel);
+			webui::FlagsIdentifier: sp_ReadsOnly;
+		}
+		Parameter p_loadingTimeCargo {
+			IndexDomain: i_act_cargo;
+			Unit: day;
+		}
+		Parameter p_deleveringTimeCargo {
+			IndexDomain: i_act_cargo;
+			Unit: day;
 		}
 	}
 	Procedure LibraryInitialization {

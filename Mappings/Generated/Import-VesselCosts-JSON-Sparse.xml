@@ -5,7 +5,7 @@
 			<ObjectMapping>
 				<ValueMapping name="Vessel" binds-to="i_vessel" />
 				<ValueMapping name="Cost Type" binds-to="i_ct" />
-				<ValueMapping name="DailyCost" maps-to="p_VesselCostDay(i_vessel,i_ct)" />
+				<ValueMapping name="DailyCost" maps-to="p_vesselCostDay(i_vessel,i_ct)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

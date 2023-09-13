@@ -4,7 +4,7 @@
 		<ElementObjectMapping name="Row" dense-children="1">
 			<AttributeMapping name="Location" binds-to="i_loc" />
 			<AttributeMapping name="Cost Type" binds-to="i_ct" />
-			<ElementValueMapping name="Costs" maps-to="p_LocationCost(i_loc,i_ct)" />
+			<ElementValueMapping name="Costs" maps-to="p_locationCost(i_loc,i_ct)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

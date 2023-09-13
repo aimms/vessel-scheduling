@@ -5,10 +5,10 @@
 			<ObjectMapping dense-children="1">
 				<ValueMapping name="Cargo" binds-to="i_cargo" />
 				<ValueMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />
-				<ValueMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
-				<ValueMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
-				<ValueMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
-				<ValueMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
+				<ValueMapping name="Minimum Loading Time" maps-to="ep_minTimeWindow(i_cargo)" />
+				<ValueMapping name="Maximum Loading Time" maps-to="ep_maxTimeWindow(i_cargo)" />
+				<ValueMapping name="Loading Port" maps-to="ep_loadingPortsCargo(i_cargo)" />
+				<ValueMapping name="Delevering Port" maps-to="ep_deliveringPortsCargo(i_cargo)" />
 			</ObjectMapping>
 		</ArrayMapping>
 	</ObjectMapping>

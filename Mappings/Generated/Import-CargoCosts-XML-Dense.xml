@@ -4,7 +4,7 @@
 		<ElementObjectMapping name="Row" dense-children="1">
 			<AttributeMapping name="Cargo" binds-to="i_cargo" />
 			<AttributeMapping name="Cost Type" binds-to="i_ct" />
-			<ElementValueMapping name="Type Costs" maps-to="p_CargoCost(i_cargo,i_ct)" />
+			<ElementValueMapping name="Type Costs" maps-to="p_cargoCost(i_cargo,i_ct)" />
 		</ElementObjectMapping>
 	</ElementObjectMapping>
 </AimmsXMLMapping>

@@ -3,9 +3,9 @@
 	<RowMapping name="CargoData">
 		<ColumnMapping name="Cargo" binds-to="i_cargo" />
 		<ColumnMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />
-		<ColumnMapping name="Minimum Loading Time" maps-to="ep_MinTimeWindow(i_cargo)" />
-		<ColumnMapping name="Maximum Loading Time" maps-to="ep_MaxTimeWindow(i_cargo)" />
-		<ColumnMapping name="Loading Port" maps-to="ep_LoadingPortsCargo(i_cargo)" />
-		<ColumnMapping name="Delevering Port" maps-to="ep_DeliveringPortsCargo(i_cargo)" />
+		<ColumnMapping name="Minimum Loading Time" maps-to="ep_minTimeWindow(i_cargo)" />
+		<ColumnMapping name="Maximum Loading Time" maps-to="ep_maxTimeWindow(i_cargo)" />
+		<ColumnMapping name="Loading Port" maps-to="ep_loadingPortsCargo(i_cargo)" />
+		<ColumnMapping name="Delevering Port" maps-to="ep_deliveringPortsCargo(i_cargo)" />
 	</RowMapping>
 </AimmsParquetMapping>

@@ -1,23 +1,37 @@
-/*Colloring datapoints*/
-.annotation-LoadPort{
-    fill:#00A6F3;
-    background: #00A6F3 !important;
+.annotation-NotInUse,
+.annotation-VesselOrigingPort{
+    fill: var(--primaryDark);
+    background: var(--primaryDark) !important;
 }
 
-.annotation-DelPort{
-    fill: #ff3b30;
-    background: #ff3b30 !important;    
+.annotation-InUse{
+    fill: var(--primaryDarker);
+    background: var(--primaryDarker) !important;
 }
+
+/*Colloring datapoints*/
+.annotation-LoadingPort{
+    fill:#1b9e77;
+    background: #1b9e77 !important;
+}
+
+.annotation-DeliveringPort{
+    fill: #d95f02;
+    background: #d95f02 !important;    
+}
+
+.annotation-LoadingAndDeliveringPort{
+    fill: #7570b3;
+    background: #7570b3 !important;
+}
+
 
 .annotation-VesPort{
     fill:rgb(164, 255, 28);    
     background: rgb(164, 255, 28) !important;    
 }
 
-.annotation-LoadAndDelPort{
-    fill: rgb(97, 51, 156);
-    background: rgb(97, 51, 156) !important;
-}
+
 
 .annotation-VesAndLoadPort{
     fill:#FFC100;
