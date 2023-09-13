@@ -11,7 +11,7 @@ LibraryModule MathematicalModel {
 				p_TotalRouteCargoCost(i_route)
 				+ p_TotalRouteLocationCost(i_route)
 				+ p_TotalRouteIdleCost(i_route)
-				+ p_TotalRouteMovementCost(i_route)
+				+ p_def_totalRouteMovementCost(i_route)
 			}
 		}
 	}
@@ -100,17 +100,39 @@ LibraryModule MathematicalModel {
 		}
 	}
 	Section Pos_Execution {
+		Procedure pr_determineCargoOnVessel {
+			Body: {
+				for (i_allcRoute,i_cargo) | (StringOccurrences(sp_CargoesOnRoute(i_allcRoute),i_cargo)=1) do
+				    ep_CargoOnVessel(i_cargo) := ep_VesselOnRoute(i_allcRoute);
+				endfor;
+			}
+		}
+		Procedure pr_ConvertToDate {
+			Body: {
+				for i_allcRoute do   
+				
+				    sp_LoadingTimeCargoRoute(i_act_cargo) | 
+				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo)
+				    :=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_loadingTimeCargoRoute(i_act_cargo, i_allcRoute));
+				
+				    sp_DeleveringTimeCargoRoute(i_act_cargo) | 
+				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo)
+				    :=  MomentToString("%d/%m/%y",[day], ep_startHorizonDate, p_def_deleveringTimeCargoRoute(i_act_cargo, i_allcRoute));        
+				
+				endfor;
+			}
+		}
 		Procedure pr_sol_determineLoadingAndDelivering {
 			Body: {
 				for i_allcRoute do
 				
 				    p_LoadingTimeCargo(i_act_cargo) | 
-				            bp_def_cargoesOnRouteBin(i_allcRoute, i_act_cargo) 
+				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo) 
 				    := p_loadingTimeCargoRoute(i_act_cargo, i_allcRoute);
 				
 				    p_DeleveringTimeCargo(i_act_cargo) | 
-				            bp_def_cargoesOnRouteBin(i_allcRoute, i_act_cargo) 
-				    := p_DeleveringTimeCargoRoute(i_act_cargo, i_allcRoute);
+				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo) 
+				    := p_def_deleveringTimeCargoRoute(i_act_cargo, i_allcRoute);
 				
 				endfor;
 			}
@@ -127,7 +149,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: i_act_vessel;
 			Range: binary;
 			Definition: v_idleVessel(i_act_vessel);
-			webui::FlagsIdentifier: sp_ReadsOnly;
+			webui::FlagsIdentifier: sp_def_readsOnly;
 		}
 		Parameter p_loadingTimeCargo {
 			IndexDomain: i_act_cargo;
@@ -136,6 +158,14 @@ LibraryModule MathematicalModel {
 		Parameter p_deleveringTimeCargo {
 			IndexDomain: i_act_cargo;
 			Unit: day;
+		}
+		StringParameter sp_LoadingTimeCargoRoute {
+			IndexDomain: i_act_cargo;
+			webui::FlagsIdentifier: sp_def_readsOnly;
+		}
+		StringParameter sp_DeleveringTimeCargoRoute {
+			IndexDomain: i_act_cargo;
+			webui::FlagsIdentifier: sp_def_readsOnly;
 		}
 	}
 	Procedure LibraryInitialization {

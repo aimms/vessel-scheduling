@@ -77,7 +77,6 @@ Model Main_Vessel_Schedule {
 			ElementParameter ep_minTimeWindow {
 				IndexDomain: i_cargo;
 				Range: cal_days;
-				Comment: "todo: what this is?";
 				dex::ColumnName: Minimum Loading Time;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
@@ -138,12 +137,12 @@ Model Main_Vessel_Schedule {
 			Parameter p_def_minTimeWindow {
 				IndexDomain: i_cargo;
 				Unit: day;
-				Definition: StringToMoment("%c%y-%m-%d", [day], ep_StartHorizonDate, ep_MinTimeWindow(i_cargo));
+				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_minTimeWindow(i_cargo));
 			}
 			Parameter p_def_maxTimeWindow {
 				IndexDomain: i_cargo;
 				Unit: day;
-				Definition: StringToMoment("%c%y-%m-%d", [day], ep_StartHorizonDate, ep_MaxTimeWindow(i_cargo));
+				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_maxTimeWindow(i_cargo));
 			}
 		}
 		Section Vessels {
@@ -615,10 +614,13 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_route);
 				Unit: $;
 			}
-			Parameter p_TotalRouteMovementCost {
+			Parameter p_def_totalRouteMovementCost {
 				IndexDomain: i_route;
 				Unit: $;
-				Definition: p_TotalDaysTravel(i_route) * sum(i_ct, p_VesselCostDay(ep_VesselOnRoute(i_route),i_ct));
+				Definition: {
+					p_totalDaysTravel(i_route) 
+					* sum(i_ct, p_vesselCostDay(ep_vesselOnRoute(i_route), i_ct))
+				}
 			}
 			Parameter p_totalRouteLocationCost {
 				IndexDomain: i_route;
@@ -641,7 +643,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_route;
 				webui::FlagsIdentifier: sp_def_readsOnly;
 			}
-			Parameter bp_def_cargoesOnRouteBin {
+			Parameter bp_def_cargoesOnRoute {
 				IndexDomain: (i_route,i_cargo);
 				Range: binary;
 				Definition: 1 $ p_cargoesOnRoute(i_route, i_cargo);
@@ -656,24 +658,17 @@ Model Main_Vessel_Schedule {
 					p_DistanceBetweenLocations(ep_DeliveringPortsCargo(i_cargo),ep_LoadingPortsCargo(i_cargo_aux))
 				}
 			}
-		}
-		Section InputModel;
-		Section OutputModel {
-			Procedure pr_ConvertToDate {
-				Body: {
-					for mm::i_allcRoute do   
-					
-					    sp_LoadingTimeCargoRoute(i_act_cargo) | 
-					            bp_def_cargoesOnRouteBin(mm::i_allcRoute, i_act_cargo)
-					    :=  MomentToString("%d/%m/%y", [day], ep_StartHorizonDate, p_LoadingTimeCargoRoute(i_act_cargo, mm::i_allcRoute));
-					
-					    sp_DeleveringTimeCargoRoute(i_act_cargo) | 
-					            bp_def_cargoesOnRouteBin(mm::i_allcRoute, i_act_cargo)
-					    :=  MomentToString("%d/%m/%y",[day], ep_StartHorizonDate, p_DeleveringTimeCargoRoute(i_act_cargo, mm::i_allcRoute));        
-					
-					endfor;
+			Parameter p_def_deleveringTimeCargoRoute {
+				IndexDomain: (i_act_cargo,i_route) | bp_def_cargoesOnRoute(i_route,i_act_cargo);
+				Unit: day;
+				Definition: {
+					(p_loadingTimeCargoRoute(i_act_cargo, i_route) 
+					+ p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
 				}
+				webui::FlagsIdentifier: sp_def_readsOnly;
 			}
+		}
+		Section OutputModel {
 			DeclarationSection Declaration_Results {
 				Parameter p_Allocatedroutes {
 					IndexDomain: mm::i_allcRoute;
@@ -695,7 +690,7 @@ Model Main_Vessel_Schedule {
 					IndexDomain: i_act_cargo;
 					Range: s_vessels;
 					Definition: {
-						pr_determineCargoOnVessel;
+						mm::pr_determineCargoOnVessel;
 					}
 					Comment: "sp_CargoesOnRoute(i_allcRoute)";
 					webui::FlagsIdentifier: sp_def_readsOnly;
@@ -709,7 +704,7 @@ Model Main_Vessel_Schedule {
 				dex::GenerateDatasetMappings;
 				
 				!Delete old data
-				pr_DeleteData;
+				empty Cargoes, Vessels, Cost_Types, Locations, Routes;
 				
 				!Importeren van de data
 				dex::AddMapping(
@@ -818,27 +813,13 @@ Model Main_Vessel_Schedule {
 				}
 				Comment: "Used by selecting routes in resultpage";
 			}
-			StringParameter sp_LoadingTimeCargoRoute {
-				IndexDomain: i_act_cargo;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			Parameter p_DeleveringTimeCargoRoute {
-				IndexDomain: (i_act_cargo,i_route) | bp_def_cargoesOnRouteBin(i_route,i_act_cargo);
-				Unit: day;
-				Definition: (p_LoadingTimeCargoRoute(i_act_cargo, i_route) + p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_act_cargo), ep_DeliveringPortsCargo(i_act_cargo)));
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			StringParameter sp_DeleveringTimeCargoRoute {
-				IndexDomain: i_act_cargo;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
 		}
 		DeclarationSection Declaration_Mapping_Visualisation_Route {
 			Set s_CargoesOnSelectedRoutes {
 				SubsetOf: s_cargoes;
 				Index: i_SelectedCargoOnRoute;
 				Definition: {
-					{i_act_cargo|exists(i_selectedRoute|bp_def_cargoesOnRouteBin(i_selectedRoute, i_act_cargo))}
+					{i_act_cargo|exists(i_selectedRoute|bp_def_cargoesOnRoute(i_selectedRoute, i_act_cargo))}
 				}
 				Comment: "{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo)}";
 			}
@@ -907,7 +888,7 @@ Model Main_Vessel_Schedule {
 			Parameter p_DurationCargoOnRoute {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
-				Definition: (p_DeleveringTimeCargoRoute(i_act_cargo, i_route)-p_LoadingTimeCargoRoute(i_act_cargo, i_route))*24;
+				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route)-p_LoadingTimeCargoRoute(i_act_cargo, i_route))*24;
 			}
 			Parameter p_LoadingTimeCargoRouteInHours {
 				IndexDomain: (i_act_cargo,i_route);
@@ -1018,7 +999,8 @@ Model Main_Vessel_Schedule {
 	}
 	Procedure MainInitialization {
 		Body: {
-			!Random see
+			
+			ep_startHorizonDate := StringToElement(cal_days, CurrentToString("%c%y-%m-%d"), 0);
 		}
 		Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 	}
@@ -1040,7 +1022,7 @@ Model Main_Vessel_Schedule {
 			mm::pr_sol_determineLoadingAndDelivering;
 			
 			!Na het oplossen moeten sommige waarden omgezet worden naar datums
-			pr_ConvertToDate;
+			mm::pr_ConvertToDate;
 			
 			!Get the arcs
 			pr_CalculateAllArcs;
