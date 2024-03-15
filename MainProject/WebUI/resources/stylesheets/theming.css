@@ -1,7 +1,7 @@
 :root {
   --primaryDark: #DA2063;
   --primaryDarker: #FF4940;
-  --secondary90Transparent: #2e324f38;
+  --secondary90Transparent: #ff4a4023;
   --secondary: #2E324F;
 
   --bg_app-logo: 15px 50% / 40px 40px no-repeat url(/app-resources/resources/images/schedule.png); /*app logo*/
@@ -14,7 +14,7 @@
   --color_workflow-icon-border: var(--primaryDark); /*round border of the step*/
   --color_bg_workflow_active: #ff4a400e;;
 
-  --color_bg_app-canvas: rgb(249, 249, 249); /*background color*/
+  --color_bg_app-canvas: url(/app-resources/resources/images/RightBackground.png) rgb(249, 249, 249) no-repeat left/contain; /*background color*/
   --color_bg_widget-header: linear-gradient(90deg, rgba(255,73,64,0.75) 0%, rgba(218,32,99,0.75)  100%); /*widget header background color*/
   --border_widget-header: 2px solid var(--secondary); /*line color after widget header*/
 
@@ -26,22 +26,3 @@
 
 }
 
-.tag-slider .slider-value {
-  color: var(--color_text_edit-select-link);
-}
-
-.widget-menu__item .title {
-  color: var(--color_text_app-footer);
-}
-
-.ql-snow a {
-  color: var(--color_text_edit-select-link) !important;
-}
-
-input.boolean-cell-editor-contents {
-  accent-color: var(--primaryDark) /*boolean color*/
-}
-
-.react-contextmenu .react-contextmenu-item .display-text {
-  color: inherit;
-}

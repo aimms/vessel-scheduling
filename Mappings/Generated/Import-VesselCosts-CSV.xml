@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<AimmsCSVMapping>
+<AimmsCSVMapping dense-children="1">
 	<RowMapping name="VesselCosts">
 		<ColumnMapping name="Vessel" binds-to="i_vessel" />
 		<ColumnMapping name="Cost Type" binds-to="i_ct" />

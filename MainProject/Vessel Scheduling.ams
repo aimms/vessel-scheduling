@@ -318,10 +318,96 @@ Model Main_Vessel_Schedule {
 			}
 		}
 		Section Routes {
+			Set s_calc_feasibleRoutes {
+				Index: i_route;
+				Parameter: ep_route;
+			}
+			ElementParameter ep_calc_vesselOnRoute {
+				IndexDomain: i_route;
+				Range: s_def_activeVessels;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_calc_totalRouteLocationCost {
+				IndexDomain: i_route;
+				Unit: $;
+			}
+			Parameter p_calc_totalRouteCargoCost {
+				IndexDomain: i_route;
+				Unit: $;
+			}
+			Parameter p_calc_loadingTimeCargoRoute {
+				IndexDomain: (i_act_cargo,i_route);
+				Unit: day;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_calc_cargoesOnRoute {
+				IndexDomain: (i_route,i_cargo);
+				Range: nonnegative;
+			}
+			Parameter p_calc_totalDaysTravel {
+				IndexDomain: i_route;
+				Unit: day;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_calc_totalRouteIdleCost {
+				IndexDomain: (i_route);
+				Unit: $;
+			}
+			StringParameter sp_loc_cargoesOnRoute {
+				IndexDomain: i_route;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_loc_travelTimeCargoes {
+				IndexDomain: (i_cargo,i_cargo_aux) | (i_cargo<>i_cargo_aux);
+				Unit: day;
+				Definition: {
+					!13,5 knots = 25 km/h
+					!1 day = 600km
+					p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_cargo),ep_DeliveringPortsCargo(i_cargo)) +
+					p_DistanceBetweenLocations(ep_DeliveringPortsCargo(i_cargo),ep_LoadingPortsCargo(i_cargo_aux))
+				}
+			}
+			ElementParameter ep_loc_lastCargoFromRoute {
+				IndexDomain: i_route;
+				Range: s_cargoes;
+			}
+			Parameter p_loc_lastLoadArrivalTime {
+				IndexDomain: i_route;
+				Unit: day;
+			}
+			Parameter p_loc_lastDeliverArrivalTime {
+				IndexDomain: i_route;
+				Unit: day;
+			}
+			Parameter p_loc_quantityOfCargos {
+				IndexDomain: i_route;
+			}
+			Parameter p_def_totalRouteMovementCost {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					p_calc_totalDaysTravel(i_route) 
+					* sum(i_ct, p_vesselCostDay(ep_calc_vesselOnRoute(i_route), i_ct))
+				}
+			}
+			Parameter bp_def_cargoesOnRoute {
+				IndexDomain: (i_route,i_cargo);
+				Range: binary;
+				Definition: 1 $ p_calc_cargoesOnRoute(i_route, i_cargo);
+			}
+			Parameter p_def_deleveringTimeCargoRoute {
+				IndexDomain: (i_act_cargo,i_route) | bp_def_cargoesOnRoute(i_route,i_act_cargo);
+				Unit: day;
+				Definition: {
+					(p_calc_loadingTimeCargoRoute(i_act_cargo, i_route) 
+					+ p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
+				}
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
 			Procedure pr_calculateRoutesAndCost {
 				Body: {
-					empty s_feasibleRoutes;
-					empty p_cargoesOnRoute;
+					empty s_calc_feasibleRoutes;
+					empty p_calc_cargoesOnRoute;
 					
 					!Assumption: when a vessel is used, and the time horizon starts, 
 					!the vessel will always directly move to the loading port of the cargo.
@@ -332,95 +418,74 @@ Model Main_Vessel_Schedule {
 					
 					    for i_act_cargo do
 					
-					        if p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)) 
-					            <= p_def_minTimeWindow(i_act_cargo) then
+					        SetElementAdd(s_calc_feasibleRoutes, ep_route, i_act_vessel + "_" + i_act_cargo);
 					
-					            SetElementAdd(s_feasibleRoutes, ep_route, i_act_vessel + "_" + i_act_cargo);
+					        !Cannot come earlier then arrival time
+					        p_loc_lastLoadArrivalTime(ep_route) |
+					                (p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)) 
+					                <= p_def_minTimeWindow(i_act_cargo))
+					        :=  p_def_minTimeWindow(i_act_cargo);
 					
-					            !Cannot come earlier then arrival time
-					            p_lastLoadArrivalTime(ep_route) := p_def_minTimeWindow(i_act_cargo);
-					            ep_lastCargoFromRoute(ep_route) := i_act_cargo;
-					            ep_vesselOnRoute(ep_route) := i_act_vessel;
-					            p_cargoesOnRoute(ep_route, i_act_cargo) := 1;
-					            p_quantityOfCargos(ep_route) := 1;
-					
-					            !Loading and delivering time
-					            p_loadingTimeCargoRoute(i_act_cargo, ep_route) := p_def_minTimeWindow(i_act_cargo);
-					
-					            !Add cargoes to route
-					            sp_cargoesOnRoute(ep_route) := i_act_cargo;
-					
-					            !Extra deliver arrival time
-					            p_lastDeliverArrivalTime(ep_route) 
-					            :=  p_lastLoadArrivalTime(ep_route) 
-					                + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
-					
-					            !Idle cost per route first cargo
-					            p_totalRouteIdleCost(ep_route) 
-					            :=  p_idleCostLocation(ep_loadingPortsCargo(i_act_cargo)) 
-					                * (p_def_minTimeWindow(i_act_cargo) 
-					                    - p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)));
-					
-					            !Cost for first movement
-					            p_totalDaysTravel(ep_route) 
-					            :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo))
-					                + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
-					
-					            !Cost for first location
-					            p_totalRouteLocationCost(ep_route) 
-					            :=  sum(i_act_ct_cargo, 
-					                    p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo)
-					                    + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
-					
-					            !Cost for first cargo
-					            p_totalRouteCargoCost(ep_route) := sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
-					
-					        elseif p_def_minTimeWindow(i_act_cargo) 
+					        p_loc_lastLoadArrivalTime(ep_route) |
+					                (p_def_minTimeWindow(i_act_cargo) 
 					                <= p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)) 
-					                <= p_def_maxTimeWindow(i_act_cargo) then
+					                <= p_def_maxTimeWindow(i_act_cargo))
+					        :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo));
 					
-					            SetElementAdd(s_feasibleRoutes, ep_route, i_act_vessel + "_" + i_act_cargo);
+					        ep_loc_lastCargoFromRoute(ep_route) := i_act_cargo;
+					        ep_calc_vesselOnRoute(ep_route) := i_act_vessel;
+					        p_calc_cargoesOnRoute(ep_route, i_act_cargo) := 1;
+					        p_loc_quantityOfCargos(ep_route) := 1;
 					
-					            !Cannot come earlier then arrival time
-					            p_lastLoadArrivalTime(ep_route) := p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo));
-					            ep_lastCargoFromRoute(ep_route) := i_act_cargo;
-					            ep_vesselOnRoute(ep_route) := i_act_vessel;
-					            p_cargoesOnRoute(ep_route, i_act_cargo) := 1;
-					            p_quantityOfCargos(ep_route) := 1;
+					        !Loading and delivering time
+					        p_calc_loadingTimeCargoRoute(i_act_cargo, ep_route) |
+					                (p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)) 
+					                <= p_def_minTimeWindow(i_act_cargo))
+					        :=  p_def_minTimeWindow(i_act_cargo);
 					
-					            !Loading and delivering time
-					            p_loadingTimeCargoRoute(i_act_cargo, ep_route) 
-					            :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_LoadingPortsCargo(i_act_cargo));
+					        p_calc_loadingTimeCargoRoute(i_act_cargo, ep_route) |
+					                (p_def_minTimeWindow(i_act_cargo) 
+					                <= p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)) 
+					                <= p_def_maxTimeWindow(i_act_cargo))
+					        :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_LoadingPortsCargo(i_act_cargo));
 					
-					            !Add cargoes to route
-					            sp_cargoesOnRoute(ep_route) := i_act_cargo;
+					        !Add cargoes to route
+					        sp_loc_cargoesOnRoute(ep_route) := i_act_cargo;
 					
-					            !Extra deliver arrival time
-					            p_lastDeliverArrivalTime(ep_route) 
-					            :=  p_lastLoadArrivalTime(ep_route) 
-					                + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
+					        !Extra deliver arrival time
+					        p_loc_lastDeliverArrivalTime(ep_route)
+					        :=  p_loc_lastLoadArrivalTime(ep_route) 
+					            + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
-					            !Cost for first movement
-					            p_totalDaysTravel(ep_route) 
-					            :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo))
-					                + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
+					        !Idle cost per route first cargo
+					        p_calc_totalRouteIdleCost(ep_route) 
+					        :=  p_idleCostLocation(ep_loadingPortsCargo(i_act_cargo)) 
+					            * (p_def_minTimeWindow(i_act_cargo) 
+					                - p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo)));
 					
-					            !Cost for first location
-					            p_totalRouteLocationCost(ep_route) 
-					            :=  sum(i_act_ct_cargo, 
-					                    p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo)
-					                    + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
+					        !Cost for first movement
+					        p_calc_totalDaysTravel(ep_route) 
+					        :=  p_distanceBetweenLocations(ep_originPortOfVessel(i_act_vessel), ep_loadingPortsCargo(i_act_cargo))
+					            + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
-					            !Cost for first cargo
-					            p_totalRouteCargoCost(ep_route) := sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
+					        !Cost for first location
+					        p_calc_totalRouteLocationCost(ep_route) 
+					        :=  sum(i_act_ct_cargo, 
+					                p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo)
+					                + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
 					
-					        endif;
+					        !Cost for first cargo
+					        p_calc_totalRouteCargoCost(ep_route) := sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
+					
 					    endfor;
 					
 					    repeat 
 					
 					        !Select all routes that are equal to the loop count and to the correct vessel
-					        s_loc_subRoutes := {i_route | p_quantityOfCargos(i_route) = p_loc_loopCount and ep_VesselOnRoute(i_route) = i_act_vessel}; 
+					        s_loc_subRoutes 
+					        :=  {i_route | 
+					                    p_loc_quantityOfCargos(i_route) = p_loc_loopCount 
+					                    and ep_calc_vesselOnRoute(i_route) = i_act_vessel}; 
 					
 					        !Statement to break out of the loop
 					        if card(s_loc_subRoutes) = 0 then
@@ -430,135 +495,132 @@ Model Main_Vessel_Schedule {
 					        for i_loc_sub_route do
 					
 					            !Only cargoes that are not on the route yet
-					            for i_act_cargo | p_cargoesOnRoute(i_loc_sub_route, i_act_cargo) = 0 do  
+					            for i_act_cargo | p_calc_cargoesOnRoute(i_loc_sub_route, i_act_cargo) = 0 do  
 					
-					                if p_travelTimeCargoes(ep_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) + p_lastLoadArrivalTime(i_loc_sub_route) 
+					                if p_loc_travelTimeCargoes(ep_loc_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) + p_loc_lastLoadArrivalTime(i_loc_sub_route) 
 					                    <= p_def_minTimeWindow(i_act_cargo) then
 					
-					                    SetElementAdd(s_feasibleRoutes, ep_route, i_loc_sub_route + "_" + i_act_cargo);
+					                    SetElementAdd(s_calc_feasibleRoutes, ep_route, i_loc_sub_route + "_" + i_act_cargo);
 					
-					                    p_lastLoadArrivalTime(ep_route) := p_def_minTimeWindow(i_act_cargo);
-					                    ep_lastCargoFromRoute(ep_route) := i_act_cargo;
-					                    ep_vesselOnRoute(ep_route) := i_act_vessel;
-					                    p_quantityOfCargos(ep_route) := p_loc_loopCount + 1;
-					                    p_cargoesOnRoute(ep_route, i_act_cargo_aux) := p_cargoesOnRoute(i_loc_sub_route, i_act_cargo_aux);
-					                    p_cargoesOnRoute(ep_route, i_act_cargo) := p_quantityOfCargos(ep_route);
+					                    p_loc_lastLoadArrivalTime(ep_route) := p_def_minTimeWindow(i_act_cargo);
+					                    ep_loc_lastCargoFromRoute(ep_route) := i_act_cargo;
+					                    ep_calc_vesselOnRoute(ep_route) := i_act_vessel;
+					                    p_loc_quantityOfCargos(ep_route) := p_loc_loopCount + 1;
+					                    p_calc_cargoesOnRoute(ep_route, i_act_cargo_aux) := p_calc_cargoesOnRoute(i_loc_sub_route, i_act_cargo_aux);
+					                    p_calc_cargoesOnRoute(ep_route, i_act_cargo) := p_loc_quantityOfCargos(ep_route);
 					
 					                    !Loading and delivering time
-					                    p_loadingTimeCargoRoute(i_act_cargo_aux, ep_route) :=  p_loadingTimeCargoRoute(i_act_cargo_aux, i_loc_sub_route);
-					                    p_loadingTimeCargoRoute(i_act_cargo, ep_route) :=  p_def_minTimeWindow(i_act_cargo);
+					                    p_calc_loadingTimeCargoRoute(i_act_cargo_aux, ep_route) :=  p_calc_loadingTimeCargoRoute(i_act_cargo_aux, i_loc_sub_route);
+					                    p_calc_loadingTimeCargoRoute(i_act_cargo, ep_route) :=  p_def_minTimeWindow(i_act_cargo);
 					
 					                    !Add cargoes to route
-					                    sp_cargoesOnRoute(ep_route) := sp_cargoesOnRoute(i_loc_sub_route) + "," + i_act_cargo;
+					                    sp_loc_cargoesOnRoute(ep_route) := sp_loc_cargoesOnRoute(i_loc_sub_route) + "," + i_act_cargo;
 					
 					                    !Extra deliver arrival time
-					                    p_lastDeliverArrivalTime(ep_route) 
-					                    :=  p_lastLoadArrivalTime(ep_route) 
+					                    p_loc_lastDeliverArrivalTime(ep_route) 
+					                    :=  p_loc_lastLoadArrivalTime(ep_route) 
 					                        + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
 					                    !Idle cost per route next cargoes
-					                    p_totalRouteIdleCost(ep_route) 
-					                    :=  p_totalRouteIdleCost(i_loc_sub_route) 
+					                    p_calc_totalRouteIdleCost(ep_route) 
+					                    :=  p_calc_totalRouteIdleCost(i_loc_sub_route) 
 					                        +  p_idleCostLocation(ep_loadingPortsCargo(i_act_cargo)) 
 					                        * (p_def_minTimeWindow(i_act_cargo) 
-					                            - (p_travelTimeCargoes(ep_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
-					                                + p_lastLoadArrivalTime(i_loc_sub_route)));
+					                            - (p_loc_travelTimeCargoes(ep_loc_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
+					                                + p_loc_lastLoadArrivalTime(i_loc_sub_route)));
 					
 					                    !Cost for the other movements
-					                    p_totalDaysTravel(ep_route) 
-					                    :=  p_totalDaysTravel(i_loc_sub_route)
-					                        + p_distanceBetweenLocations(ep_deliveringPortsCargo(ep_lastCargoFromRoute(ep_route)), ep_loadingPortsCargo(i_act_cargo))
+					                    p_calc_totalDaysTravel(ep_route) 
+					                    :=  p_calc_totalDaysTravel(i_loc_sub_route)
+					                        + p_distanceBetweenLocations(ep_deliveringPortsCargo(ep_loc_lastCargoFromRoute(ep_route)), ep_loadingPortsCargo(i_act_cargo))
 					                        + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
 					                    !Cost for the other locations
-					                    if ep_deliveringPortsCargo(ep_lastCargoFromRoute(i_loc_sub_route)) <> ep_loadingPortsCargo(i_act_cargo) then
-					                        p_totalRouteLocationCost(ep_route) 
-					                        :=  p_totalRouteLocationCost(i_loc_sub_route)
+					                    if ep_deliveringPortsCargo(ep_loc_lastCargoFromRoute(i_loc_sub_route)) <> ep_loadingPortsCargo(i_act_cargo) then
+					                        p_calc_totalRouteLocationCost(ep_route) 
+					                        :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
 					                            + sum(i_act_ct_cargo, 
 					                                    p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo) 
 					                                    + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
 					                    else 
-					                        p_totalRouteLocationCost(ep_route) 
-					                        :=  p_totalRouteLocationCost(i_loc_sub_route)
+					                        p_calc_totalRouteLocationCost(ep_route) 
+					                        :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
 					                            + sum(i_act_ct_cargo, p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));                                
 					                    endif;                
 					
 					                    !Cost for the other cargoes
-					                    p_totalRouteCargoCost(ep_route) 
-					                    :=  p_totalRouteCargoCost(i_loc_sub_route)
+					                    p_calc_totalRouteCargoCost(ep_route) 
+					                    :=  p_calc_totalRouteCargoCost(i_loc_sub_route)
 					                        + sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
 					
 					                elseif p_def_minTimeWindow(i_act_cargo) 
-					                        <= p_travelTimeCargoes(ep_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
-					                            + p_lastLoadArrivalTime(i_loc_sub_route) 
+					                        <= p_loc_travelTimeCargoes(ep_loc_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
+					                            + p_loc_lastLoadArrivalTime(i_loc_sub_route) 
 					                        <= p_def_maxTimeWindow(i_act_cargo) then
 					
-					                    SetElementAdd(s_feasibleRoutes, ep_route, i_loc_sub_route + "_" + i_act_cargo);
-					                    p_lastLoadArrivalTime(ep_route) := p_travelTimeCargoes(ep_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) + p_lastLoadArrivalTime(i_loc_sub_route);
-					                    ep_lastCargoFromRoute(ep_route) := i_act_cargo;
-					                    ep_vesselOnRoute(ep_route) := i_act_vessel;
-					                    p_quantityOfCargos(ep_route) := p_loc_loopCount + 1;
-					                    p_cargoesOnRoute(ep_route, i_act_cargo_aux) := p_cargoesOnRoute(i_loc_sub_route, i_act_cargo_aux);
-					                    p_cargoesOnRoute(ep_route, i_act_cargo) :=  p_quantityOfCargos(ep_route);
+					                    SetElementAdd(s_calc_feasibleRoutes, ep_route, i_loc_sub_route + "_" + i_act_cargo);
+					                    p_loc_lastLoadArrivalTime(ep_route) := p_loc_travelTimeCargoes(ep_loc_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) + p_loc_lastLoadArrivalTime(i_loc_sub_route);
+					                    ep_loc_lastCargoFromRoute(ep_route) := i_act_cargo;
+					                    ep_calc_vesselOnRoute(ep_route) := i_act_vessel;
+					                    p_loc_quantityOfCargos(ep_route) := p_loc_loopCount + 1;
+					                    p_calc_cargoesOnRoute(ep_route, i_act_cargo_aux) := p_calc_cargoesOnRoute(i_loc_sub_route, i_act_cargo_aux);
+					                    p_calc_cargoesOnRoute(ep_route, i_act_cargo) :=  p_loc_quantityOfCargos(ep_route);
 					
 					                    !Loading and delivering time
-					                    p_loadingTimeCargoRoute(i_act_cargo_aux, ep_route) := p_loadingTimeCargoRoute(i_act_cargo_aux, i_loc_sub_route);
-					                    p_loadingTimeCargoRoute(i_act_cargo, ep_route) 
-					                    :=  p_travelTimeCargoes(ep_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
-					                        + p_lastLoadArrivalTime(i_loc_sub_route);
+					                    p_calc_loadingTimeCargoRoute(i_act_cargo_aux, ep_route) := p_calc_loadingTimeCargoRoute(i_act_cargo_aux, i_loc_sub_route);
+					                    p_calc_loadingTimeCargoRoute(i_act_cargo, ep_route) 
+					                    :=  p_loc_travelTimeCargoes(ep_loc_lastCargoFromRoute(i_loc_sub_route), i_act_cargo) 
+					                        + p_loc_lastLoadArrivalTime(i_loc_sub_route);
 					
 					                    !Add cargoes to route
-					                    sp_cargoesOnRoute(ep_route) := sp_cargoesOnRoute(i_loc_sub_route) + "," + i_act_cargo;
+					                    sp_loc_cargoesOnRoute(ep_route) := sp_loc_cargoesOnRoute(i_loc_sub_route) + "," + i_act_cargo;
 					
 					                    !Extra deliver arrival time
-					                    p_lastDeliverArrivalTime(ep_route) 
-					                    :=  p_lastLoadArrivalTime(ep_route) 
+					                    p_loc_lastDeliverArrivalTime(ep_route) 
+					                    :=  p_loc_lastLoadArrivalTime(ep_route) 
 					                        + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
 					                    !Cost for the other movements
-					                    p_totalDaysTravel(ep_route) 
-					                    :=  p_totalDaysTravel(i_loc_sub_route)
-					                        + p_distanceBetweenLocations(ep_deliveringPortsCargo(ep_lastCargoFromRoute(ep_route)), ep_loadingPortsCargo(i_act_cargo))
+					                    p_calc_totalDaysTravel(ep_route) 
+					                    :=  p_calc_totalDaysTravel(i_loc_sub_route)
+					                        + p_distanceBetweenLocations(ep_deliveringPortsCargo(ep_loc_lastCargoFromRoute(ep_route)), ep_loadingPortsCargo(i_act_cargo))
 					                        + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo));
 					
 					                    !Cost for the other locations
-					                    if ep_deliveringPortsCargo(ep_lastCargoFromRoute(i_loc_sub_route)) <> ep_loadingPortsCargo(i_act_cargo) then
-					                        p_totalRouteLocationCost(ep_route) 
-					                        :=  p_totalRouteLocationCost(i_loc_sub_route)
+					                    if ep_deliveringPortsCargo(ep_loc_lastCargoFromRoute(i_loc_sub_route)) <> ep_loadingPortsCargo(i_act_cargo) then
+					                        p_calc_totalRouteLocationCost(ep_route) 
+					                        :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
 					                            + sum(i_act_ct_cargo,  
 					                                    p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo) 
 					                                    + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
 					                    else 
-					                        p_totalRouteLocationCost(ep_route) 
-					                        :=  p_totalRouteLocationCost(i_loc_sub_route)
+					                        p_calc_totalRouteLocationCost(ep_route) 
+					                        :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
 					                            + sum(i_act_ct_cargo, p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));                                
 					                    endif;                
 					
 					                    !Cost for the other cargoes
-					                    p_totalRouteCargoCost(ep_route) 
-					                    :=  p_totalRouteCargoCost(i_loc_sub_route)
+					                    p_calc_totalRouteCargoCost(ep_route) 
+					                    :=  p_calc_totalRouteCargoCost(i_loc_sub_route)
 					                        + sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
 					
 					                endif;
-					
 					            endfor;
-					
 					        endfor;
 					
-					    p_loc_loopCount += 1;
+					        p_loc_loopCount += 1;
 					
 					    endrepeat;
-					
 					endfor;
 					
 					!Add the idle cost of a ship staying in the port of delevering
 					for i_route do
 					
-					    if max(i_cargo, p_def_maxTimeWindow(i_cargo)) - p_lastLoadArrivalTime(i_route) >= 0[day] then
+					    if max(i_cargo, p_def_maxTimeWindow(i_cargo)) - p_loc_lastLoadArrivalTime(i_route) >= 0[day] then
 					
-					        p_totalRouteIdleCost(i_route) 
-					        +=  ((max(i_cargo, p_def_maxTimeWindow(i_cargo))- p_lastLoadArrivalTime(i_route)))
-					            * p_idleCostLocation(ep_DeliveringPortsCargo(ep_LastCargoFromRoute(i_route)));
+					        p_calc_totalRouteIdleCost(i_route) 
+					        +=  ((max(i_cargo, p_def_maxTimeWindow(i_cargo))- p_loc_lastLoadArrivalTime(i_route)))
+					            * p_idleCostLocation(ep_DeliveringPortsCargo(ep_loc_lastCargoFromRoute(i_route)));
 					
 					    endif;
 					endfor;
@@ -571,101 +633,15 @@ Model Main_Vessel_Schedule {
 					ui::sp_systemStatusBar(2,'color') := "Green";
 					ui::sp_systemStatusBar(2,'tooltip') := "The routes are succesfully generated.";
 					ui::sp_systemStatusBar(3,'color') := "Orange";
-					ui::sp_systemStatusBar(3,'icon'):= "aimms-circle2";
+					ui::sp_systemStatusBar(3,'icon') := "aimms-circle2";
 					ui::sp_systemStatusBar(3,'tooltip') := "Data is ready, time to solve!";
-					ui::sp_systemStatusBar(3,'state'):="active";
+					ui::sp_systemStatusBar(3,'state') := "active";
 				}
 				Set s_loc_subRoutes {
-					SubsetOf: s_feasibleRoutes;
+					SubsetOf: s_calc_feasibleRoutes;
 					Index: i_loc_sub_route;
 				}
 				Parameter p_loc_loopCount;
-			}
-			Set s_feasibleRoutes {
-				Index: i_route;
-				Parameter: ep_route;
-			}
-			ElementParameter ep_vesselOnRoute {
-				IndexDomain: i_route;
-				Range: s_def_activeVessels;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			ElementParameter ep_lastCargoFromRoute {
-				IndexDomain: i_route;
-				Range: s_cargoes;
-			}
-			Parameter p_lastLoadArrivalTime {
-				IndexDomain: i_route;
-				Unit: day;
-			}
-			Parameter p_lastDeliverArrivalTime {
-				IndexDomain: i_route;
-				Unit: day;
-			}
-			Parameter p_quantityOfCargos {
-				IndexDomain: i_route;
-			}
-			Parameter p_totalDaysTravel {
-				IndexDomain: i_route;
-				Unit: day;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			Parameter p_totalRouteIdleCost {
-				IndexDomain: (i_route);
-				Unit: $;
-			}
-			Parameter p_def_totalRouteMovementCost {
-				IndexDomain: i_route;
-				Unit: $;
-				Definition: {
-					p_totalDaysTravel(i_route) 
-					* sum(i_ct, p_vesselCostDay(ep_vesselOnRoute(i_route), i_ct))
-				}
-			}
-			Parameter p_totalRouteLocationCost {
-				IndexDomain: i_route;
-				Unit: $;
-			}
-			Parameter p_totalRouteCargoCost {
-				IndexDomain: i_route;
-				Unit: $;
-			}
-			Parameter p_loadingTimeCargoRoute {
-				IndexDomain: (i_act_cargo,i_route);
-				Unit: day;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			Parameter p_cargoesOnRoute {
-				IndexDomain: (i_route,i_cargo);
-				Range: nonnegative;
-			}
-			StringParameter sp_cargoesOnRoute {
-				IndexDomain: i_route;
-				webui::FlagsIdentifier: sp_def_readsOnly;
-			}
-			Parameter bp_def_cargoesOnRoute {
-				IndexDomain: (i_route,i_cargo);
-				Range: binary;
-				Definition: 1 $ p_cargoesOnRoute(i_route, i_cargo);
-			}
-			Parameter p_travelTimeCargoes {
-				IndexDomain: (i_cargo,i_cargo_aux) | (i_cargo<>i_cargo_aux);
-				Unit: day;
-				Definition: {
-					!13,5 knots = 25 km/h
-					!1 day = 600km
-					p_DistanceBetweenLocations(ep_LoadingPortsCargo(i_cargo),ep_DeliveringPortsCargo(i_cargo)) +
-					p_DistanceBetweenLocations(ep_DeliveringPortsCargo(i_cargo),ep_LoadingPortsCargo(i_cargo_aux))
-				}
-			}
-			Parameter p_def_deleveringTimeCargoRoute {
-				IndexDomain: (i_act_cargo,i_route) | bp_def_cargoesOnRoute(i_route,i_act_cargo);
-				Unit: day;
-				Definition: {
-					(p_loadingTimeCargoRoute(i_act_cargo, i_route) 
-					+ p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
-				}
-				webui::FlagsIdentifier: sp_def_readsOnly;
 			}
 		}
 		Section OutputModel {
@@ -684,7 +660,7 @@ Model Main_Vessel_Schedule {
 						    sum(i_act_ct_cargo, p_CargoCost(i_act_cargo, i_act_ct_cargo))
 						endif;
 					}
-					webui::FlagsIdentifier: sp_def_readsOnly;
+					webui::FlagsIdentifier: ui::sp_def_readOnly;
 				}
 				ElementParameter ep_CargoOnVessel {
 					IndexDomain: i_act_cargo;
@@ -693,13 +669,13 @@ Model Main_Vessel_Schedule {
 						mm::pr_determineCargoOnVessel;
 					}
 					Comment: "sp_CargoesOnRoute(i_allcRoute)";
-					webui::FlagsIdentifier: sp_def_readsOnly;
+					webui::FlagsIdentifier: ui::sp_def_readOnly;
 				}
 			}
 		}
 	}
 	Section Integration {
-		Procedure pr_ImportDataExcel {
+		Procedure pr_importExcel {
 			Body: {
 				dex::GenerateDatasetMappings;
 				
@@ -741,12 +717,7 @@ Model Main_Vessel_Schedule {
 				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
 			}
 		}
-		Procedure pr_GenerateMappingFile {
-			Body: {
-				dex::GenerateDatasetMappings;
-			}
-		}
-		Procedure pr_ExportData {
+		Procedure pr_exportExcel {
 			Body: {
 				dex::AddMapping(
 				    mappingName : "Import",
@@ -757,11 +728,7 @@ Model Main_Vessel_Schedule {
 				    mappingName : "Import");
 			}
 		}
-	}
-	Section Toolkit {
-		StringParameter sp_def_readsOnly {
-			Definition: "readonly";
-		}
+		Procedure pr_emptyData;
 	}
 	Section WebUIVessel {
 		Procedure pr_LegendRouteViz {
@@ -827,7 +794,7 @@ Model Main_Vessel_Schedule {
 				SubsetOf: s_vessels;
 				Index: i_ActiveVesselUsed;
 				Definition: {
-					{i_act_vessel | exists(i_selectedRoute|ep_VesselOnRoute(i_selectedRoute)=i_act_vessel)}
+					{i_act_vessel | exists(i_selectedRoute|ep_calc_vesselOnRoute(i_selectedRoute)=i_act_vessel)}
 				}
 			}
 			Set s_SubsetCargoLoadingRoutePorts {
@@ -888,12 +855,12 @@ Model Main_Vessel_Schedule {
 			Parameter p_DurationCargoOnRoute {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
-				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route)-p_LoadingTimeCargoRoute(i_act_cargo, i_route))*24;
+				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route)-p_calc_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
 			}
 			Parameter p_LoadingTimeCargoRouteInHours {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
-				Definition: p_LoadingTimeCargoRoute(i_act_cargo, i_route)*24;
+				Definition: p_calc_loadingTimeCargoRoute(i_act_cargo, i_route)*24;
 			}
 			StringParameter sp_StartGanttChart {
 				Definition: formatstring("%e",ep_StartHorizonDate);
@@ -908,19 +875,19 @@ Model Main_Vessel_Schedule {
 					for i_selectedRoute do
 					
 					    !Calculate location from berth to the location of the loading of the first cargo
-					    p_FromBerthToCargoTest(ep_originPortOfVessel(ep_VesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_CargoesOnRoute(i_selectedRoute,i_act_cargo)=1))):=1;
+					    p_FromBerthToCargoTest(ep_originPortOfVessel(ep_calc_vesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_calc_cargoesOnRoute(i_selectedRoute,i_act_cargo)=1))):=1;
 					    mm::ep_allcRoute := i_selectedRoute;
-					    s_loc_currentCargos := {i_act_cargo | p_CargoesOnRoute(mm::ep_allcRoute, i_act_cargo)};
-					    sp_RouteInformation(ep_originPortOfVessel(ep_VesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_CargoesOnRoute(i_selectedRoute,i_act_cargo)=1)))+="<br>Picking up cargo: "+first(i_act_cargo|p_CargoesOnRoute(i_selectedRoute,i_act_cargo)=1);
+					    s_loc_currentCargos := {i_act_cargo | p_calc_cargoesOnRoute(mm::ep_allcRoute, i_act_cargo)};
+					    sp_RouteInformation(ep_originPortOfVessel(ep_calc_vesselOnRoute(i_selectedRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_calc_cargoesOnRoute(i_selectedRoute,i_act_cargo)=1)))+="<br>Picking up cargo: "+first(i_act_cargo|p_calc_cargoesOnRoute(i_selectedRoute,i_act_cargo)=1);
 					
-					    for i_loc_cargo | p_CargoesOnRoute(i_selectedRoute, i_loc_cargo) do 
+					    for i_loc_cargo | p_calc_cargoesOnRoute(i_selectedRoute, i_loc_cargo) do 
 					    	!Calculate location of the loading and delivering of the cargo
 					        p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo)) := 1;
 						sp_RouteInformation(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo))+="<br>Deliver cargo: "+i_loc_cargo;
 					
 						!Calculate the location from delivering to the loading point of the new cargo
 					        for i_loc_cargo1 | 
-					                p_CargoesOnRoute(i_selectedRoute, i_loc_cargo) < p_CargoesOnRoute(i_selectedRoute, i_loc_cargo1) 
+					                p_calc_cargoesOnRoute(i_selectedRoute, i_loc_cargo) < p_calc_cargoesOnRoute(i_selectedRoute, i_loc_cargo1) 
 					                and i_loc_cargo1 <> i_loc_cargo do
 					
 					            p_mapArcPerCargo(i_selectedRoute, i_loc_cargo, i_loc_cargo1) := 1;
@@ -944,7 +911,7 @@ Model Main_Vessel_Schedule {
 				Set s_loc_currentCargos {
 					SubsetOf: s_cargoes;
 					Index: i_loc_cargo, i_loc_cargo1;
-					OrderBy: p_CargoesOnRoute(mm::ep_allcRoute, i_cargo);
+					OrderBy: p_calc_cargoesOnRoute(mm::ep_allcRoute, i_cargo);
 				}
 				Parameter p_loc_aux;
 			}
@@ -1047,6 +1014,11 @@ Model Main_Vessel_Schedule {
 			Return 1 to allow the termination sequence to continue.
 			Return 0 if you want to cancel the termination sequence.
 			It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+		}
+	}
+	Procedure Procedure_1 {
+		Body: {
+			webui::IdentifierElementText('ui::sp_addEditElement') := " ";
 		}
 	}
 }

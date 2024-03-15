@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<AimmsCSVMapping>
+<AimmsCSVMapping dense-children="1">
 	<RowMapping name="CargoData">
 		<ColumnMapping name="Cargo" binds-to="i_cargo" />
 		<ColumnMapping name="Spotcost on Vessel" maps-to="p_spotCostVessel(i_cargo)" />

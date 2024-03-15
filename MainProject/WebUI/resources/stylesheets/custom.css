@@ -1,0 +1,39 @@
+/*Centering cells*/
+.tag-table .cell.flag-string .cell-wrapper,
+.tag-table .cell.flag-number input,
+.tag-table .cell.flag-string input{
+    text-align: center;
+}
+
+.tag-slider .slider-value {
+    color: var(--color_text_edit-select-link);
+}
+
+.widget-menu__item .title {
+    color: var(--color_text_app-footer);
+}
+
+.ql-snow a {
+    color: var(--color_text_edit-select-link) !important;
+}
+
+input.boolean-cell-editor-contents {
+    accent-color: var(--primaryDark) /*boolean color*/
+}
+
+.react-contextmenu .react-contextmenu-item .display-text {
+    color: inherit;
+}
+
+
+.aimms-widget[data-widget\.uri="scl_EditAddElements"] .awf-dock.top{
+    display: none;
+}
+
+.status-message:hover,
+.status-message.clickable:hover .status-display-text { 
+    
+    background-color: #ffcdcb2d;
+    color: #505767;
+}
+

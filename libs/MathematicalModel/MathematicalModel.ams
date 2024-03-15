@@ -8,9 +8,9 @@ LibraryModule MathematicalModel {
 			IndexDomain: i_route;
 			Unit: $;
 			Definition: {
-				p_TotalRouteCargoCost(i_route)
-				+ p_TotalRouteLocationCost(i_route)
-				+ p_TotalRouteIdleCost(i_route)
+				p_calc_totalRouteCargoCost(i_route)
+				+ p_calc_totalRouteLocationCost(i_route)
+				+ p_calc_totalRouteIdleCost(i_route)
 				+ p_def_totalRouteMovementCost(i_route)
 			}
 		}
@@ -19,8 +19,8 @@ LibraryModule MathematicalModel {
 		Constraint c_assignCargoToOneVessel {
 			IndexDomain: i_act_cargo;
 			Definition: {
-				sum(i_route | p_CargoesOnRoute(i_route, i_act_cargo), 
-				    v_allocateVesselToRoute(ep_VesselOnRoute(i_route), i_route)) 
+				sum(i_route | p_calc_cargoesOnRoute(i_route, i_act_cargo), 
+				    v_allocateVesselToRoute(ep_calc_vesselOnRoute(i_route), i_route)) 
 				+  v_cargoOnCharteredVessel(i_act_cargo) 
 				= 1
 			}
@@ -43,7 +43,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: (i_act_vessel,i_route);
 			Range: binary;
 			Property: NoSave;
-			Definition: 1 $ (i_act_vessel = ep_VesselOnRoute(i_route));
+			Definition: 1 $ (i_act_vessel = ep_calc_vesselOnRoute(i_route));
 		}
 		Variable v_cargoOnCharteredVessel {
 			IndexDomain: i_act_cargo;
@@ -102,8 +102,8 @@ LibraryModule MathematicalModel {
 	Section Pos_Execution {
 		Procedure pr_determineCargoOnVessel {
 			Body: {
-				for (i_allcRoute,i_cargo) | (StringOccurrences(sp_CargoesOnRoute(i_allcRoute),i_cargo)=1) do
-				    ep_CargoOnVessel(i_cargo) := ep_VesselOnRoute(i_allcRoute);
+				for (i_allcRoute,i_cargo) | (StringOccurrences(sp_loc_cargoesOnRoute(i_allcRoute),i_cargo)=1) do
+				    ep_CargoOnVessel(i_cargo) := ep_calc_vesselOnRoute(i_allcRoute);
 				endfor;
 			}
 		}
@@ -113,7 +113,7 @@ LibraryModule MathematicalModel {
 				
 				    sp_LoadingTimeCargoRoute(i_act_cargo) | 
 				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo)
-				    :=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_loadingTimeCargoRoute(i_act_cargo, i_allcRoute));
+				    :=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_calc_loadingTimeCargoRoute(i_act_cargo, i_allcRoute));
 				
 				    sp_DeleveringTimeCargoRoute(i_act_cargo) | 
 				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo)
@@ -128,7 +128,7 @@ LibraryModule MathematicalModel {
 				
 				    p_LoadingTimeCargo(i_act_cargo) | 
 				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo) 
-				    := p_loadingTimeCargoRoute(i_act_cargo, i_allcRoute);
+				    := p_calc_loadingTimeCargoRoute(i_act_cargo, i_allcRoute);
 				
 				    p_DeleveringTimeCargo(i_act_cargo) | 
 				            bp_def_cargoesOnRoute(i_allcRoute, i_act_cargo) 
@@ -138,7 +138,7 @@ LibraryModule MathematicalModel {
 			}
 		}
 		Set s_def_allocatedRoutes {
-			SubsetOf: s_feasibleRoutes;
+			SubsetOf: s_calc_feasibleRoutes;
 			Index: i_allcRoute;
 			Parameter: ep_allcRoute;
 			Definition: {
@@ -149,7 +149,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: i_act_vessel;
 			Range: binary;
 			Definition: v_idleVessel(i_act_vessel);
-			webui::FlagsIdentifier: sp_def_readsOnly;
+			webui::FlagsIdentifier: ui::sp_def_readOnly;
 		}
 		Parameter p_loadingTimeCargo {
 			IndexDomain: i_act_cargo;
@@ -161,11 +161,11 @@ LibraryModule MathematicalModel {
 		}
 		StringParameter sp_LoadingTimeCargoRoute {
 			IndexDomain: i_act_cargo;
-			webui::FlagsIdentifier: sp_def_readsOnly;
+			webui::FlagsIdentifier: ui::sp_def_readOnly;
 		}
 		StringParameter sp_DeleveringTimeCargoRoute {
 			IndexDomain: i_act_cargo;
-			webui::FlagsIdentifier: sp_def_readsOnly;
+			webui::FlagsIdentifier: ui::sp_def_readOnly;
 		}
 	}
 	Procedure LibraryInitialization {

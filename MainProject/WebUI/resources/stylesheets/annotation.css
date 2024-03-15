@@ -1,3 +1,26 @@
+/*Hide checkbox contents of delete and edit annotations*/
+.annotation-edit-element input.boolean-cell-editor-contents,
+.annotation-delete-element input.boolean-cell-editor-contents{
+	visibility: hidden;
+	display: block;	
+}
+
+
+.annotation-edit-element {
+	background: white url(img/pencil.png) no-repeat 50%/contain; 
+    background-size: auto 70% ;
+}
+
+.annotation-delete-element {
+	background: white url(img/minus.png) no-repeat 50%/contain; 
+    background-size: auto 50% ;
+
+}
+
+
+
+
+
 .annotation-NotInUse,
 .annotation-VesselOrigingPort{
     fill: var(--primaryDark);
