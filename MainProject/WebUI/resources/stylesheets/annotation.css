@@ -17,36 +17,36 @@
 
 }
 
-
-
-
-
-.annotation-NotInUse,
-.annotation-VesselOrigingPort{
-    fill: var(--primaryDark);
-    background: var(--primaryDark) !important;
+.annotation-NotInUse{
+    fill: #FE493F;
+    background: #FE493F !important;
 }
 
-.annotation-InUse{
-    fill: var(--primaryDarker);
-    background: var(--primaryDarker) !important;
-}
-
-/*Colloring datapoints*/
+.annotation-InUse,
 .annotation-LoadingPort{
-    fill:#1b9e77;
-    background: #1b9e77 !important;
+    fill: #9E3869;
+    background: #9E3869 !important;
 }
 
 .annotation-DeliveringPort{
-    fill: #d95f02;
-    background: #d95f02 !important;    
+    fill:#8D773C;
+    background: #8D773C !important;
 }
 
 .annotation-LoadingAndDeliveringPort{
     fill: #7570b3;
     background: #7570b3 !important;
 }
+
+
+.annotation-not-fulfilled{
+    background: #ffc21b2c;
+}
+
+
+
+
+
 
 
 .annotation-VesPort{

@@ -396,75 +396,47 @@ LibraryModule UserInterface {
 					Body: {
 						empty s_vessels, s_cargoes, s_locations, s_costTypes;
 						
-						!Importeren van de data
+						block !cost types
+						s_costTypes := { 'Fuel', 'Crew', 'Loading', 'Admin', 'Unloading' };
+						ep_costUnit(i_ct) := data { Fuel : '$/day',  Crew : '$/day',  Loading : '$',  Admin : '$',  Unloading : '$' };
+						bp_activeCostsForCargoes(i_ct) := data { Loading : 1,  Admin : 1,  Unloading : 1 };
+						bp_activeCostsForVessels(i_ct) := data { Fuel : 1,  Crew : 1 };
+						bp_activeCostsForLocations(i_ct) := data { Loading : 1,  Admin : 1 };
+						endblock;
+						
+						block !locations
 						dex::AddMapping(
-						    mappingName : "ImportData", 
-						    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+						    mappingName : "ImportDefaultLocations", 
+						    mappingFile : "./Mappings/Generated/Import-Locations.xml");
 						
 						dex::ReadFromFile(
 						    dataFile : "data\\LocationData.xlsx", 
-						    mappingName : "ImportData");
+						    mappingName : "ImportDefaultLocations");
 						
-						!Define char
-						sp_CharacterCargo := "a";
+						p_locationCost(i_loc, i_ct) | bp_activeCostsForLocations(i_ct) := (round(uniform(400,4000)))[up_def_costUnit(i_ct)];  
+						endblock;
 						
-						!Making vessel en vesselcost data
-						setelementadd(s_costTypes,ep_costType,"Fuel");
-						setelementadd(s_costTypes,ep_costType,"Crew");
+						block !vessels
+						s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
+						ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
+						p_vesselCost(i_vessel, i_ct) | bp_activeCostsForVessels(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+						endblock;
 						
-						while card(s_vessels) < p_totalVessels do
-						    !VesselData
-						    setelementadd(s_vessels,ep_Vessel,"Vessel"+(1+card(s_vessels)));
-						    ep_originPortOfVessel(ep_Vessel):= nth(i_Loc,round(uniform(1,card(s_Locations))));
+						block !cargoes
+						s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
+						ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
+						ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+						p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
+						p_cargoCost(i_cargo, i_ct) | bp_activeCostsForCargoes(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+						ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
+						ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
+						endblock;
 						
-						    !VesselCost Data
-						    p_VesselCostDay(ep_Vessel, 'Fuel') := (round(uniform(50,200)))[$/day];
-						    p_VesselCostDay(ep_Vessel, 'Crew') := (round(uniform(50,200)))[$/day];
-						endwhile;
-						
-						
-						!Making CargoData
-						setelementadd(s_costTypes,ep_costType,"Loading");
-						setelementadd(s_costTypes,ep_costType,"Admin");
-						setelementadd(s_costTypes,ep_costType,"Unloading");
-						p_NumCharacter :=0;
-						
-						while card(s_cargoes)<p_totalCargoes do
-						    !Change Character for Cargo   
-						    if mod(card(s_cargoes),5) = 0 then
-						        p_NumCharacter+=1;
-						    endif;
-						    sp_CharacterCargo := substring(sp_Alphabet,p_NumCharacter,p_NumCharacter);
-						
-						    !CargoData
-						    setelementadd(s_cargoes,ep_cargo,sp_CharacterCargo+(1+mod(card(s_cargoes),5)));
-						    ep_LoadingPortsCargo(ep_cargo) := nth(i_Loc,round(uniform(1,card(s_Locations))));
-						    ep_DeliveringPortsCargo(ep_cargo) := nth(i_Loc | i_Loc <> ep_LoadingPortsCargo(ep_cargo),round(uniform(1,card(s_Locations))));
-						
-						    !CargoCost Data
-						    p_SpotCostVessel(ep_cargo) := (round(uniform(10000,20000)))[$];
-						    p_CargoCost(ep_cargo, 'Loading') := (round(uniform(1000,4000)))[$];
-						    p_CargoCost(ep_cargo, 'Unloading') := (round(uniform(1000,4000)))[$];
-						    p_CargoCost(ep_cargo, 'Admin') := (round(uniform(100,400)))[$];
-						
-						    !Dates
-						    ep_MinTimeWindow(ep_cargo) := ep_StartHorizonDate+round(uniform(0,182));
-						    ep_MaxTimeWindow(ep_cargo) := ep_MinTimeWindow(ep_cargo)+round(uniform(0,10));
-						
-						endwhile;
-						
-						!Making Location Data
-						p_LocationCost(i_Loc, 'Loading'):=(round(uniform(1000,4000)))[$];
-						p_LocationCost(i_Loc, 'Admin') := (round(uniform(100,400)))[$];
-						
-						!Generating Distance Matrix
-						p_DistanceBetweenLocations(i_Loc, i_loc_from) | i_loc_from<i_Loc  := (round(uniform(5,60)))[day];
-						p_DistanceBetweenLocations(i_Loc, i_loc_from) | i_loc_from>i_Loc  := p_DistanceBetweenLocations(i_loc_from, i_Loc);    
 						
 						!Activate all master data
 						bp_activeCargoes(i_cargo):= 1;
 						bp_activeVessels(i_vessel) := 1;
-						p_AllocatedCargoes(i_act_cargo) :=1;
+						bp_activeLocations(i_loc) := 1;
 						
 						!Activate generating routes
 						sp_systemSecondaryActions(3,'state'):= 'active';
@@ -473,7 +445,8 @@ LibraryModule UserInterface {
 						!Changes to status bar
 						sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
 						sp_systemStatusBar(1,'color') := "Green";
-						sp_systemStatusBar(1,'tooltip') := "Data is succesfully imported.";
+						sp_systemStatusBar(1,'tooltip') := "Data is succesfully generated.";
+						sp_systemStatusBar(1,'text') := "Data Generated";
 						sp_systemStatusBar(2,'color') := "Orange";
 						sp_systemStatusBar(2,'icon'):= "aimms-circle2";
 						sp_systemStatusBar(2,'tooltip') := "Application ready to generate routes.";
@@ -498,11 +471,11 @@ LibraryModule UserInterface {
 					}
 					Parameter p_NumCharacter;
 				}
-				Parameter p_totalCargoes {
+				Parameter p_cargoesQuantity {
 					Range: nonnegative;
 					InitialData: 1;
 				}
-				Parameter p_totalVessels {
+				Parameter p_vesselsQuantity {
 					Range: nonnegative;
 					InitialData: 1;
 				}
@@ -721,11 +694,11 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationNotInUsageIcon {
 				IndexDomain: i_loc_not_usag;
-				Definition: "aimms-location5";
+				Definition: "aimms-cross3";
 			}
 			Parameter p_locationNotInUsageSize {
 				IndexDomain: i_loc_not_usag;
-				Definition: 5;
+				Definition: 3;
 				webui::TooltipIdentifier: sp_locationNotInUsageTooltip(i_loc_not_usag);
 			}
 			StringParameter sp_locationNotInUsageTooltip {
@@ -750,14 +723,14 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationInUsageIcon {
 				IndexDomain: i_loc_usag;
-				Definition: "aimms-location5";
+				Definition: "aimms-cube4";
 			}
 			Parameter p_locationInUsageSize {
 				IndexDomain: i_loc_usag;
-				Definition: 8;
-				webui::TooltipIdentifier: sp_locationInUsageTooltip(ui::i_loc_usag);
+				Definition: 12;
+				webui::TooltipIdentifier: ui::sp_def_locationInUsageTooltip(ui::i_loc_usag);
 			}
-			StringParameter sp_locationInUsageTooltip {
+			StringParameter sp_def_locationInUsageTooltip {
 				IndexDomain: i_loc_usag;
 				Definition: "There is at least one cargo or vessel that needs to come to this Location.";
 			}
@@ -767,20 +740,27 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Cargoes_Page {
-			StringParameter sp_cargoesSidePanel {
-				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+			StringParameter sp_def_cargoesMapIcon {
+				IndexDomain: i_loc;
 				Definition: {
-					data 
-					{ ( 1, displayText ) : "Map Info"               ,  ( 1, pageId      ) : "side_panel_legend_cargo",
-					  ( 1, icon        ) : "aimms-list2"            ,  ( 1, state       ) : "Active"                  }
+					if (i_loc in s_def_loadingPorts) 
+					    and (i_loc in s_def_deleveringPorts) then
+					    "aimms-package"    
+					
+					elseif i_loc in s_def_loadingPorts then
+					    "aimms-ship"
+					
+					else
+					    "aimms-finish"
+					endif;
 				}
 			}
-			Parameter p_def_typeOfPortsSize {
+			Parameter p_def_cargoesMapSize {
 				IndexDomain: i_Loc;
-				Definition: 1;
-				webui::AnnotationsIdentifier: ui::sp_def_typeOfPortsAnnotation(i_Loc);
+				Definition: 12;
+				webui::AnnotationsIdentifier: ui::sp_def_cargoesMapAnnotation(i_Loc);
 			}
-			StringParameter sp_def_typeOfPortsAnnotation {
+			StringParameter sp_def_cargoesMapAnnotation {
 				IndexDomain: i_loc;
 				Definition: {
 					if (i_loc in s_def_loadingPorts) 
@@ -809,32 +789,32 @@ LibraryModule UserInterface {
 			StringParameter sp_def_deliveringToLoadingPortsTooltip {
 				IndexDomain: (i_loc_usag,i_loc_usag2);
 				Definition: {
-					FormatString("%e<br>to<br>%e", i_loc_usag, i_loc_usag2);
+					FormatString("From: %e<br>To: %e.", i_loc_usag, i_loc_usag2);
 				}
 			}
 		}
 		Section Vessel_Page {
-			Parameter p_def_vesselOriginPortSize {
-				IndexDomain: i_loc_ves;
-				Definition: 8;
-				webui::AnnotationsIdentifier: sp_vesselOriginPortAnnotation(i_loc_ves);
-				webui::TooltipIdentifier: sp_vesselOriginPortTooltip(i_loc_ves);
-			}
 			StringParameter sp_def_vesselOriginPortIcon {
-				IndexDomain: i_loc_ves;
+				IndexDomain: i_locVess;
 				Definition: "aimms-ship";
 			}
-			StringParameter sp_vesselOriginPortAnnotation {
-				IndexDomain: i_loc_ves;
-				Definition: "VesselOrigingPort";
+			Parameter p_def_vesselOriginPortSize {
+				IndexDomain: i_locVess;
+				Definition: 12;
+				webui::AnnotationsIdentifier: sp_vesselOriginPortAnnotation(i_locVess);
+				webui::TooltipIdentifier: sp_vesselOriginPortTooltip(i_locVess);
 			}
 			StringParameter sp_vesselOriginPortTooltip {
-				IndexDomain: i_loc_ves;
-				Definition: first(i_vessel | ep_originPortOfVessel(i_vessel) = i_loc_ves);
+				IndexDomain: i_locVess;
+				Definition: first(i_vessel | ep_originPortOfVessel(i_vessel) = i_locVess);
+			}
+			StringParameter sp_vesselOriginPortAnnotation {
+				IndexDomain: i_locVess;
+				Definition: "InUse";
 			}
 		}
 		Section Optimized_Results_Page {
-			StringParameter sp_optimizedResultsPageSidePanel {
+			StringParameter sp_def_optimizedResultsPageSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
 				Definition: {
 					data 
@@ -844,15 +824,42 @@ LibraryModule UserInterface {
 					  ( 2, icon        ) : "aimms-select2"     ,  ( 2, state       ) : "Active"             }
 				}
 			}
+			StringParameter sp_def_vesselNotUsedAnnotation {
+				IndexDomain: i_vessel;
+				Definition: {
+					if not mm::ep_calc_routeOfVessel(i_vessel) then
+					    "not-fulfilled"
+					endif;
+				}
+			}
+			StringParameter sp_def_cargoNotDeliveredAnnotation {
+				IndexDomain: i_act_cargo;
+				Definition: {
+					if not mm::ep_calc_vesselOfCargo(i_act_cargo) then
+					    "not-fulfilled"
+					endif;
+				}
+			}
+			StringParameter sp_def_cargoIsSpotTooltip {
+				IndexDomain: i_act_cargo;
+				Definition: {
+					if mm::v_cargoOnCharteredVessel(i_act_cargo) then
+					    "This is a spot cost."
+					endif;
+				}
+			}
 		}
 		Section Visualizations_Page {
-			StringParameter sp_visualizationsSidePanel {
+			StringParameter sp_def_visualizationsSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
 				Definition: {
 					data 
 					{ ( 1, displayText ) : "Map Options"            ,  ( 1, pageId      ) : "select_route_side_panel",
 					  ( 1, icon        ) : "aimms-menu4"            ,  ( 1, state       ) : "Active"                  }
 				}
+			}
+			StringParameter sp_def_ganttChartStartTime {
+				Definition: FormatString("%e", ep_startHorizonDate);
 			}
 		}
 	}

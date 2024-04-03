@@ -4,7 +4,7 @@
 		<ColumnMapping name="columns">
 			<RowMapping name="Vessel" binds-to="i_vessel" />
 			<RowMapping name="Cost Type" binds-to="i_ct" />
-			<RowMapping name="DailyCost" maps-to="p_vesselCostDay(i_vessel,i_ct)" />
+			<RowMapping name="DailyCost" maps-to="p_vesselCost(i_vessel,i_ct)" />
 		</ColumnMapping>
 	</ObjectMapping>
 </AimmsJSONMapping>

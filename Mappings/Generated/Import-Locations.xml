@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<AimmsExcelMapping>
+	<ExcelSheetMapping name="LocationData">
+		<RowMapping>
+			<ColumnMapping name="Location" binds-to="i_loc" />
+			<ColumnMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+			<ColumnMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+			<ColumnMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="DistanceBetweenLocations">
+		<RowMapping>
+			<ColumnMapping name="Location (From)" binds-to="i_loc_from" />
+			<ColumnMapping name="Location (To)" binds-to="i_loc_to" />
+			<ColumnMapping name="DeleveringLocation" maps-to="p_distanceBetweenLocations(i_loc_from,i_loc_to)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+</AimmsExcelMapping>

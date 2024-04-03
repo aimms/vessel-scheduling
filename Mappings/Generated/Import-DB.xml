@@ -27,7 +27,7 @@
 		<RowMapping>
 			<ColumnMapping name="Vessel" binds-to="i_vessel" />
 			<ColumnMapping name="Cost Type" binds-to="i_ct" />
-			<ColumnMapping name="DailyCost" maps-to="p_vesselCostDay(i_vessel,i_ct)" />
+			<ColumnMapping name="DailyCost" maps-to="p_vesselCost(i_vessel,i_ct)" />
 		</RowMapping>
 	</TableMapping>
 	<TableMapping name="Type Cost Group">
