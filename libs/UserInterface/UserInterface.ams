@@ -843,7 +843,7 @@ LibraryModule UserInterface {
 			StringParameter sp_def_cargoIsSpotTooltip {
 				IndexDomain: i_act_cargo;
 				Definition: {
-					if mm::v_cargoOnCharteredVessel(i_act_cargo) then
+					if mm::bv_cargoOnCharteredVessel(i_act_cargo) then
 					    "This is a spot cost."
 					endif;
 				}

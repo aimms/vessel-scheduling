@@ -8,7 +8,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: i_route;
 			Unit: $;
 			Definition: {
-				p_calc_CargoCostPerRoute(i_route)
+				p_calc_totalCargoFixedCost(i_route)
 				+ p_calc_totalRouteLocationCost(i_route)
 				+ p_calc_totalRouteIdleCost(i_route)
 				+ p_def_totalRouteMovementCost(i_route)
@@ -21,7 +21,7 @@ LibraryModule MathematicalModel {
 			Definition: {
 				sum(i_route | p_calc_cargoesOnRoute(i_route, i_act_cargo), 
 				    v_allocateVesselToRoute(ep_calc_vesselOnRoute(i_route), i_route)) 
-				+  v_cargoOnCharteredVessel(i_act_cargo) 
+				+  bv_cargoOnCharteredVessel(i_act_cargo) 
 				= 1
 			}
 		}
@@ -45,7 +45,7 @@ LibraryModule MathematicalModel {
 			Property: NoSave;
 			Definition: 1 $ (i_act_vessel = ep_calc_vesselOnRoute(i_route));
 		}
-		Variable v_cargoOnCharteredVessel {
+		Variable bv_cargoOnCharteredVessel {
 			IndexDomain: i_act_cargo;
 			Range: binary;
 		}
@@ -96,7 +96,7 @@ LibraryModule MathematicalModel {
 			Unit: $;
 			Definition: {
 				p_spotCostVessel(i_act_cargo) 
-				* v_cargoOnCharteredVessel(i_act_cargo)
+				* bv_cargoOnCharteredVessel(i_act_cargo)
 			}
 		}
 	}
@@ -190,7 +190,7 @@ LibraryModule MathematicalModel {
 				ep_calc_vesselOfCargo(i_act_cargo) :=  first(i_vessel | bp_calc_cargoesOnVessel(i_vessel, i_act_cargo));
 				ep_calc_routeOfCargo(i_act_cargo) :=  first(i_route | exists(i_act_vessel | bp_def_allocatedCargoOnVesselPerRoute(i_act_vessel, i_route, i_act_cargo)));
 				
-				p_calc_totalCostPerCargo(i_act_cargo) | v_cargoOnCharteredVessel(i_act_cargo) := p_spotCostVessel(i_act_cargo);
+				p_calc_totalCostPerCargo(i_act_cargo) | bv_cargoOnCharteredVessel(i_act_cargo) := p_spotCostVessel(i_act_cargo);
 				p_calc_totalCostPerCargo(i_act_cargo) | not p_calc_totalCostPerCargo(i_act_cargo) := sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
 				
 				sp_calc_loadingTimePerCargo(i_act_cargo) |

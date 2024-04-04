@@ -58,6 +58,12 @@
                 "slug": "overview_costs",
                 "children": [
                   {
+                    "name": "side_panel_randomData",
+                    "type": "pagev2-grid-sidepanel",
+                    "slug": "side_panel_randomdata",
+                    "children": []
+                  },
+                  {
                     "name": "CRUD",
                     "type": "pagev2-grid-dialog",
                     "slug": "crud",
@@ -118,12 +124,6 @@
                 "name": "select_route_panel",
                 "type": "pagev2-grid-sidepanel",
                 "slug": "select_route_panel",
-                "children": []
-              },
-              {
-                "name": "side_panel_randomData",
-                "type": "pagev2-grid-sidepanel",
-                "slug": "side_panel_randomdata",
                 "children": []
               }
             ]
@@ -892,14 +892,19 @@
     "bindings": {
       "literal": [
         {
-          "widgetUri": "Map_locations",
-          "gridArea": "area-b",
-          "dndId": "area-aMap_locations1"
-        },
-        {
           "widgetUri": "LocationCostTableV2",
           "gridArea": "area-a",
-          "dndId": "area-aLocationCostTableV20"
+          "dndId": "area-aLocationCostTableV21"
+        },
+        {
+          "widgetUri": "Map_locations",
+          "gridArea": "area-b",
+          "dndId": "area-bMap_locations0"
+        },
+        {
+          "widgetUri": "tbl_distances",
+          "gridArea": "area-b",
+          "dndId": "Unassigned widgetstbl_distances"
         }
       ]
     },
@@ -941,6 +946,13 @@
         },
         {
           "uri": "LocationCostTableV2",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "tbl_distances",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1580,7 +1592,7 @@
     },
     "contents.2.identifier": {
       "literal": {
-        "identifier": "p_calc_CargoCostPerRoute",
+        "identifier": "p_calc_totalCargoFixedCost",
         "slice": [
           {
             "index": "i_route",
@@ -3095,10 +3107,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 4.246777121289964
+      "literal": -9.664739657668983
     },
     "center.longitude": {
-      "literal": 2.171130392245955
+      "literal": 27.26323488219029
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3402,10 +3414,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 15.472294559383048
+      "literal": -12.054884787320752
     },
     "center.longitude": {
-      "literal": -30.566339036072502
+      "literal": -22.08850563582252
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3638,7 +3650,7 @@
       "literal": {}
     },
     "zoom": {
-      "literal": 3
+      "literal": 2
     }
   },
   "widgets/Routes": {
@@ -3911,10 +3923,10 @@
     "contents.displaydomain": {
       "literal": {
         "bp_activecostsforcargoes": "1",
-        "bp_activecostsforlocations": "1",
         "bp_activecostsforvessels": "1",
         "ui::p_deletetypeofcosts": "1",
-        "ui::p_edittypeofcosts": "1"
+        "ui::p_edittypeofcosts": "1",
+        "bp_activecostsforlocations": "bp_def_isNotCostPerDay(i_ct)"
       }
     },
     "contents.partition": {
@@ -4025,6 +4037,14 @@
     "views": {
       "literal": {}
     },
+    "views.__display_order__": {
+      "literal": [
+        "views.0"
+      ]
+    },
+    "views.0.type": {
+      "literal": "view"
+    },
     "widgetactions": {
       "aimms": {
         "contents": [
@@ -4048,6 +4068,49 @@
           }
         ]
       }
+    }
+  },
+  "widgets/tbl_distances": {
+    "aimms.widget.type": {
+      "literal": "table"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "p_distanceBetweenLocations"
+        ]
+      }
+    },
+    "contents.numdecimals": {
+      "literal": 0
+    },
+    "contents.partition": {
+      "literal": {
+        "rowHeader": [
+          "i_loc_from"
+        ],
+        "colHeader": [
+          "i_loc_to"
+        ],
+        "aggregated": [
+          "<IDENTIFIER-SET>"
+        ]
+      }
+    },
+    "custom.column.widths": {
+      "literal": [
+        {
+          "type": "rowHeader",
+          "colKey": "i_loc_from",
+          "width": 41.23
+        }
+      ]
+    },
+    "name": {
+      "literal": "tbl_distances"
+    },
+    "views": {
+      "literal": {}
     }
   },
   "widgets/Test": {
@@ -4103,7 +4166,7 @@
       "aimms": {
         "contents": [
           "mm::v_totalOperationalCost",
-          "mm::v_totalMaitenanceCost",
+          "mm::v_def_totaVesselNotUsedCost",
           "mm::v_totalStorageCostVessel",
           "mm::v_objectiveFunction"
         ]
@@ -4202,7 +4265,7 @@
     "time.reference": {
       "aimms": {
         "contents": [
-          "sp_def_ganttChartStartTime"
+          "ui::sp_def_ganttChartStartTime"
         ]
       }
     },
@@ -4212,7 +4275,7 @@
     "time.viewport.start": {
       "aimms": {
         "contents": [
-          "sp_def_ganttChartStartTime"
+          "ui::sp_def_ganttChartStartTime"
         ]
       }
     },
