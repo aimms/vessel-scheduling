@@ -380,7 +380,7 @@ Model Main_Vessel_Schedule {
 				}
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Procedure pr_calculateRoutesAndCost {
+			Procedure pr_calculateRoutesAndCostAfterSomeChangesFromGabi {
 				Body: {
 					empty s_calc_feasibleRoutes;
 					empty p_calc_cargoesOnRoute;
@@ -641,38 +641,7 @@ Model Main_Vessel_Schedule {
 					Range: s_cargoes;
 				}
 			}
-			Procedure Procedure_2 {
-				Body: {
-					empty s_calc_feasibleRoutes;
-					empty p_calc_cargoesOnRoute;
-					
-					p_cargoCardinality := card(i_act_cargo);
-					
-					for i_act_vessel do
-					    p_loc_counter := 1;
-					    while p_loc_counter <= p_cargoCardinality do
-					
-					    for i_act_cargo do
-					
-					        SetElementAdd(s_calc_feasibleRoutes, ep_route, i_act_vessel + "_" + i_act_cargo);
-					
-					        s_loc_subCargos := s_def_activeCargoes - i_act_cargo;
-					
-					        for test do
-					            SetElementAdd(s_calc_feasibleRoutes, ep_loc_route, ep_route + "_" + test);    
-					        endfor;
-					
-					        ep_route := ep_loc_route;
-					
-					    endfor;
-					
-					    p_loc_counter += 1;
-					
-					    endwhile;
-					endfor;
-				}
-			}
-			Procedure Procedure_3 {
+			Procedure pr_calculateRoutesAndCostBeforeSomeChangesFromGabi {
 				Body: {
 					!empty s_calc_feasibleRoutes;
 					!empty p_calc_cargoesOnRoute;
@@ -886,6 +855,37 @@ Model Main_Vessel_Schedule {
 					!
 				}
 			}
+			Procedure pr_gabiWasTryingToRedoTheRoutes {
+				Body: {
+					empty s_calc_feasibleRoutes;
+					empty p_calc_cargoesOnRoute;
+					
+					p_cargoCardinality := card(i_act_cargo);
+					
+					for i_act_vessel do
+					    p_loc_counter := 1;
+					    while p_loc_counter <= p_cargoCardinality do
+					
+					    for i_act_cargo do
+					
+					        SetElementAdd(s_calc_feasibleRoutes, ep_route, i_act_vessel + "_" + i_act_cargo);
+					
+					        s_loc_subCargos := s_def_activeCargoes - i_act_cargo;
+					
+					        for test do
+					            SetElementAdd(s_calc_feasibleRoutes, ep_loc_route, ep_route + "_" + test);    
+					        endfor;
+					
+					        ep_route := ep_loc_route;
+					
+					    endfor;
+					
+					    p_loc_counter += 1;
+					
+					    endwhile;
+					endfor;
+				}
+			}
 			Parameter p_calc_totalCargoDailyCost {
 				IndexDomain: i_route;
 				Unit: $;
@@ -974,7 +974,11 @@ Model Main_Vessel_Schedule {
 				    mappingName : "Import");
 			}
 		}
-		Procedure pr_emptyData;
+		Procedure pr_emptyData {
+			Body: {
+				!@TODO
+			}
+		}
 	}
 	Section WebUIVessel {
 		Procedure pr_LegendRouteViz {
@@ -1245,7 +1249,7 @@ Model Main_Vessel_Schedule {
 			It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
 		}
 	}
-	Procedure Procedure_1 {
+	Procedure pr_translations {
 		Body: {
 			webui::IdentifierElementText('ui::sp_addEditElement') := " ";
 			webui::IdentifierElementText('ui::p_cargoesQuantity') := " ";

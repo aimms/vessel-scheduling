@@ -1,7 +1,6 @@
 * The timestamps in this namechange file are stored in Coordinated universal time (UTC).
 "c_" "c_AssignCargoToOneVessel" "2023-03-09 15:10:37"
 "v_AssignVesselRoute" "v_AllocateVesselToRoute" "2023-03-09 15:22:00"
-"v_AssignCargoToVessel" "v_CargoOnCharteredVessel" "2023-03-09 15:40:21"
 "c_AssignCargoToOneVessel" "mm::c_assignCargoToOneVessel" "2023-07-20 14:26:48"
 "c_VesselMaxOneRoute" "mm::c_vesselMaxOneRoute" "2023-07-20 14:26:48"
 "v_AllocateVesselToRoute" "mm::v_allocateVesselToRoute" "2023-07-20 14:27:09"

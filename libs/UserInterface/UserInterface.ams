@@ -657,7 +657,7 @@ LibraryModule UserInterface {
 				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
 				Definition: {
 					data 
-					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"         ,
 					  ( 1, procedure   ) : "ui::pr_openAddvessel",  ( 1, state       ) : "active"               }
 				}
 			}
