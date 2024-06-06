@@ -2216,6 +2216,40 @@
         "p_allocatedcargoes": "1"
       }
     },
+    "contents.filters": {
+      "literal": {
+        "logicalOperator": "AND",
+        "filters": [
+          {
+            "filter": {
+              "type": "min",
+              "operator": "<",
+              "value": 10,
+              "enabled": true,
+              "arguments": [
+                10
+              ],
+              "field": "Minimum Loading Time - -",
+              "displayName": "Minimum Loading Time - -",
+              "isElementHeader": false,
+              "slice": [
+                {
+                  "index": "<IDENTIFIER-SET>",
+                  "type": "fixed-element",
+                  "value": "ep_minTimeWindow"
+                },
+                {
+                  "index": "i_ct",
+                  "type": "fixed-element",
+                  "value": "-"
+                }
+              ]
+            },
+            "logicalOperator": "NOT"
+          }
+        ]
+      }
+    },
     "contents.partition": {
       "literal": {
         "rowHeader": [
@@ -2685,12 +2719,6 @@
         ]
       }
     },
-    "contents.displaydomain": {
-      "literal": {
-        "p_locationcost": "bp_activeCostsForLocations",
-        "p_idlecostlocation": "1"
-      }
-    },
     "contents.partition": {
       "literal": {
         "rowHeader": [
@@ -2744,6 +2772,11 @@
     },
     "name": {
       "literal": "LocationCostTableV2"
+    },
+    "store.focus.in": {
+      "literal": {
+        "i_act_loc": "ep_location"
+      }
     },
     "title": {
       "literal": "Information per Location"
@@ -3148,10 +3181,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -9.664739657668983
+      "literal": 0.6891349959651966
     },
     "center.longitude": {
-      "literal": 27.26323488219029
+      "literal": 49.04028792355381
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3455,10 +3488,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -12.054884787320752
+      "literal": -8.550767676187917
     },
     "center.longitude": {
-      "literal": -22.08850563582252
+      "literal": -3.7794187307475537
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3691,7 +3724,7 @@
       "literal": {}
     },
     "zoom": {
-      "literal": 2
+      "literal": 3
     }
   },
   "widgets/Routes": {
@@ -4020,27 +4053,6 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForLocations"
-          },
-          "width": 14.39
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForVessels"
-          },
-          "width": 13.38
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForCargoes"
-          },
-          "width": 15.39
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
             "<IDENTIFIER-SET>": "ui::p_deleteTypeOfCosts"
           },
           "width": 8.31
@@ -4058,6 +4070,27 @@
             "<IDENTIFIER-SET>": "ep_costUnit"
           },
           "width": 14.5
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "bp_activeCostsForCargoes"
+          },
+          "width": 22.9
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "bp_activeCostsForLocations"
+          },
+          "width": 8.84
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "bp_activeCostsForVessels"
+          },
+          "width": 23.51
         }
       ]
     },
@@ -4119,6 +4152,24 @@
       "aimms": {
         "contents": [
           "p_distanceBetweenLocations"
+        ],
+        "prefix": "aimms",
+        "slices": [
+          {
+            "identifier": "p_distanceBetweenLocations",
+            "slice": [
+              {
+                "index": "i_loc_from",
+                "type": "element-parameter",
+                "value": "ep_location"
+              },
+              {
+                "index": "i_loc_to",
+                "type": "subset",
+                "value": "i_loc_filtro_to"
+              }
+            ]
+          }
         ]
       }
     },
@@ -4591,16 +4642,8 @@
     "views": {
       "literal": {}
     },
-    "views.__display_order__": {
-      "literal": [
-        "views.0"
-      ]
-    },
     "views.0.type": {
       "literal": "view"
-    },
-    "zoom": {
-      "literal": 2
     }
   },
   "widgets/Vessels": {
