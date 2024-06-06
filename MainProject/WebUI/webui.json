@@ -4,6 +4,27 @@
     "aimms.widget.type": {
       "literal": "application"
     },
+    "browser.language": {
+      "aimms": {
+        "contents": [
+          "webui::ClientBrowserLanguage"
+        ]
+      }
+    },
+    "browser.name": {
+      "aimms": {
+        "contents": [
+          "webui::ClientBrowserName"
+        ]
+      }
+    },
+    "browser.timezone": {
+      "aimms": {
+        "contents": [
+          "webui::BrowserTimeZone"
+        ]
+      }
+    },
     "browsername": {
       "aimms": {
         "contents": [
@@ -389,9 +410,9 @@
       "literal": {
         "componentName": "Grid",
         "props": {
-          "gridTemplateColumns": "1fr 0.5fr",
-          "gridTemplateRows": "1fr 1fr 1fr",
-          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-b\" \"area-a area-d\""
+          "gridTemplateColumns": "2fr 1fr",
+          "gridTemplateRows": "2fr 1fr",
+          "gridTemplateAreas": "\"area-a area-b\" \"area-c area-d\""
         },
         "items": [
           {
@@ -407,6 +428,14 @@
             "props": {
               "gridArea": "area-b",
               "name": "Area B",
+              "gridAutoFlow": "row"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-c",
+              "name": "Area C",
               "gridAutoFlow": "row"
             }
           },
@@ -830,22 +859,27 @@
         {
           "widgetUri": "sp_aimms_logo",
           "gridArea": "area-d",
-          "dndId": "Unassigned widgetssp_aimms_logo2"
+          "dndId": "area-dsp_aimms_logo0"
         },
         {
           "widgetUri": "text_problemDescription",
           "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetstext_problemDescription0"
+          "dndId": "Unassigned widgetstext_problemDescription1"
         },
         {
           "widgetUri": "LegendsPorts_1",
           "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsLegendsPorts_11"
+          "dndId": "Unassigned widgetsLegendsPorts_12"
         },
         {
           "widgetUri": "lol",
           "gridArea": "area-a",
           "dndId": "area-alol3"
+        },
+        {
+          "widgetUri": "textSourceAttribution",
+          "gridArea": "area-c",
+          "dndId": "Unassigned widgetstextSourceAttribution"
         }
       ]
     },
@@ -877,6 +911,13 @@
         },
         {
           "uri": "LegendsPorts_1",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "textSourceAttribution",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -4156,6 +4197,17 @@
     },
     "name": {
       "literal": "text_problemDescription (1)"
+    }
+  },
+  "widgets/textSourceAttribution": {
+    "aimms.widget.type": {
+      "literal": "text"
+    },
+    "contents": {
+      "literal": "<div>Source attribution:</div><div><br></div><div>* Idea: Petrobras Vessel Scheduling article:&nbsp;</div><div>&nbsp; &nbsp;Decision Support System for PETROBRAS Ship Scheduling, </div><div>&nbsp; &nbsp;Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher, </div><div>&nbsp; &nbsp;Interfaces 44(6):555-566,&nbsp;</div><div><br></div><div>* Launch Icon:</div><div>&nbsp; &nbsp;T Hengl,&nbsp;http://www.nceas.ucsb.edu/globalmarine/impacts</div><div>&nbsp; &nbsp;also:&nbsp;https://commons.wikimedia.org/wiki/File:Shipping_routes.png</div>"
+    },
+    "name": {
+      "literal": "textSourceAttribution"
     }
   },
   "widgets/Total Operationalcost": {

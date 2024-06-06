@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<AimmsParquetMapping>
-	<RowMapping name="Type Cost Group">
-		<ColumnMapping name="Cost Type" binds-to="i_ct" />
-		<ColumnMapping name="Cargoes" maps-to="bp_activeCostsForCargoes(i_ct)" />
-		<ColumnMapping name="Vessel" maps-to="bp_activeCostsForVessels(i_ct)" />
-		<ColumnMapping name="Location" maps-to="bp_activeCostsForLocations(i_ct)" />
-	</RowMapping>
-</AimmsParquetMapping>

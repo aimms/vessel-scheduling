@@ -374,17 +374,40 @@ LibraryModule UserInterface {
 				Property: NoSave;
 				InitialData: {
 					data 
-					{ ( 1, icon      ) : "aimms-checkmark-circle"               ,  ( 1, color     ) : "Green"                                ,
-					  ( 1, text      ) : "Import Excel"                         ,  ( 1, tooltip   ) : "Data is succesfully imported."        ,
-					  ( 1, procedure ) : "pr_importExcel"                       ,  ( 1, state     ) : "Active"                               ,
-					  ( 2, icon      ) : "aimms-circle2"                        ,  ( 2, color     ) : "Orange"                               ,
-					  ( 2, text      ) : "Generate Routes"                      ,  ( 2, tooltip   ) : "Application ready to generate routes.",
-					  ( 2, procedure ) : "pr_calculateRoutesAndCost"            ,  ( 2, state     ) : "active"                               ,
-					  ( 3, icon      ) : "aimms-cancel-circle2"                 ,  ( 3, color     ) : "red"                                  ,
-					  ( 3, text      ) : "Solve Model"                          ,  ( 3, tooltip   ) : "Model not ready to be solved."        ,
-					  ( 3, procedure ) : "MainExecution"                        ,  ( 3, state     ) : "inactive"                             ,
-					  ( 4, header    ) : "Excel:"                               ,  ( 4, icon      ) : "aimms-briefcase"                      ,
-					  ( 4, text      ) : "DataForImport.xlsx"                   ,  ( 4, state     ) : "Inactive"                              }
+					{ ( 1, icon      ) : "aimms-checkmark-circle"               ,  
+					  ( 1, color     ) : "Green"                                ,
+					  ( 1, text      ) : "Import Excel"                         ,  
+					  ( 1, tooltip   ) : "Data is succesfully imported."        ,
+					  ( 1, procedure ) : "pr_importExcel"                       ,  
+					  ( 1, state     ) : "Active"                               ,
+					
+					  ( 2, icon      ) : "aimms-circle2"                        ,  
+					  ( 2, color     ) : "Orange"                               ,
+					  ( 2, text      ) : "Generate Routes"                      ,  
+					  ( 2, tooltip   ) : "Application ready to generate routes.",
+					  ( 2, procedure ) : "pr_calculateRoutesAndCost"            ,  
+					  ( 2, state     ) : "active"                               ,
+					
+					  ( 3, icon      ) : "aimms-cancel-circle2"                 ,  
+					  ( 3, color     ) : "red"                                  ,
+					  ( 3, text      ) : "Solve Model"                          ,  
+					  ( 3, tooltip   ) : "Model not ready to be solved."        ,
+					  ( 3, procedure ) : "MainExecution"                        ,  
+					  ( 3, state     ) : "inactive"                             ,
+					
+					  ( 4, header    ) : "Excel:"                               ,  
+					  ( 4, icon      ) : "aimms-briefcase"                      ,
+					  ( 4, text      ) : "DataForImport.xlsx"                   ,  
+					  ( 4, state     ) : "Inactive" ,                             
+					
+					  ( 5, icon      ) : "aimms-exit"                 ,  
+					  ( 5, color     ) : "green"                                  ,
+					  ( 5, text      ) : "bye"                          ,  
+					  ( 5, tooltip   ) : "Stopping AIMMS session"        ,
+					  ( 5, procedure ) : "pr_goodbye"                        ,  
+					  ( 5, state     ) : "Active"                             
+					
+					}
 				}
 			}
 		}
@@ -861,6 +884,28 @@ LibraryModule UserInterface {
 			StringParameter sp_def_ganttChartStartTime {
 				Definition: FormatString("%e", ep_startHorizonDate);
 			}
+		}
+	}
+	Procedure Procedure_1 {
+		Body: {
+			webui::IdentifierElementText('ui::sp_addEditElement') := " ";
+			webui::IdentifierElementText('ui::p_cargoesQuantity') := " ";
+			webui::IdentifierElementText('ui::p_vesselsQuantity') := " ";
+			
+			webui::IdentifierElementText('p_spotCostVessel') := "Spot Cost";
+			webui::IdentifierElementText('ep_costUnit') := "Unit";
+			webui::IdentifierElementText('i_loc_from') := "From";
+			webui::IdentifierElementText('i_loc_to') := "To";
+			
+			webui::IdentifierElementText('mm::ep_calc_routeOfVessel') := "Route";
+			webui::IdentifierElementText('mm::p_calc_operationalCostPerVessel') := "Operational<br>Cost";
+			webui::IdentifierElementText('mm::bp_calc_cargoesOnVessel') := "Cargoes";
+			webui::IdentifierElementText('mm::p_calc_totalTravelDaysPerVessel') := "Travel<br>Days";
+			
+			webui::IdentifierElementText('mm::ep_calc_vesselOfCargo') := "Vessel";
+			webui::IdentifierElementText('mm::p_calc_totalCostPerCargo') := "Total<br>Cost";
+			webui::IdentifierElementText('mm::sp_calc_loadingTimePerCargo') := "Loading<br>Date";
+			webui::IdentifierElementText('mm::sp_calc_deleveringTimePerCargo') := "Delivered<br>Date";
 		}
 	}
 	Procedure LibraryInitialization {

@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<AimmsParquetMapping>
-	<RowMapping name="VesselCosts">
-		<ColumnMapping name="Vessel" binds-to="i_vessel" />
-		<ColumnMapping name="Cost Type" binds-to="i_ct" />
-		<ColumnMapping name="DailyCost" maps-to="p_vesselCost(i_vessel,i_ct)" />
-	</RowMapping>
-</AimmsParquetMapping>

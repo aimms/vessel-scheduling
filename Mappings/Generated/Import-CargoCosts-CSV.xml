@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<AimmsCSVMapping dense-children="1">
-	<RowMapping name="CargoCosts">
-		<ColumnMapping name="Cargo" binds-to="i_cargo" />
-		<ColumnMapping name="Cost Type" binds-to="i_ct" />
-		<ColumnMapping name="Type Costs" maps-to="p_cargoCost(i_cargo,i_ct)" />
-	</RowMapping>
-</AimmsCSVMapping>

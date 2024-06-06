@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<AimmsJSONMapping>
-	<ObjectMapping>
-		<ColumnMapping name="columns">
-			<RowMapping name="Vessel" binds-to="i_vessel" />
-			<RowMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
-		</ColumnMapping>
-	</ObjectMapping>
-</AimmsJSONMapping>

@@ -11,17 +11,16 @@ Model Main_Vessel_Schedule {
 				BaseUnit: s;
 				Conversions: {
 					day->s : #-># * 86400,
-					minute->s : #-># * 60
+					minute->s : #-># * 60,
+					century->s : #-># * 3153600000,
+					year->s : #-># * 31536000,
+					month->s : #-># * 2628000,
+					week->s : #-># * 604800,
+					hour->s : #-># * 3600,
+					tick->s : #-># / 100,
+					second->s : #->#
 				}
-				Comment: {
-					"Expresses the value for the duration of periods.
-					
-					The unit s has been added automatically because it is a required unit for AimmsWebUI.
-					
-					The unit minute has been added automatically because it is a required unit for AimmsWebUI.
-					
-					The unit minute has been added automatically because it is a required unit for AimmsWebUI."
-				}
+				Comment: "Expresses the value for the duration of periods.";
 			}
 			Quantity Q_Currency {
 				BaseUnit: $;
@@ -1191,80 +1190,74 @@ Model Main_Vessel_Schedule {
 			}
 		}
 	}
-	Procedure MainInitialization {
-		Body: {
-			
-			ep_startHorizonDate := StringToElement(cal_days, CurrentToString("%c%y-%m-%d"), 0);
+	Section app_start_and_stop {
+		Procedure MainInitialization {
+			Body: {
+				ProfilerStart();
+				ep_startHorizonDate := StringToElement(cal_days, CurrentToString("%c%y-%m-%d"), 0);
+			}
+			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 		}
-		Comment: "Add initialization statements here that do NOT require any library being initialized already.";
-	}
-	Procedure PostMainInitialization {
-		Comment: {
-			"Add initialization statements here that require that the libraries are already initialized properly,
-			or add statements that require the Data Management module to be initialized."
+		Procedure PostMainInitialization {
+			Comment: {
+				"Add initialization statements here that require that the libraries are already initialized properly,
+				or add statements that require the Data Management module to be initialized."
+			}
 		}
-	}
-	Procedure MainExecution {
-		Body: {
-			solve mm::mp_vesselScheduling;
-			
-			ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
-			ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
-			
-			!Changes statusbar
-			ui::sp_systemStatusBar(3,'icon') := "aimms-checkmark-circle";
-			ui::sp_systemStatusBar(3,'color') := "Green";
-			ui::sp_systemStatusBar(3,'tooltip') := "The model has been solved.";
-			
-			!Post Execution
-			mm::pr_post_vesselResults;
-			mm::pr_post_cargoResults;
-			
-			!Get the arcs
-			pr_CalculateAllArcs;
+		Procedure pr_start;
+		Procedure pr_goodbye {
+			Body: {
+				if ProjectDeveloperMode() then
+					ExitAimms();
+				else
+					pro::sessionmanager::FinishSession();
+				endif ;
+			}
 		}
-	}
-	Procedure PreMainTermination {
-		Body: {
-			return DataManagementExit();
+		Procedure PreMainTermination {
+			Body: {
+				return DataManagementExit();
+			}
+			Comment: {
+				"Add termination statements here that require all libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
+			}
 		}
-		Comment: {
-			"Add termination statements here that require all libraries to be still alive.
-			Return 1 if you allow the termination sequence to continue.
-			Return 0 if you want to cancel the termination sequence."
-		}
-	}
-	Procedure MainTermination {
-		Body: {
-			return 1;
-		}
-		Comment: {
-			"Add termination statements here that do not require all libraries to be still alive.
-			Return 1 to allow the termination sequence to continue.
-			Return 0 if you want to cancel the termination sequence.
-			It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+		Procedure MainTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that do not require all libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+			}
 		}
 	}
-	Procedure Procedure_1 {
-		Body: {
-			webui::IdentifierElementText('ui::sp_addEditElement') := " ";
-			webui::IdentifierElementText('ui::p_cargoesQuantity') := " ";
-			webui::IdentifierElementText('ui::p_vesselsQuantity') := " ";
-			
-			webui::IdentifierElementText('p_spotCostVessel') := "Spot Cost";
-			webui::IdentifierElementText('ep_costUnit') := "Unit";
-			webui::IdentifierElementText('i_loc_from') := "From";
-			webui::IdentifierElementText('i_loc_to') := "To";
-			
-			webui::IdentifierElementText('mm::ep_calc_routeOfVessel') := "Route";
-			webui::IdentifierElementText('mm::p_calc_operationalCostPerVessel') := "Operational<br>Cost";
-			webui::IdentifierElementText('mm::bp_calc_cargoesOnVessel') := "Cargoes";
-			webui::IdentifierElementText('mm::p_calc_totalTravelDaysPerVessel') := "Travel<br>Days";
-			
-			webui::IdentifierElementText('mm::ep_calc_vesselOfCargo') := "Vessel";
-			webui::IdentifierElementText('mm::p_calc_totalCostPerCargo') := "Total<br>Cost";
-			webui::IdentifierElementText('mm::sp_calc_loadingTimePerCargo') := "Loading<br>Date";
-			webui::IdentifierElementText('mm::sp_calc_deleveringTimePerCargo') := "Delivered<br>Date";
+	Section app_test {
+		Procedure MainExecution {
+			Body: {
+				solve mm::mp_vesselScheduling;
+				
+				ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
+				ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
+				
+				!Changes statusbar
+				ui::sp_systemStatusBar(3,'icon') := "aimms-checkmark-circle";
+				ui::sp_systemStatusBar(3,'color') := "Green";
+				ui::sp_systemStatusBar(3,'tooltip') := "The model has been solved.";
+				
+				!Post Execution
+				mm::pr_post_vesselResults;
+				mm::pr_post_cargoResults;
+				
+				!Get the arcs
+				pr_CalculateAllArcs;
+			}
 		}
 	}
+	Section Leverage_DEX;
+	Section Leverage_WebUI;
 }
