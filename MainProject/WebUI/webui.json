@@ -117,6 +117,12 @@
                 "children": []
               },
               {
+                "name": "Generated itineraries",
+                "type": "pagev2-grid",
+                "slug": "generated_itineraries",
+                "children": []
+              },
+              {
                 "name": "Model Results",
                 "type": "pagev2-grid",
                 "slug": "optimized_results",
@@ -145,6 +151,12 @@
                 "name": "select_route_panel",
                 "type": "pagev2-grid-sidepanel",
                 "slug": "select_route_panel",
+                "children": []
+              },
+              {
+                "name": "Debug",
+                "type": "pagev2-grid",
+                "slug": "debug",
                 "children": []
               }
             ]
@@ -842,6 +854,63 @@
       "literal": [
         {
           "uri": "scl_EditAddElements",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        }
+      ]
+    }
+  },
+  "pages/generated_itineraries": {
+    "aimms.widget.type": {
+      "literal": "pagev2-grid"
+    },
+    "bindings": {
+      "literal": [
+        {
+          "widgetUri": "scalarSelectRoute",
+          "gridArea": "area-b",
+          "dndId": "area-bscalarSelectRoute0"
+        },
+        {
+          "widgetUri": "tableHandledCargos",
+          "gridArea": "area-a",
+          "dndId": "area-atableHandledCargos1"
+        },
+        {
+          "widgetUri": "tableItinerary",
+          "gridArea": "area-c",
+          "dndId": "area-ctableItinerary2"
+        }
+      ]
+    },
+    "layoutId": {
+      "literal": "Layout5"
+    },
+    "onload": {
+      "aimms": {
+        "run": "ui::pr_uponLoadPageGeneratedItineraries"
+      }
+    },
+    "widgets": {
+      "literal": [
+        {
+          "uri": "scalarSelectRoute",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "tableHandledCargos",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "tableItinerary",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -3785,6 +3854,43 @@
       "literal": "Routes_feasible"
     }
   },
+  "widgets/scalarSelectRoute": {
+    "aimms.widget.type": {
+      "literal": "scalar"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "ui::ep_selectedRoute",
+          "ui::ep_selectedVessel",
+          "ui::ep_berthVesselSelectedRoute",
+          "ui::p_noDaysSailing",
+          "ui::p_noDaysIdle",
+          "ui::p_vesselDailycost",
+          "ui::p_costsSailing",
+          "ui::p_costsIdle",
+          "ui::p_costsRoute"
+        ]
+      }
+    },
+    "contents.numdecimals": {
+      "literal": 0
+    },
+    "name": {
+      "literal": "scalarSelectRoute"
+    },
+    "title": {
+      "aimms": {
+        "contents": [
+          "ui::sp_titleScalarSelectRoute"
+        ],
+        "slices": []
+      }
+    },
+    "views": {
+      "literal": {}
+    }
+  },
   "widgets/scl_EditAddElements": {
     "aimms.widget.type": {
       "literal": "scalar"
@@ -4000,7 +4106,8 @@
         "bp_activecostsforvessels": "1",
         "ui::p_deletetypeofcosts": "1",
         "ui::p_edittypeofcosts": "1",
-        "bp_activecostsforlocations": "bp_def_isNotCostPerDay(i_ct)"
+        "bp_activecostsforlocations": "bp_def_isNotCostPerDay(i_ct)",
+        "ep_costunit": "1"
       }
     },
     "contents.partition": {
@@ -4144,6 +4251,286 @@
       }
     }
   },
+  "widgets/tableHandledCargos": {
+    "aimms.widget.type": {
+      "literal": "table"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "ep_minTimeWindow",
+          "ep_maxTimeWindow",
+          "ep_loadingPortsCargo",
+          "ep_deliveringPortsCargo"
+        ],
+        "prefix": "aimms",
+        "slices": [
+          {
+            "identifier": "ep_deliveringPortsCargo",
+            "slice": [
+              {
+                "index": "i_cargo",
+                "type": "subset",
+                "value": "ui::i_cargoSelectedRoute"
+              }
+            ]
+          },
+          {
+            "identifier": "ep_loadingPortsCargo",
+            "slice": [
+              {
+                "index": "i_cargo",
+                "type": "subset",
+                "value": "ui::i_cargoSelectedRoute"
+              }
+            ]
+          },
+          {
+            "identifier": "ep_maxTimeWindow",
+            "slice": [
+              {
+                "index": "i_cargo",
+                "type": "subset",
+                "value": "ui::i_cargoSelectedRoute"
+              }
+            ]
+          },
+          {
+            "identifier": "ep_minTimeWindow",
+            "slice": [
+              {
+                "index": "i_cargo",
+                "type": "subset",
+                "value": "ui::i_cargoSelectedRoute"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "contents.partition": {
+      "literal": {
+        "rowHeader": [
+          "i_cargo"
+        ],
+        "colHeader": [
+          "<IDENTIFIER-SET>"
+        ],
+        "aggregated": []
+      }
+    },
+    "contents.sorting": {
+      "literal": [
+        {
+          "partIndex": 0,
+          "index": "ui::i_cargoSelectedRoute",
+          "mode": "setorder"
+        }
+      ]
+    },
+    "custom.column.widths": {
+      "literal": [
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_minTimeWindow"
+          },
+          "width": 16.86
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_maxTimeWindow"
+          },
+          "width": 17.07
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_loadingPortsCargo"
+          },
+          "width": 24.92
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_deliveringPortsCargo"
+          },
+          "width": 30.31
+        },
+        {
+          "type": "rowHeader",
+          "colKey": "ui::i_cargoSelectedRoute",
+          "width": 12.53
+        }
+      ]
+    },
+    "name": {
+      "literal": "tableHandledCargos"
+    },
+    "title": {
+      "aimms": {
+        "contents": [
+          "ui::sp_titleTableHandledCargos"
+        ],
+        "slices": []
+      }
+    },
+    "views": {
+      "literal": {}
+    }
+  },
+  "widgets/tableItinerary": {
+    "aimms.widget.type": {
+      "literal": "table"
+    },
+    "contents": {
+      "aimms": {
+        "slices": [
+          {
+            "identifier": "cracc::ep_vesselActivityFirst",
+            "slice": [
+              {
+                "index": "i_route",
+                "type": "element-parameter",
+                "value": "ui::ep_selectedRoute"
+              },
+              {
+                "index": "cracc::i_leg",
+                "type": "free",
+                "value": "cracc::i_leg"
+              }
+            ]
+          },
+          {
+            "identifier": "cracc::ep_vesselActivityLast",
+            "slice": [
+              {
+                "index": "i_route",
+                "type": "element-parameter",
+                "value": "ui::ep_selectedRoute"
+              },
+              {
+                "index": "cracc::i_leg",
+                "type": "free",
+                "value": "cracc::i_leg"
+              }
+            ]
+          },
+          {
+            "identifier": "cracc::ep_vesselActivityLocation",
+            "slice": [
+              {
+                "index": "i_route",
+                "type": "element-parameter",
+                "value": "ui::ep_selectedRoute"
+              },
+              {
+                "index": "cracc::i_leg",
+                "type": "free",
+                "value": "cracc::i_leg"
+              }
+            ]
+          },
+          {
+            "identifier": "cracc::ep_vesselActivityType",
+            "slice": [
+              {
+                "index": "i_route",
+                "type": "element-parameter",
+                "value": "ui::ep_selectedRoute"
+              },
+              {
+                "index": "cracc::i_leg",
+                "type": "free",
+                "value": "cracc::i_leg"
+              }
+            ]
+          },
+          {
+            "identifier": "cracc::p_def_vesselActivityLength",
+            "slice": [
+              {
+                "index": "i_route",
+                "type": "element-parameter",
+                "value": "ui::ep_selectedRoute"
+              },
+              {
+                "index": "cracc::i_leg",
+                "type": "free",
+                "value": "cracc::i_leg"
+              }
+            ]
+          }
+        ],
+        "contents": [
+          "cracc::ep_vesselActivityType",
+          "cracc::ep_vesselActivityLocation",
+          "cracc::ep_vesselActivityFirst",
+          "cracc::ep_vesselActivityLast",
+          "cracc::p_def_vesselActivityLength"
+        ],
+        "prefix": "aimms"
+      }
+    },
+    "contents.numdecimals": {
+      "literal": 0
+    },
+    "contents.partition": {
+      "literal": {
+        "rowHeader": [
+          "cracc::i_leg"
+        ],
+        "colHeader": [
+          "<IDENTIFIER-SET>"
+        ],
+        "aggregated": []
+      }
+    },
+    "custom.column.widths": {
+      "literal": [
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "cracc::ep_vesselActivityFirst"
+          },
+          "width": 17.5
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "cracc::ep_vesselActivityLast"
+          },
+          "width": 17.91
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "cracc::ep_vesselActivityLocation"
+          },
+          "width": 22.23
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "cracc::ep_vesselActivityType"
+          },
+          "width": 31.97
+        },
+        {
+          "type": "rowHeader",
+          "colKey": "cracc::i_leg",
+          "width": 5.52
+        }
+      ]
+    },
+    "name": {
+      "literal": "tableItinerary"
+    },
+    "views": {
+      "literal": {}
+    }
+  },
   "widgets/tbl_distances": {
     "aimms.widget.type": {
       "literal": "table"
@@ -4255,7 +4642,7 @@
       "literal": "text"
     },
     "contents": {
-      "literal": "<div>Source attribution:</div><div><br></div><div>* Idea: Petrobras Vessel Scheduling article:&nbsp;</div><div>&nbsp; &nbsp;Decision Support System for PETROBRAS Ship Scheduling, </div><div>&nbsp; &nbsp;Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher, </div><div>&nbsp; &nbsp;Interfaces 44(6):555-566,&nbsp;</div><div><br></div><div>* Launch Icon:</div><div>&nbsp; &nbsp;T Hengl,&nbsp;http://www.nceas.ucsb.edu/globalmarine/impacts</div><div>&nbsp; &nbsp;also:&nbsp;https://commons.wikimedia.org/wiki/File:Shipping_routes.png</div>"
+      "literal": "<div>Source attribution:</div><div><br></div><div>* Idea: Petrobras Vessel Scheduling article:&nbsp;</div><div>&nbsp; &nbsp;Decision Support System for PETROBRAS Ship Scheduling, </div><div>&nbsp; &nbsp;Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher, </div><div>&nbsp; &nbsp;Interfaces 44(6):555-566,&nbsp;</div><div><br></div><div>* Launch Icon:</div><div>&nbsp; &nbsp;T Hengl,&nbsp;http://www.nceas.ucsb.edu/globalmarine/impacts</div><div>&nbsp; &nbsp;also:&nbsp;https://commons.wikimedia.org/wiki/File:Shipping_routes.png</div><div>&nbsp; &nbsp;Similar maps can be created at shipmap.org</div>"
     },
     "name": {
       "literal": "textSourceAttribution"

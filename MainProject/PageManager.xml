@@ -3,4 +3,5 @@
 	<Page Name="All Data Pages" PageGUID="2BAE1906-819C-477A-820E-CFBEE122FC35">
 		<Page Name="[Data Page] p_totalRouteCargoCost" PageGUID="B05C313E-7967-40ED-8979-F465570C2323" />
 	</Page>
+	<Page Name="Page 1" PageGUID="7E60F1A7-B020-4FF7-981D-485368466244" />
 </PageManager>

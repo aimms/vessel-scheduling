@@ -298,49 +298,64 @@ LibraryModule UserInterface {
 					  ( 1, 1, pageId            ) : "introduction_problem",
 					  ( 1, 1, tooltip           ) : "Welcome ",
 					  ( 1, 1, workflowPageState ) : "Active",
+					
 					  ( 1, 2, displayText       ) : "Problem Statement",
 					  ( 1, 2, icon              ) : "aimms-book",
 					  ( 1, 2, pageId            ) : "problem_statement",
 					  ( 1, 2, tooltip           ) : "Short statement about the problem",
 					  ( 1, 2, workflowPageState ) : "Active",
+					
 					  ( 1, 3, displayText       ) : "Master",
 					  ( 1, 3, icon              ) : "aimms-equalizer2",
 					  ( 1, 3, pageId            ) : "overview_costs",
 					  ( 1, 3, tooltip           ) : "Overview of all the sets",
 					  ( 1, 3, workflowPageState ) : "Active",
+					
 					  ( 1, 4, displayText       ) : "Overview Datasets",
 					  ( 1, 4, icon              ) : "aimms-equalizer2",
 					  ( 1, 4, pageId            ) : "overview_datasets",
 					  ( 1, 4, tooltip           ) : "Overview of all the data",
 					  ( 1, 4, workflowPageState ) : "Active",
+					
 					  ( 1, 5, displayText       ) : "Locations",
 					  ( 1, 5, icon              ) : "aimms-location5",
 					  ( 1, 5, pageId            ) : "locations_overview",
 					  ( 1, 5, tooltip           ) : "Location data",
 					  ( 1, 5, workflowPageState ) : "Active",
 					  ( 1, 5, parentPageId      ) : "overview_datasets",
+					
 					  ( 1, 6, displayText       ) : "Cargoes",
 					  ( 1, 6, icon              ) : "aimms-package",
 					  ( 1, 6, pageId            ) : "cargoes_overview",
 					  ( 1, 6, tooltip           ) : "Cargoes data",
 					  ( 1, 6, workflowPageState ) : "Active",
 					  ( 1, 6, parentPageId      ) : "overview_datasets",
+					
 					  ( 1, 7, displayText       ) : "Vessel",
 					  ( 1, 7, icon              ) : "aimms-ship",
 					  ( 1, 7, pageId            ) : "vessel_overview",
 					  ( 1, 7, tooltip           ) : "Vessel data",
 					  ( 1, 7, workflowPageState ) : "Active",
 					  ( 1, 7, parentPageId      ) : "overview_datasets",
-					  ( 1, 8, displayText       ) : "Optimized Results",
-					  ( 1, 8, icon              ) : "aimms-stats-decline",
-					  ( 1, 8, pageId            ) : "optimized_results",
-					  ( 1, 8, tooltip           ) : "Results after solving the model",
-					  ( 1, 8, workflowPageState ) : "Inactive",
-					  ( 1, 9, displayText       ) : "Visualisations",
-					  ( 1, 9, icon              ) : "aimms-pie-chart8",
-					  ( 1, 9, pageId            ) : "all_visualisations",
-					  ( 1, 9, tooltip           ) : "All visualisations explaining results",
-					  ( 1, 9, workflowPageState ) : "Inactive" }
+					
+					  ( 1, 8, displayText       ) : "Generated Itineraries",
+					  ( 1, 8, icon              ) : "aimms-film4",
+					  ( 1, 8, pageId            ) : "generated_itineraries",
+					  ( 1, 8, tooltip           ) : "Vessel data",
+					  ( 1, 8, workflowPageState ) : "Active",
+					  ( 1, 8, parentPageId      ) : "",
+					
+					  ( 1, 9, displayText       ) : "Optimized Results",
+					  ( 1, 9, icon              ) : "aimms-stats-decline",
+					  ( 1, 9, pageId            ) : "optimized_results",
+					  ( 1, 9, tooltip           ) : "Results after solving the model",
+					  ( 1, 9, workflowPageState ) : "Inactive",
+					
+					  ( 1, 10, displayText       ) : "Visualisations",
+					  ( 1, 10, icon              ) : "aimms-pie-chart8",
+					  ( 1, 10, pageId            ) : "all_visualisations",
+					  ( 1, 10, tooltip           ) : "All visualisations explaining results",
+					  ( 1, 10, workflowPageState ) : "Inactive" }
 				}
 			}
 			StringParameter sp_systemWorkflowFoldingStates {
@@ -355,16 +370,30 @@ LibraryModule UserInterface {
 				Property: NoSave;
 				InitialData: {
 					data 
-					{ ( 1, displaytext ) : "Upload Excel"                   ,  ( 1, icon        ) : "aimms-upload4"                  ,
-					  ( 1, procedure   ) : "pr_importExcel"             ,  ( 1, state       ) : "Active"                         ,
-					  ( 2, displaytext ) : "Download Excel"                 ,  ( 2, icon        ) : "aimms-download4"                ,
-					  ( 2, procedure   ) : "pr_exportExcel"                  ,  ( 2, state       ) : "Active"                         ,
-					  ( 3, displaytext ) : "Generate Routes"                ,  ( 3, icon        ) : "aimms-direction"                ,
-					  ( 3, procedure   ) : "pr_ActivecalculateRoutesAndCost",  ( 3, state       ) : "active"                         ,
-					  ( 4, displaytext ) : "Solve"                          ,  ( 4, icon        ) : "aimms-cog"                      ,
-					  ( 4, procedure   ) : "MainExecution"                  ,  ( 4, state       ) : "inactive"                       ,
-					  ( 5, displaytext ) : "Empty Case"                    ,  ( 5, icon        ) : "aimms-bin2"                     ,
-					  ( 5, procedure   ) : "pr_emptyData"                  ,  ( 5, state       ) : "Active"                          }
+					{ ( 1, displaytext ) : "Upload Excel"                   ,  
+					  ( 1, icon        ) : "aimms-upload4"                  ,
+					  ( 1, procedure   ) : "pr_importExcel"             ,  
+					  ( 1, state       ) : "Active"                         ,
+					
+					  ( 2, displaytext ) : "Download Excel"                 ,  
+					  ( 2, icon        ) : "aimms-download4"                ,
+					  ( 2, procedure   ) : "pr_exportExcel"                  ,  
+					  ( 2, state       ) : "Active"                         ,
+					
+					  ( 3, displaytext ) : "Generate Routes"                ,  
+					  ( 3, icon        ) : "aimms-direction"                ,
+					  ( 3, procedure   ) : "pr_calculateRoutesAndCost",  
+					  ( 3, state       ) : "active"                         ,
+					
+					  ( 4, displaytext ) : "Solve"                          ,  
+					  ( 4, icon        ) : "aimms-cog"                      ,
+					  ( 4, procedure   ) : "MainExecution"                  ,  
+					  ( 4, state       ) : "inactive"                       ,
+					
+					  ( 5, displaytext ) : "Empty Case"                    ,  
+					  ( 5, icon        ) : "aimms-bin2"                     ,
+					  ( 5, procedure   ) : "pr_emptyData"                  ,  
+					  ( 5, state       ) : "Active"                          }
 				}
 			}
 		}
@@ -373,42 +402,51 @@ LibraryModule UserInterface {
 				IndexDomain: (webui::indexApplicationExtension,webui::indexStatusBarSpec);
 				Property: NoSave;
 				InitialData: {
-					data 
-					{ ( 1, icon      ) : "aimms-checkmark-circle"               ,  
-					  ( 1, color     ) : "Green"                                ,
-					  ( 1, text      ) : "Import Excel"                         ,  
-					  ( 1, tooltip   ) : "Data is succesfully imported."        ,
-					  ( 1, procedure ) : "pr_importExcel"                       ,  
-					  ( 1, state     ) : "Active"                               ,
+					data
+					{ ( '1', 'icon'      ) : "aimms-checkmark-circle"               ,  
+					  ( '1', 'color'     ) : "Green"                                ,
+					  ( '1', 'text'      ) : "Import Excel"                         ,  
+					  ( '1', 'tooltip'   ) : "Data is succesfully imported."        ,
+					  ( '1', 'procedure' ) : "pr_importExcel"                       ,  
+					  ( '1', 'state'     ) : "Active"                               ,
 					
-					  ( 2, icon      ) : "aimms-circle2"                        ,  
-					  ( 2, color     ) : "Orange"                               ,
-					  ( 2, text      ) : "Generate Routes"                      ,  
-					  ( 2, tooltip   ) : "Application ready to generate routes.",
-					  ( 2, procedure ) : "pr_calculateRoutesAndCost"            ,  
-					  ( 2, state     ) : "active"                               ,
+					  ( '2', 'icon'      ) : "aimms-circle2"                        ,  
+					  ( '2', 'color'     ) : "Orange"                               ,
+					  ( '2', 'text'      ) : "Generate Routes"                      ,  
+					  ( '2', 'tooltip'   ) : "Application ready to generate routes.",
+					  ( '2', 'procedure' ) : "pr_calculateRoutesAndCost"            ,  
+					  ( '2', 'state'     ) : "active"                               ,
 					
-					  ( 3, icon      ) : "aimms-cancel-circle2"                 ,  
-					  ( 3, color     ) : "red"                                  ,
-					  ( 3, text      ) : "Solve Model"                          ,  
-					  ( 3, tooltip   ) : "Model not ready to be solved."        ,
-					  ( 3, procedure ) : "MainExecution"                        ,  
-					  ( 3, state     ) : "inactive"                             ,
+					  ( '3', 'icon'      ) : "aimms-cancel-circle2"                 ,  
+					  ( '3', 'color'     ) : "red"                                  ,
+					  ( '3', 'text'      ) : "Solve Model"                          ,  
+					  ( '3', 'tooltip'   ) : "Model not ready to be solved."        ,
+					  ( '3', 'procedure' ) : "MainExecution"                        ,  
+					  ( '3', 'state'     ) : "inactive"                             ,
 					
-					  ( 4, header    ) : "Excel:"                               ,  
-					  ( 4, icon      ) : "aimms-briefcase"                      ,
-					  ( 4, text      ) : "DataForImport.xlsx"                   ,  
-					  ( 4, state     ) : "Inactive" ,                             
+					  ( '4', 'header'    ) : "Excel:"                               ,  
+					  ( '4', 'icon'      ) : "aimms-briefcase"                      ,
+					  ( '4', 'text'      ) : "DataForImport.xlsx"                   ,  
+					  ( '4', 'state'     ) : "Inactive" ,                             
 					
-					  ( 5, icon      ) : "aimms-exit"                 ,  
-					  ( 5, color     ) : "green"                                  ,
-					  ( 5, text      ) : "bye"                          ,  
-					  ( 5, tooltip   ) : "Stopping AIMMS session"        ,
-					  ( 5, procedure ) : "pr_goodbye"                        ,  
-					  ( 5, state     ) : "Active"                             
+					  ( '5', 'icon'      ) : "aimms-exit"                 ,  
+					  ( '5', 'color'     ) : "green"                                  ,
+					  ( '5', 'text'      ) : "bye"                          ,  
+					  ( '5', 'tooltip'   ) : "Stopping AIMMS session"        ,
+					  ( '5', 'procedure' ) : "pr_goodbye"                        ,  
+					  ( '5', 'state'     ) : "Active"                             
 					
 					}
 				}
+			}
+		}
+		DeclarationSection Authors_of_Route_Generation {
+			Set s_routesAndCostAuthors {
+				Definition: data { interns, Gabi, Chris };
+			}
+			ElementParameter ep_currentRoutesCostAuthor {
+				Range: s_routesAndCostAuthors;
+				InitialData: 'Chris';
 			}
 		}
 	}
@@ -836,6 +874,88 @@ LibraryModule UserInterface {
 				Definition: "InUse";
 			}
 		}
+		Section Itineraries_Page {
+			Comment: "AKA the route details.";
+			Procedure pr_uponLoadPageGeneratedItineraries {
+				Body: {
+					if not ep_selectedRoute then
+						ep_selectedRoute := last( s_calc_feasibleRoutes );
+					endif ;
+					pr_uponChangeSelectedItinerary();
+				}
+			}
+			Section Route_Handled_Cargoes {
+				StringParameter sp_titleTableHandledCargos {
+					Definition: {
+						FormatString("Cargos handled by route %e", ep_selectedRoute);
+					}
+				}
+				Set s_cargosSelectedRoute {
+					SubsetOf: s_cargoes;
+					Index: i_cargoSelectedRoute;
+					OrderBy: user;
+				}
+			}
+			Section Scalar_select_itinerary {
+				StringParameter sp_titleScalarSelectRoute {
+					Definition: "Please select route";
+				}
+				ElementParameter ep_selectedRoute {
+					Range: s_calc_feasibleRoutes;
+					InitialData: '';
+				}
+				ElementParameter ep_selectedVessel {
+					Range: s_vessels;
+					Definition: cracc::ep_routeVessel( ep_selectedRoute );
+				}
+				ElementParameter ep_berthVesselSelectedRoute {
+					Range: s_locations;
+					Definition: ep_originPortOfVessel( ep_selectedVessel );
+				}
+				Parameter p_noDaysSailing {
+					Unit: day;
+					Definition: cracc::p_routeSailingDays( ep_selectedRoute );
+				}
+				Parameter p_noDaysIdle {
+					Unit: day;
+					Definition: cracc::p_routeIdleDays( ep_selectedRoute );
+				}
+				Parameter p_vesselDailycost {
+					Unit: $/day;
+					Definition: ::p_vesselDailyCost( ep_selectedVessel );
+				}
+				Parameter p_costsSailing {
+					Unit: $;
+					Definition: cracc::p_routeSailingCost( ep_selectedRoute );
+				}
+				Parameter p_costsIdle {
+					Unit: $;
+					Definition: cracc::p_routeIdleCost( ep_selectedRoute  );
+				}
+				Parameter p_costsRoute {
+					Unit: $;
+					Definition: cracc::p_routeCosts( ep_selectedRoute );
+				}
+				Procedure pr_uponChangeSelectedItinerary {
+					Body: {
+						s_cargosSelectedRoute := cracc::s_temp_cargosHandled( ep_selectedRoute );
+						
+						
+						display s_cargosSelectedRoute, {
+							ep_minTimeWindow( i_cargoSelectedRoute ),
+							ep_maxTimeWindow( i_cargoSelectedRoute ),
+							ep_loadingPortsCargo( i_cargoSelectedRoute ),
+							ep_deliveringPortsCargo( i_cargoSelectedRoute ) 
+						};
+					}
+				}
+			}
+			Section Route_Itinerary {
+				StringParameter sp_titleTableItinerary {
+					Definition: "Please select route";
+				}
+			}
+		}
 		Section Optimized_Results_Page {
 			StringParameter sp_def_optimizedResultsPageSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
@@ -886,32 +1006,65 @@ LibraryModule UserInterface {
 			}
 		}
 	}
-	Procedure Procedure_1 {
+	Procedure pr_adaptNamesForPresentationInWebUI {
 		Body: {
-			webui::IdentifierElementText('ui::sp_addEditElement') := " ";
-			webui::IdentifierElementText('ui::p_cargoesQuantity') := " ";
-			webui::IdentifierElementText('ui::p_vesselsQuantity') := " ";
+			_s_presentableIds := Main_Vessel_Schedule + UserInterface ;
 			
-			webui::IdentifierElementText('p_spotCostVessel') := "Spot Cost";
-			webui::IdentifierElementText('ep_costUnit') := "Unit";
-			webui::IdentifierElementText('i_loc_from') := "From";
-			webui::IdentifierElementText('i_loc_to') := "To";
+			! Clear identifier element text of all identifiers in the Main model.
+			webui::IdentifierElementText( _i_presentableId ) := "" ;
 			
-			webui::IdentifierElementText('mm::ep_calc_routeOfVessel') := "Route";
-			webui::IdentifierElementText('mm::p_calc_operationalCostPerVessel') := "Operational<br>Cost";
-			webui::IdentifierElementText('mm::bp_calc_cargoesOnVessel') := "Cargoes";
-			webui::IdentifierElementText('mm::p_calc_totalTravelDaysPerVessel') := "Travel<br>Days";
+			! And set the identifier element text of the following ones:
+			webui::IdentifierElementText(IndexIdentifiers) += data {
+				'ui::sp_addEditElement' : " " ,
+				'ui::p_cargoesQuantity' : " " ,
+				'ui::p_vesselsQuantity' : " " ,
 			
-			webui::IdentifierElementText('mm::ep_calc_vesselOfCargo') := "Vessel";
-			webui::IdentifierElementText('mm::p_calc_totalCostPerCargo') := "Total<br>Cost";
-			webui::IdentifierElementText('mm::sp_calc_loadingTimePerCargo') := "Loading<br>Date";
-			webui::IdentifierElementText('mm::sp_calc_deleveringTimePerCargo') := "Delivered<br>Date";
+				'p_spotCostVessel' : "Spot Cost" ,
+				'ep_costUnit' : "Unit" ,
+				'i_loc_from' : "From" ,
+				'i_loc_to' : "To" ,
+			
+				'mm::ep_calc_routeOfVessel' : "Route" ,
+				'mm::p_calc_operationalCostPerVessel' : "Operational<br>Cost" ,
+				'mm::bp_calc_cargoesOnVessel' : "Cargoes" ,
+				'mm::p_calc_totalTravelDaysPerVessel' : "Travel<br>Days" ,
+			
+				'mm::ep_calc_vesselOfCargo' : "Vessel" ,
+				'mm::p_calc_totalCostPerCargo' : "Total<br>Cost" ,
+				'mm::sp_calc_loadingTimePerCargo' : "Loading<br>Date" ,
+				'mm::sp_calc_deleveringTimePerCargo' : "Delivered<br>Date" ,
+			
+				'ui::ep_selectedRoute' : "Route" ,
+				'ui::ep_selectedVessel' : "Vessel" ,
+				'ui::ep_berthVesselSelectedRoute' : "Berth" ,
+				'ui::i_cargoSelectedRoute' : "cargo",
+				'ui::p_noDaysSailing' : "Days sailing",
+				'ui::p_noDaysIdle' : "Days idle",
+				'ui::p_vesselDailycost' : "Daily sailing cost",
+				'ui::p_costsSailing' : "Costs sailing",
+				'ui::p_costsIdle' : "Costs idle",
+				'ui::p_costsRoute' : "Cost",
+			
+				'cracc::ep_vesselActivityType' : "type" ,
+				'cracc::ep_vesselActivityLocation' : "loc" ,
+				'cracc::ep_vesselActivityFirst' : "first" ,
+				'cracc::ep_vesselActivityLast' : "last" ,
+				'cracc::p_def_vesselActivityLength' : "len",
+				'cracc::i_leg' : "#"
+			};
+		}
+		Set _s_presentableIds {
+			SubsetOf: AllIdentifiers;
+			Index: _i_presentableId;
 		}
 	}
 	Procedure LibraryInitialization {
 		Comment: "Add initialization statements here that do not require any other library being initialized already.";
 	}
 	Procedure PostLibraryInitialization {
+		Body: {
+			pr_adaptNamesForPresentationInWebUI();
+		}
 		Comment: {
 			"Add initialization statements here that require another library to be initialized already,
 			or add statements that require the Data Management module to be initialized."

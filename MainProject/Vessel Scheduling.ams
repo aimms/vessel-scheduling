@@ -1,6 +1,40 @@
 ## ams_version=1.0
 
 Model Main_Vessel_Schedule {
+	Comment: {
+		"Vessel Scheduling Application structure:
+		
+		The Main model focuses mostly on the data model, in section Data Model.
+		
+		Major steps:
+		- Reading input
+		  - pr_importExcel
+		    Notes:
+		    - Uses AimmsDEX to read Excel with annotations of identifiers.
+		    - At the end, settings of Workflow and Statusbar are adapted.
+		- Computations
+		  - Generating Routes
+		  - Costing of generated routes
+		  - Optimization
+		- Reporting
+		
+		MM: Mathematical modeling - Most computational stuff is in library MathematicalModel with prefix mm.
+		
+		
+		UI: Most UI stuff is in library UserInterface with prefix ui.
+		- status bar
+		- workflow
+		- pages
+		  - Welcome
+		    - Welcome
+		    - Problem statement
+		  - Data
+		    - Locations
+		    - Cargoes
+		    - Vessel
+		  - Computations
+		  - Reporting"
+	}
 	Section Data_Model {
 		Section Quantities_and_Units {
 			Comment: {
@@ -27,6 +61,7 @@ Model Main_Vessel_Schedule {
 			}
 		}
 		Section Calendars {
+			StringParameter sp_today;
 			Calendar cal_days {
 				Index: i_day;
 				Unit: day;
@@ -36,6 +71,28 @@ Model Main_Vessel_Schedule {
 			}
 			ElementParameter ep_startHorizonDate {
 				Range: cal_days;
+				Comment: "Start of modeling horizon.";
+				dex::ColumnName: HorizonStartDate;
+				dex::Dataset: Import;
+				dex::TableName: Master;
+			}
+			ElementParameter ep_finishHorizonDate {
+				Range: cal_days;
+				Definition: {
+					! ep_startHorizonDate + (p_noDaysSchedule/1[day])
+					max( i_act_cargo, ep_maxTimeWindow( i_act_cargo ) + ( p_def_deliveryTimeCargo(i_act_cargo) / 1[day] ) )
+				}
+				Comment: "Last pickup time of cargos";
+			}
+			Parameter p_noDaysSchedule {
+				Unit: day;
+				Definition: {
+					if ep_finishHorizonDate and ep_startHorizonDate then
+						( ep_finishHorizonDate - ep_startHorizonDate ) + 1[day]
+					else
+						60[day]
+					endif ;
+				}
 			}
 			StringParameter sp_def_beginDate {
 				Definition: "2000-01-01";
@@ -87,6 +144,17 @@ Model Main_Vessel_Schedule {
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
 			}
+			ElementParameter ep_maxDeliveryDate {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				Comment: {
+					"The last possible delivery date of this cargo
+					is defined as the last possible pickup date + 
+					delivery time,
+					whereby delivery time is defined as the distance (in days)
+					between pickup point and delivery point."
+				}
+			}
 			ElementParameter ep_loadingPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
@@ -100,6 +168,15 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Delevering Port;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
+			}
+			Parameter p_def_deliveryTimeCargo {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: {
+					p_distanceBetweenLocations(
+						ep_loadingPortsCargo(i_cargo), 
+						ep_deliveringPortsCargo(i_cargo))
+				}
 			}
 			Parameter p_cargoCost {
 				IndexDomain: (i_cargo,i_ct) | bp_activeCostsForCargoes(i_ct);
@@ -140,6 +217,14 @@ Model Main_Vessel_Schedule {
 				Unit: day;
 				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_maxTimeWindow(i_cargo));
 			}
+			Parameter p_def_maxDeliveryDate {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: {
+					p_def_maxTimeWindow(i_cargo) +
+					p_def_deliveryTimeCargo(i_cargo)
+				}
+			}
 		}
 		Section Vessels {
 			Set s_vessels {
@@ -170,13 +255,57 @@ Model Main_Vessel_Schedule {
 			}
 			Parameter p_vesselCost {
 				IndexDomain: (i_vessel,i_ct) | bp_activeCostsForVessels(i_ct);
-				Unit: up_def_costUnit(i_ct);
+				Unit: $/day;
 				Comment: {
 					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
 				}
 				dex::ColumnName: DailyCost;
 				dex::Dataset: Import;
 				dex::TableName: VesselCosts;
+			}
+			Parameter p_vesselDailyCost {
+				IndexDomain: i_vessel;
+				Unit: $/day;
+				Definition: sum( i_ct, p_vesselCost(i_vessel, i_ct) );
+			}
+			Set s_vesselActivities {
+				Index: i_vesselActivities;
+				Definition: {
+					data { 
+						idleNothingToDo,  ! Waiting; no more cargos to be handled for this route.
+						idleWaitForCargo, ! Waiting in a port for a Cargo to become available.
+						sailingPickup,    ! Sailing towards a pickup point.
+						sailingDelivery   ! Sailing towards a delivery point.
+					}
+				}
+				webui::ElementTextIdentifier: sp_vesselActivityPresentation;
+			}
+			ElementParameter ep_vesselIdleWaitCargo {
+				Range: s_vesselActivities;
+				Definition: 'idleWaitForCargo';
+			}
+			ElementParameter ep_vesselIdleRetired {
+				Range: s_vesselActivities;
+				Definition: 'idleNothingToDo';
+			}
+			ElementParameter ep_vesselSailingPickup {
+				Range: s_vesselActivities;
+				Definition: 'sailingPickup';
+			}
+			ElementParameter ep_vesselSailingDelivery {
+				Range: s_vesselActivities;
+				Definition: 'sailingDelivery';
+			}
+			StringParameter sp_vesselActivityPresentation {
+				IndexDomain: i_vesselActivities;
+				Definition: {
+					data { 
+						idleNothingToDo  : "Idle, Waiting for end",  ! Waiting; no more cargos to be handled for this route.
+						idleWaitForCargo : "Idle, Waiting for cargo", ! Waiting in a port for a Cargo to become available.
+						sailingPickup    : "Sailing to pickup point",    ! Sailing towards a pickup point.
+						sailingDelivery  : "Sailing to delivery point"  ! Sailing towards a delivery point.
+					}
+				}
 			}
 		}
 		Section Cost_Types {
@@ -338,6 +467,7 @@ Model Main_Vessel_Schedule {
 			Parameter p_calc_loadingTimeCargoRoute {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
+				Comment: "the moment the cargo is loaded upon the vessel when it follows i_route.";
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			StringParameter sp_calc_cargoesOnRoute {
@@ -379,7 +509,458 @@ Model Main_Vessel_Schedule {
 				}
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Procedure pr_calculateRoutesAndCostAfterSomeChangesFromGabi {
+			Procedure pr_calculateRoutesAndCost {
+				Body: {
+					switch ui::ep_currentRoutesCostAuthor do
+					
+						'interns' : pr_calculateRoutesAndCostInterns();
+					
+						'Gabi' : pr_calculateRoutesAndCostGabi();
+					
+						'Chris' : cracc::pr_calculateRoutesAndCostChris();
+					
+						default : cracc::pr_calculateRoutesAndCostChris();
+					
+					endswitch ;
+				}
+			}
+			Module Calculate_Routes_and_Costs_Chris {
+				Prefix: cracc;
+				Set s_legs {
+					SubsetOf: Integers;
+					Index: i_leg;
+					Property: ElementsAreLabels;
+					Definition: {
+						{ 1 .. 1000 }
+					}
+					Comment: {
+						"Handling a cargo may take up to 4 legs:
+						
+						1) Sailing towards"
+					}
+				}
+				Set s_temp_routeWorkingList {
+					SubsetOf: s_calc_feasibleRoutes;
+					Index: i_workRoute;
+					Parameter: ep_workRoute;
+					OrderBy: user;
+					Comment: {
+						"This set of route functions as a FIFO list;
+						new routes are appended to the end, and processed from the
+						beginning."
+					}
+				}
+				Set s_temp_cargosHandled {
+					IndexDomain: i_route;
+					SubsetOf: s_cargoes;
+					OrderBy: user;
+				}
+				ElementParameter ep_pickupDate {
+					IndexDomain: (i_route,i_cargo);
+					Range: cal_days;
+					Comment: "to be used for p_calc_loadingTimeCargoRoute.";
+				}
+				ElementParameter ep_deliveryDate {
+					IndexDomain: (i_route,i_cargo);
+					Range: cal_days;
+				}
+				ElementParameter ep_temp_lastLocation {
+					IndexDomain: i_route;
+					Range: s_locations;
+				}
+				ElementParameter ep_temp_nextSailingDay {
+					IndexDomain: i_route;
+					Range: cal_days;
+				}
+				ElementParameter ep_routeVessel {
+					IndexDomain: i_route;
+					Range: s_vessels;
+				}
+				ElementParameter ep_routeLastLeg {
+					IndexDomain: i_route;
+					Range: s_legs;
+				}
+				ElementParameter ep_vesselActivityType {
+					IndexDomain: (i_route, i_leg);
+					Range: s_vesselActivities;
+				}
+				ElementParameter ep_vesselActivityLocation {
+					IndexDomain: (i_route,i_leg);
+					Range: s_locations;
+					Comment: {
+						"For activities ep_vesselIdleWaitCargo and ep_vesselIdleRetired
+						the location where the vessel is at.
+						For activities ep_vesselSailingPickup  and ep_vesselSailingDelivery  the
+						location where the vessel is sailing towards."
+					}
+				}
+				ElementParameter ep_vesselActivityFirst {
+					IndexDomain: (i_route,i_leg);
+					Range: cal_days;
+					Comment: "First day of this vessel activity.";
+				}
+				ElementParameter ep_vesselActivityLast {
+					IndexDomain: (i_route,i_leg);
+					Range: cal_days;
+				}
+				Parameter p_def_vesselActivityLength {
+					IndexDomain: (i_route,i_leg)|ep_vesselActivityLast(i_route, i_leg);
+					Unit: day;
+					Definition: ((ep_vesselActivityLast(i_route, i_leg) - ep_vesselActivityFirst(i_route, i_leg)));
+				}
+				Parameter p_routeSailingDays {
+					IndexDomain: i_route;
+					Unit: day;
+					Definition: {
+						sum( i_leg | 
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingPickup or
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingDelivery ,
+							p_def_vesselActivityLength(i_route, i_leg) )
+					}
+				}
+				Parameter p_routeIdleDays {
+					IndexDomain: i_route;
+					Unit: day;
+					Definition: {
+						sum( i_leg | 
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselIdleWaitCargo or
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselIdleRetired ,
+							p_def_vesselActivityLength(i_route, i_leg) )
+					}
+				}
+				Parameter p_routeSailingCost {
+					IndexDomain: i_route;
+					Unit: $;
+					Definition: {
+						p_routeSailingDays(i_route) * 
+							sum( i_ct, p_vesselCost( ep_routeVessel(i_route), i_ct ) )
+					}
+				}
+				Parameter p_routeIdleCost {
+					IndexDomain: i_route;
+					Unit: $;
+					Definition: {
+						sum( i_leg | 
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselIdleWaitCargo or
+							ep_vesselActivityType(i_route, i_leg) = ep_vesselIdleRetired ,
+							p_def_vesselActivityLength(i_route, i_leg) * 
+							p_idleCostLocation( ep_vesselActivityLocation(i_route, i_leg) ) 
+						)
+					}
+				}
+				Parameter p_routeCosts {
+					IndexDomain: i_route;
+					Unit: $;
+					Definition: {
+						p_routeSailingCost(i_route) + 
+						p_routeIdleCost(i_route)
+					}
+				}
+				Procedure pr_calculateRoutesAndCostChris {
+					Body: {
+						! Determine horizon start (is read in via Excel inp).
+						! Determine horizon length (is end - start) whereby
+						! horizon end is defined as the last day for delivery of any cargo.
+						
+						! Empty route sets, and dependent identifiers.
+						pr_initRoutes(); 
+						
+						! For each vessel, initialize to the empty route.
+						pr_initRouteSetWithVesselsOnly();
+						
+						pr_processRouteList();
+						
+						
+						return ;
+						
+						block ! Step 0: initialize administration.
+						
+						endblock ;
+						
+						block ! Step 1: initialize locals and globals that are indices over i_route.
+						endblock ;
+						
+						
+						block ! Step 2 First set of routes, just select a vessel.
+							for i_act_vessel do
+						
+							endfor ;
+						endblock ;
+						
+						
+						block ! Step 
+						endblock ;
+						
+						
+						block ! Step 
+						endblock ;
+						
+						
+						block ! Step 
+						endblock ;
+						
+						
+						block ! Step 
+						endblock ;
+						
+						
+						block ! Step 
+						endblock ;
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						raise error "Not implemented yet" ;
+					}
+				}
+				Procedure pr_initAdmin {
+					Body: {
+						! ep_startHorizonDate :=  ! '2023-05-23' ; !  first( cal_days );
+					}
+				}
+				Procedure pr_initRoutes {
+					Body: {
+						empty s_calc_feasibleRoutes  ; ! Will also empty all identifiers declared over s_calc_routes.
+						cleandependents s_calc_feasibleRoutes ; ! Will also empty the element space for s_calc_feasibleRoutes.
+					}
+					Comment: "Empty the route set, and its element space.";
+				}
+				Procedure pr_initRouteSetWithVesselsOnly {
+					Body: {
+						_ep_leg1 := first( s_legs );
+						
+						! For each Vessel, a feasible route is to leave it in its berth.
+						for i_act_vessel do
+						
+							! Create empty route for this vessel.
+							setElementAdd( s_calc_feasibleRoutes, _ep_newRoute, 
+								formatString("%e", i_act_vessel ) );
+						
+							! Append the new route to the working list.
+							s_temp_routeWorkingList += _ep_newRoute ;
+						
+							! initialize globals for each new route.
+							s_temp_cargosHandled(      _ep_newRoute ) := {} ;
+							ep_temp_nextSailingDay(    _ep_newRoute ) := ep_startHorizonDate ;
+							ep_temp_lastLocation(      _ep_newRoute ) := ep_originPortOfVessel( i_act_vessel );
+							ep_routeVessel(            _ep_newRoute ) := i_act_vessel ;
+						
+							ep_routeLastLeg(           _ep_newRoute ) := _ep_leg1 ;
+							ep_vesselActivityType(     _ep_newRoute, _ep_leg1 ) := ep_vesselIdleRetired ;
+							ep_vesselActivityLocation( _ep_newRoute, _ep_leg1 ) := ep_originPortOfVessel( i_act_vessel );
+							ep_vesselActivityFirst(    _ep_newRoute, _ep_leg1 ) := ep_startHorizonDate ;
+							ep_vesselActivityLast(     _ep_newRoute, _ep_leg1 ) := ep_finishHorizonDate ;
+						
+						!	display "----------------------------", _ep_newRoute, _ep_leg1,
+						!		{ ep_vesselActivityType(     _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityLocation( _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityFirst(    _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityLast(     _ep_newRoute, i_leg )
+						!		};
+						
+						endfor ;
+					}
+					ElementParameter _ep_newRoute {
+						Range: s_calc_feasibleRoutes;
+					}
+					ElementParameter _ep_leg1 {
+						Range: s_legs;
+					}
+				}
+				Procedure pr_processRouteList {
+					Body: {
+						while card( s_temp_routeWorkingList ) do
+							_ep_workingRoute := first( s_temp_routeWorkingList );
+							s_temp_routeWorkingList -= _ep_workingRoute ;
+							pr_processSingleRoute( _ep_workingRoute );
+						endwhile ;
+					}
+					ElementParameter _ep_workingRoute {
+						Range: s_calc_feasibleRoutes;
+					}
+				}
+				Procedure pr_processSingleRoute {
+					Arguments: (ep_workingRoute);
+					Body: {
+						
+						! Earliest possible arrival:
+						_ep_arrivalDay( i_act_cargo ) := ep_temp_nextSailingDay( ep_workingRoute ) + 
+							( p_distanceBetweenLocations(ep_temp_lastLocation(ep_workingRoute), ep_loadingPortsCargo(i_act_cargo) ) / 1[day] ) ;
+						! Earliest possible pickup - both vessel and cargo need to be present.
+						_ep_pickupDay( i_act_cargo ) := max( _ep_arrivalDay( i_act_cargo ), ep_minTimeWindow( i_act_cargo ) );
+						! Next sailing day - after pickup the sailing to the delivery:
+						_ep_nextSailingDay( i_act_cargo ) := _ep_pickupDay( i_act_cargo ) + 
+							( p_distanceBetweenLocations( ep_loadingPortsCargo( i_act_cargo ), ep_deliveringPortsCargo( i_act_cargo ) ) / 1[day] );
+						
+						for i_act_cargo | 
+							( not ( i_act_cargo in s_temp_cargosHandled( ep_workingRoute ) )  ) and ! The cargo is 
+							( _ep_pickupDay( i_act_cargo ) <= ep_maxTimeWindow( i_act_cargo ) ) and ! Doesn't arrive too late.
+						        ( _ep_nextSailingDay( i_act_cargo ) <= ep_finishHorizonDate       )     do ! Is within the planning horizon.
+						
+							! The name of the new route is the same as the old route, with the name of the cargo appended.
+							_sp_newRoute := formatString("%e_%e", ep_workingRoute, i_act_cargo );
+						
+							! Append this route to the collection of all routes, and to the working list.
+							setElementAdd( s_calc_feasibleRoutes, _ep_newRoute, _sp_newRoute );
+							s_temp_routeWorkingList += _ep_newRoute ;
+						
+							! Work the globals for this new route.
+							s_temp_cargosHandled(   _ep_newRoute ) := s_temp_cargosHandled( ep_workingRoute );
+							s_temp_cargosHandled(   _ep_newRoute ) += i_act_cargo ;
+							ep_temp_nextSailingDay( _ep_newRoute ) := _ep_nextSailingDay( i_act_cargo ) ;
+							ep_temp_lastLocation(   _ep_newRoute ) := ep_deliveringPortsCargo( i_act_cargo );
+							ep_routeVessel(         _ep_newRoute ) := ep_routeVessel( ep_workingRoute );
+						
+							! First copy legs from working route to new route.
+							ep_routeLastLeg(           _ep_newRoute        ) := ep_routeLastLeg(           ep_workingRoute        );
+							ep_vesselActivityType(     _ep_newRoute, i_leg ) := ep_vesselActivityType(     ep_workingRoute, i_leg );
+							ep_vesselActivityLocation( _ep_newRoute, i_leg ) := ep_vesselActivityLocation( ep_workingRoute, i_leg );
+							ep_vesselActivityFirst(    _ep_newRoute, i_leg ) := ep_vesselActivityFirst(    ep_workingRoute, i_leg );
+							ep_vesselActivityLast(     _ep_newRoute, i_leg ) := ep_vesselActivityLast(     ep_workingRoute, i_leg );
+						
+							! Second, append the legs for handling i_act_cargo:
+							! - sailing towards pickup location, 
+							! - perhaps waiting for the cargo to become available, 
+							! - sailing towards delivery location.
+							_ep_lastLeg := ep_routeLastLeg( _ep_newRoute );
+							if ep_vesselActivityType( _ep_newRoute, _ep_lastLeg ) <> ep_vesselIdleRetired then
+								raise warning 
+									formatString("internal error, each route should have a last leg for awaiting the end of the horizon. _ep_newRoute = %e, _ep_lastLeg = %e", 
+										_ep_newRoute, _ep_lastLeg) ;
+							endif ;
+						
+							! last leg (idle-retired) will be replaced by sailing to pickup for i_act_cargo.
+							if ep_temp_lastLocation(ep_workingRoute) <> ep_loadingPortsCargo(i_act_cargo)  then
+								if ep_vesselActivityType( _ep_newRoute, _ep_lastLeg ) <> ep_vesselIdleRetired then
+									 _ep_lastLeg += 1;
+								endif ;
+								_ep_legSailingPickup := _ep_lastLeg ;
+								ep_vesselActivityType(     _ep_newRoute, _ep_legSailingPickup ) := ep_vesselSailingPickup ;
+								ep_vesselActivityLocation( _ep_newRoute, _ep_legSailingPickup ) := ep_loadingPortsCargo(i_act_cargo) ;
+								ep_vesselActivityFirst(    _ep_newRoute, _ep_legSailingPickup ) := ep_vesselActivityFirst( _ep_newRoute, _ep_legSailingPickup ) ; ! so no change.
+								ep_vesselActivityLast(     _ep_newRoute, _ep_legSailingPickup ) := _ep_arrivalDay( i_act_cargo ) ;
+							endif ;
+						
+							if _ep_arrivalDay( i_act_cargo ) < ep_minTimeWindow( i_act_cargo ) then
+								! need to wait for the cargo to become available in the pickup port.
+								if ep_vesselActivityType( _ep_newRoute, _ep_lastLeg ) <> ep_vesselIdleRetired then
+									_ep_lastLeg += 1 ;
+								endif ;
+								_ep_legWaitingCargo := _ep_lastLeg ;
+								ep_vesselActivityType(     _ep_newRoute, _ep_legWaitingCargo ) := ep_vesselIdleWaitCargo ;
+								ep_vesselActivityLocation( _ep_newRoute, _ep_legWaitingCargo ) := ep_loadingPortsCargo( i_act_cargo ) ;
+								ep_vesselActivityFirst(    _ep_newRoute, _ep_legWaitingCargo ) := _ep_arrivalDay( i_act_cargo ) ; 
+								ep_vesselActivityLast(     _ep_newRoute, _ep_legWaitingCargo ) := ep_minTimeWindow( i_act_cargo ) ;
+							endif ;
+						
+							_ep_lastLeg += 1 ;
+							_ep_legSailingDelivery := _ep_lastLeg ;
+							ep_vesselActivityType(     _ep_newRoute, _ep_legSailingDelivery ) := ep_vesselSailingDelivery ;
+							ep_vesselActivityLocation( _ep_newRoute, _ep_legSailingDelivery ) := ep_deliveringPortsCargo( i_act_cargo ) ;
+							ep_vesselActivityFirst(    _ep_newRoute, _ep_legSailingDelivery ) := _ep_pickupDay( i_act_cargo ) ; 
+							ep_vesselActivityLast(     _ep_newRoute, _ep_legSailingDelivery ) := _ep_nextSailingDay( i_act_cargo ) ;
+						
+							_ep_lastLeg += 1 ;
+							_ep_legIdleRetire := _ep_lastLeg ;
+							ep_vesselActivityType(     _ep_newRoute, _ep_legIdleRetire ) := ep_vesselIdleRetired ;
+							ep_vesselActivityLocation( _ep_newRoute, _ep_legIdleRetire ) := ep_deliveringPortsCargo(i_act_cargo) ;
+							ep_vesselActivityFirst(    _ep_newRoute, _ep_legIdleRetire ) := _ep_nextSailingDay( i_act_cargo ) ; 
+							ep_vesselActivityLast(     _ep_newRoute, _ep_legIdleRetire ) := ep_finishHorizonDate ;
+						
+							ep_routeLastLeg( _ep_newRoute ) := _ep_lastLeg ;
+						
+						!	display "----------------------------", _ep_newRoute, _ep_lastLeg,
+						!		{ ep_vesselActivityType(     _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityLocation( _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityFirst(    _ep_newRoute, i_leg ),
+						!		  ep_vesselActivityLast(     _ep_newRoute, i_leg )
+						!		};
+						
+						endfor ;
+					}
+					Comment: {
+						"Create new extended routes from this working route by
+						considering each cargo that:
+						- it is not yet handling by this working route
+						- it can be handled in the time horizon (ep_startHorizonDate..ep_finishHorizonDate)
+						- ..."
+					}
+					ElementParameter _ep_arrivalDay {
+						IndexDomain: i_cargo;
+						Range: cal_days;
+					}
+					ElementParameter _ep_pickupDay {
+						IndexDomain: i_cargo;
+						Range: cal_days;
+					}
+					ElementParameter _ep_nextSailingDay {
+						IndexDomain: i_cargo;
+						Range: cal_days;
+					}
+					ElementParameter ep_workingRoute {
+						Range: s_calc_feasibleRoutes;
+						Property: Input;
+					}
+					StringParameter _sp_newRoute;
+					ElementParameter _ep_newRoute {
+						Range: s_calc_feasibleRoutes;
+					}
+					ElementParameter _ep_lastLeg {
+						Range: s_legs;
+					}
+					ElementParameter _ep_legSailingPickup {
+						Range: s_legs;
+					}
+					ElementParameter _ep_legWaitingCargo {
+						Range: s_legs;
+					}
+					ElementParameter _ep_legSailingDelivery {
+						Range: s_legs;
+					}
+					ElementParameter _ep_legIdleRetire {
+						Range: s_legs;
+					}
+				}
+				Procedure pr_unitTestGenerateRoutesTwoCargosTwoVessels {
+					Body: {
+						pr_importExcel();
+						
+						bp_activeCargoes( i_cargo ) := 1 ; ! $ (ord(i_cargo) <= 2 );
+						bp_activeVessels( i_vessel ) := 1 ; ! $ (ord(i_vessel) <= 2 );
+						
+						display { 
+							ep_minTimeWindow(i_act_cargo),
+							ep_maxTimeWindow(i_act_cargo),
+							ep_maxDeliveryDate( i_act_cargo),
+							ep_loadingPortsCargo(i_act_cargo),
+							ep_deliveringPortsCargo(i_act_cargo)
+						} ; 
+						
+						display p_noDaysSchedule, ep_finishHorizonDate ;
+						
+						pr_calculateRoutesAndCostChris();
+						
+						display s_temp_cargosHandled ;
+						display { ep_temp_nextSailingDay, ep_temp_lastLocation } ;
+					}
+				}
+			}
+			Procedure pr_calculateRoutesAndCostGabi {
 				Body: {
 					empty s_calc_feasibleRoutes;
 					empty p_calc_cargoesOnRoute;
@@ -640,7 +1221,7 @@ Model Main_Vessel_Schedule {
 					Range: s_cargoes;
 				}
 			}
-			Procedure pr_calculateRoutesAndCostBeforeSomeChangesFromGabi {
+			Procedure pr_calculateRoutesAndCostInterns {
 				Body: {
 					!empty s_calc_feasibleRoutes;
 					!empty p_calc_cargoesOnRoute;
@@ -1198,7 +1779,8 @@ Model Main_Vessel_Schedule {
 		Procedure MainInitialization {
 			Body: {
 				ProfilerStart();
-				ep_startHorizonDate := StringToElement(cal_days, CurrentToString("%c%y-%m-%d"), 0);
+				sp_today := CurrentToString("%c%y-%m-%d");
+				ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
 			}
 			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 		}
@@ -1220,7 +1802,7 @@ Model Main_Vessel_Schedule {
 		}
 		Procedure PreMainTermination {
 			Body: {
-				return DataManagementExit();
+				return 1;!DataManagementExit();
 			}
 			Comment: {
 				"Add termination statements here that require all libraries to be still alive.
@@ -1241,6 +1823,13 @@ Model Main_Vessel_Schedule {
 		}
 	}
 	Section app_test {
+		Procedure pr_dumpData {
+			Body: {
+				block where single_column_display := 1;
+					write to file "alldata.txt";
+				endblock ;
+			}
+		}
 		Procedure MainExecution {
 			Body: {
 				solve mm::mp_vesselScheduling;
@@ -1262,6 +1851,4 @@ Model Main_Vessel_Schedule {
 			}
 		}
 	}
-	Section Leverage_DEX;
-	Section Leverage_WebUI;
 }
