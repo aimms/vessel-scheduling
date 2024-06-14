@@ -455,42 +455,36 @@ LibraryModule UserInterface {
 			Section Random_Data {
 				Procedure pr_generateRandomData {
 					Body: {
-						empty s_vessels, s_cargoes, s_locations, s_costTypes;
+						empty s_vessels, s_cargoes, s_locations; 
 						
-						block !cost types
-						s_costTypes := { 'Fuel', 'Crew', 'Loading', 'Admin', 'Unloading' };
-						ep_costUnit(i_ct) := data { Fuel : '$/day',  Crew : '$/day',  Loading : '$',  Admin : '$',  Unloading : '$' };
-						bp_activeCostsForCargoes(i_ct) := data { Loading : 1,  Admin : 1,  Unloading : 1 };
-						bp_activeCostsForVessels(i_ct) := data { Fuel : 1,  Crew : 1 };
-						bp_activeCostsForLocations(i_ct) := data { Loading : 1,  Admin : 1 };
-						endblock;
+						pr_dataCostTypes();
 						
 						block !locations
-						dex::AddMapping(
-						    mappingName : "ImportDefaultLocations", 
-						    mappingFile : "./Mappings/Generated/Import-Locations.xml");
+							dex::AddMapping(
+								mappingName : "ImportDefaultLocations", 
+								mappingFile : "./Mappings/Generated/Import-Locations.xml");
 						
-						dex::ReadFromFile(
-						    dataFile : "data\\LocationData.xlsx", 
-						    mappingName : "ImportDefaultLocations");
+							dex::ReadFromFile(
+								dataFile : "data\\LocationData.xlsx", 
+								mappingName : "ImportDefaultLocations");
 						
-						p_locationCost(i_loc, i_ct) | bp_activeCostsForLocations(i_ct) := (round(uniform(400,4000)))[up_def_costUnit(i_ct)];  
+							p_locationCost(i_loc, i_ct) | bp_activeCostsForLocations(i_ct) := (round(uniform(400,4000)))[up_def_costUnit(i_ct)];  
 						endblock;
 						
 						block !vessels
-						s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
-						ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
-						p_vesselCost(i_vessel, i_ct) | bp_activeCostsForVessels(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
+							ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
+							p_vesselCost(i_vessel, i_ct) | bp_activeCostsForVessels(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
 						endblock;
 						
 						block !cargoes
-						s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
-						ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
-						ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
-						p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
-						p_cargoCost(i_cargo, i_ct) | bp_activeCostsForCargoes(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
-						ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
-						ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
+							s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
+							ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
+							ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+							p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
+							p_cargoCost(i_cargo, i_ct) | bp_activeCostsForCargoes(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+							ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
+							ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
 						endblock;
 						
 						
@@ -764,7 +758,10 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationNotInUsageTooltip {
 				IndexDomain: i_loc_not_usag;
-				Definition: "No cargo or vessel need to go to this Location.";
+				Definition: {
+					formatString("No cargo or vessel need to go to this Location (%e).",
+						i_loc_not_usag )
+				}
 			}
 			StringParameter sp_locationNotInUsageAnnotation {
 				IndexDomain: i_loc_not_usag;
@@ -900,8 +897,23 @@ LibraryModule UserInterface {
 				StringParameter sp_titleScalarSelectRoute {
 					Definition: "Please select route";
 				}
+				Parameter bp_viewAllRoutes {
+					Range: binary;
+					InitialData: 1;
+				}
+				Set s_selectableRoutes {
+					SubsetOf: s_calc_feasibleRoutes;
+					Index: i_selectableRoute;
+					Definition: {
+						if bp_viewAllRoutes then
+							s_calc_feasibleRoutes
+						else
+							s_calc_routesOptimalSolution
+						endif
+					}
+				}
 				ElementParameter ep_selectedRoute {
-					Range: s_calc_feasibleRoutes;
+					Range: s_selectableRoutes;
 					InitialData: '';
 				}
 				ElementParameter ep_selectedVessel {
@@ -914,11 +926,11 @@ LibraryModule UserInterface {
 				}
 				Parameter p_noDaysSailing {
 					Unit: day;
-					Definition: cracc::p_routeSailingDays( ep_selectedRoute );
+					Definition: cracc::p_def_routeSailingDays( ep_selectedRoute );
 				}
 				Parameter p_noDaysIdle {
 					Unit: day;
-					Definition: cracc::p_routeIdleDays( ep_selectedRoute );
+					Definition: cracc::p_def_routeIdleDays( ep_selectedRoute );
 				}
 				Parameter p_vesselDailycost {
 					Unit: $/day;
@@ -926,19 +938,27 @@ LibraryModule UserInterface {
 				}
 				Parameter p_costsSailing {
 					Unit: $;
-					Definition: cracc::p_routeSailingCost( ep_selectedRoute );
+					Definition: cracc::p_def_routeSailingCost( ep_selectedRoute );
 				}
 				Parameter p_costsIdle {
 					Unit: $;
-					Definition: cracc::p_routeIdleCost( ep_selectedRoute  );
+					Definition: cracc::p_def_routeIdleCost( ep_selectedRoute  );
+				}
+				Parameter p_costsVisiting {
+					Unit: $;
+					Definition: cracc::p_def_locationVisitingCost( ep_selectedRoute  );
+				}
+				Parameter p_costsCargo {
+					Unit: $;
+					Definition: cracc::p_def_cargoCost( ep_selectedRoute  );
 				}
 				Parameter p_costsRoute {
 					Unit: $;
-					Definition: cracc::p_routeCosts( ep_selectedRoute );
+					Definition: cracc::p_def_routeCosts( ep_selectedRoute );
 				}
 				Procedure pr_uponChangeSelectedItinerary {
 					Body: {
-						s_cargosSelectedRoute := cracc::s_temp_cargosHandled( ep_selectedRoute );
+						s_cargosSelectedRoute := cracc::s_cargosHandled( ep_selectedRoute );
 						
 						
 						display s_cargosSelectedRoute, {
@@ -1015,6 +1035,12 @@ LibraryModule UserInterface {
 			
 			! And set the identifier element text of the following ones:
 			webui::IdentifierElementText(IndexIdentifiers) += data {
+			
+				'p_calc_totalRouteIdleCost' : "idle",
+				'p_def_totalRouteMovementCost' : "sailing",
+				'p_calc_totalCargoFixedCost' : "cargo handling",
+				'p_calc_totalRouteLocationCost' : "location visiting",
+			
 				'ui::sp_addEditElement' : " " ,
 				'ui::p_cargoesQuantity' : " " ,
 				'ui::p_vesselsQuantity' : " " ,
@@ -1034,6 +1060,7 @@ LibraryModule UserInterface {
 				'mm::sp_calc_loadingTimePerCargo' : "Loading<br>Date" ,
 				'mm::sp_calc_deleveringTimePerCargo' : "Delivered<br>Date" ,
 			
+				'ui::bp_viewAllRoutes' : "All routes?" ,
 				'ui::ep_selectedRoute' : "Route" ,
 				'ui::ep_selectedVessel' : "Vessel" ,
 				'ui::ep_berthVesselSelectedRoute' : "Berth" ,
@@ -1042,8 +1069,10 @@ LibraryModule UserInterface {
 				'ui::p_noDaysIdle' : "Days idle",
 				'ui::p_vesselDailycost' : "Daily sailing cost",
 				'ui::p_costsSailing' : "Costs sailing",
+				'ui::p_costsVisiting' : "Costs visiting",
+				'ui::p_costsCargo' : "Costs cargo",
 				'ui::p_costsIdle' : "Costs idle",
-				'ui::p_costsRoute' : "Cost",
+				'ui::p_costsRoute' : "Total cost",
 			
 				'cracc::ep_vesselActivityType' : "type" ,
 				'cracc::ep_vesselActivityLocation' : "loc" ,

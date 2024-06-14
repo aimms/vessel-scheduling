@@ -1829,6 +1829,9 @@
         "mm::ep_calc_routeofvessel": "1"
       }
     },
+    "contents.numdecimals": {
+      "literal": 0
+    },
     "contents.partition": {
       "literal": {
         "rowHeader": [
@@ -3250,10 +3253,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 0.6891349959651966
+      "literal": -20.34462694382967
     },
     "center.longitude": {
-      "literal": 49.04028792355381
+      "literal": 18.962402343750004
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3494,7 +3497,7 @@
       "literal": "view"
     },
     "zoom": {
-      "literal": 2
+      "literal": 5
     }
   },
   "widgets/MappingCargoesWithCollors": {
@@ -3861,6 +3864,7 @@
     "contents": {
       "aimms": {
         "contents": [
+          "ui::bp_viewAllRoutes",
           "ui::ep_selectedRoute",
           "ui::ep_selectedVessel",
           "ui::ep_berthVesselSelectedRoute",
@@ -3868,6 +3872,8 @@
           "ui::p_noDaysIdle",
           "ui::p_vesselDailycost",
           "ui::p_costsSailing",
+          "ui::p_costsVisiting",
+          "ui::p_costsCargo",
           "ui::p_costsIdle",
           "ui::p_costsRoute"
         ]
@@ -4352,16 +4358,16 @@
           "width": 24.92
         },
         {
+          "type": "rowHeader",
+          "colKey": "ui::i_cargoSelectedRoute",
+          "width": 12.53
+        },
+        {
           "type": "colHeader",
           "colKey": {
             "<IDENTIFIER-SET>": "ep_deliveringPortsCargo"
           },
-          "width": 30.31
-        },
-        {
-          "type": "rowHeader",
-          "colKey": "ui::i_cargoSelectedRoute",
-          "width": 12.53
+          "width": 34.45
         }
       ]
     },
@@ -4473,6 +4479,11 @@
         "prefix": "aimms"
       }
     },
+    "contents.displaydomain": {
+      "literal": {
+        "cracc::p_def_vesselactivitylength": "1"
+      }
+    },
     "contents.numdecimals": {
       "literal": 0
     },
@@ -4521,11 +4532,21 @@
           "type": "rowHeader",
           "colKey": "cracc::i_leg",
           "width": 5.52
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "cracc::p_def_vesselActivityLength"
+          },
+          "width": 11.04
         }
       ]
     },
     "name": {
       "literal": "tableItinerary"
+    },
+    "show.units": {
+      "literal": 0
     },
     "views": {
       "literal": {}
@@ -4900,10 +4921,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 3.9279275940900904
+      "literal": 11.005904459659453
     },
     "center.longitude": {
-      "literal": 32.36645772010619
+      "literal": -11.788368112174512
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -5031,6 +5052,9 @@
     },
     "views.0.type": {
       "literal": "view"
+    },
+    "zoom": {
+      "literal": 2
     }
   },
   "widgets/Vessels": {

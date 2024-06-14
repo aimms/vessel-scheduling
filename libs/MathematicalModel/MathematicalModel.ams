@@ -85,8 +85,8 @@ LibraryModule MathematicalModel {
 			Unit: $;
 			Definition: {
 				sum(i_act_vessel, 
-				    !p_def_idleCostVesselNotUsed(i_act_vessel) 
-				    100[$]
+				    p_def_idleCostVesselNotUsed(i_act_vessel) 
+				    !100[$]
 				    * v_idleVessel(i_act_vessel))
 			}
 		}
@@ -105,6 +105,7 @@ LibraryModule MathematicalModel {
 			SubsetOf: s_calc_feasibleRoutes;
 			Index: i_allcRoute;
 			Parameter: ep_allcRoute;
+			OrderBy: ep_calc_vesselOnRoute(i_allcRoute);
 			Definition: {
 				{(i_route) | exists((i_act_vessel) | v_allocateVesselToRoute(i_act_vessel, i_route))};
 			}
@@ -146,10 +147,18 @@ LibraryModule MathematicalModel {
 			Body: {
 				empty Post_Vessels;
 				
-				ep_calc_routeOfVessel(i_act_vessel) := first(i_route | v_allocateVesselToRoute(i_act_vessel, i_route));
+				empty _bp_routeVessel ;
+				_bp_routeVessel( i_act_vessel, i_route ) := round(  v_allocateVesselToRoute(i_act_vessel, i_route) );
+				ep_calc_routeOfVessel(i_act_vessel) := first(i_route | _bp_routeVessel(i_act_vessel, i_route) );
 				p_calc_operationalCostPerVessel(i_act_vessel) := p_def_operationalCostPerRoute(ep_calc_routeOfVessel(i_act_vessel));
 				p_calc_totalTravelDaysPerVessel(i_act_vessel) := p_calc_totalDaysTravelPerRoute(ep_calc_routeOfVessel(i_act_vessel));
 				bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo) := bp_def_cargoesOnRoute(ep_calc_routeOfVessel(i_act_vessel), i_act_cargo);
+				
+				s_calc_routesOptimalSolution := { i_route | exists( i_act_vessel |  _bp_routeVessel(i_act_vessel, i_route) ) };
+			}
+			Parameter _bp_routeVessel {
+				IndexDomain: (i_act_vessel,i_route);
+				Range: binary;
 			}
 		}
 		DeclarationSection Post_Cargoes {
