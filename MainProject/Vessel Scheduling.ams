@@ -179,7 +179,7 @@ Model Main_Vessel_Schedule {
 				}
 			}
 			Parameter p_cargoCost {
-				IndexDomain: (i_cargo,i_ct) | bp_activeCostsForCargoes(i_ct);
+				IndexDomain: (i_cargo);
 				Range: free;
 				Unit: $;
 				dex::ColumnName: Type Costs;
@@ -254,7 +254,7 @@ Model Main_Vessel_Schedule {
 				dex::TableName: VesselData;
 			}
 			Parameter p_vesselCost {
-				IndexDomain: (i_vessel,i_ct) | bp_activeCostsForVessels(i_ct);
+				IndexDomain: (i_vessel);
 				Unit: $/day;
 				Comment: {
 					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
@@ -266,7 +266,7 @@ Model Main_Vessel_Schedule {
 			Parameter p_vesselDailyCost {
 				IndexDomain: i_vessel;
 				Unit: $/day;
-				Definition: sum( i_ct, p_vesselCost(i_vessel, i_ct) );
+				Definition: p_vesselCost(i_vessel);
 			}
 			Parameter p_def_idleCostVesselNotUsed {
 				IndexDomain: i_vessel;
@@ -313,121 +313,6 @@ Model Main_Vessel_Schedule {
 						sailingPickup    : "Sailing to pickup point",    ! Sailing towards a pickup point.
 						sailingDelivery  : "Sailing to delivery point"  ! Sailing towards a delivery point.
 					}
-				}
-			}
-		}
-		Section Cost_Types {
-			Set s_costTypes {
-				Parameter: ep_costType;
-				Comment: {
-					" Procedure pr_dataCostTypes assigns:
-					 { \'Fuel\', \'Crew\', \'Loading\', \'Admin\', \'Unloading\' };"
-				}
-			}
-			ElementParameter ep_costTypeFuel {
-				Range: s_costTypes;
-			}
-			ElementParameter ep_costTypeCrew {
-				Range: s_costTypes;
-			}
-			ElementParameter ep_costTypeLoading {
-				Range: s_costTypes;
-			}
-			ElementParameter ep_costTypeAdmin {
-				Range: s_costTypes;
-			}
-			ElementParameter ep_costTypeDischarging {
-				Range: s_costTypes;
-			}
-			Set s_def_costUnit {
-				Index: i_ct_unit;
-				Definition: {
-					{'$', '$/day'}
-				}
-			}
-			Index i_ct {
-				Range: s_costTypes;
-				dex::ColumnName: Cost Type;
-			}
-			ElementParameter ep_costUnit {
-				IndexDomain: i_ct;
-				Range: s_def_costUnit;
-			}
-			UnitParameter up_def_costUnit {
-				IndexDomain: i_ct;
-				Definition: StringToUnit(ep_costUnit(i_ct));
-			}
-			Parameter bp_def_isCostPerDay {
-				IndexDomain: i_ct;
-				Definition: 1 $ (ep_costUnit(i_ct) = '$/day');
-			}
-			Parameter bp_def_isNotCostPerDay {
-				IndexDomain: i_ct;
-				Definition: 1 $ (ep_costUnit(i_ct) = '$');
-			}
-			Set s_def_costTypesForCargoes {
-				SubsetOf: s_costTypes;
-				Index: i_ct_cargo;
-				Definition: {
-					{i_ct | bp_activeCostsForCargoes(i_ct)}
-				}
-			}
-			Set s_def_costsForCargoes {
-				SubsetOf: s_costTypes;
-				Index: i_act_ct_cargo;
-				Definition: {
-					{i_ct | bp_activeCostsForCargoes(i_ct)}
-				}
-			}
-			Parameter bp_activeCostsForCargoes {
-				IndexDomain: i_ct;
-				Range: binary;
-				dex::ColumnName: Cargoes;
-				dex::Dataset: Import;
-				dex::TableName: Type Cost Group;
-			}
-			Set s_def_costTypesForVessels {
-				SubsetOf: s_costTypes;
-				Index: i_act_ct_vessel;
-				Definition: {
-					{i_ct | bp_activeCostsForVessels(i_ct)}
-				}
-			}
-			Parameter bp_activeCostsForVessels {
-				IndexDomain: i_ct;
-				Range: binary;
-				dex::ColumnName: Vessel;
-				dex::Dataset: Import;
-				dex::TableName: Type Cost Group;
-			}
-			Set s_def_costTypesForLocations {
-				SubsetOf: s_costTypes;
-				Index: i_act_ct_loc;
-				Definition: {
-					{i_ct | bp_activeCostsForLocations(i_ct)}
-				}
-			}
-			Parameter bp_activeCostsForLocations {
-				IndexDomain: i_ct;
-				Range: binary;
-				dex::ColumnName: Location;
-				dex::Dataset: Import;
-				dex::TableName: Type Cost Group;
-			}
-			Procedure pr_dataCostTypes {
-				Body: {
-					block !cost types
-						s_costTypes := data { 'Fuel', 'Crew', 'Loading', 'Admin', 'Unloading' };
-						ep_costTypeFuel := 'Fuel' ;
-						ep_costTypeCrew := 'Crew' ;
-						ep_costTypeLoading := 'Loading' ;
-						ep_costTypeAdmin := 'Admin' ;
-						ep_costTypeDischarging := 'Unloading' ;
-						ep_costUnit(i_ct) := data { Fuel : '$/day',  Crew : '$/day',  Loading : '$',  Admin : '$',  Unloading : '$' };
-						bp_activeCostsForCargoes(i_ct) := data { Loading : 1,  Admin : 1,  Unloading : 1 };
-						bp_activeCostsForVessels(i_ct) := data { Fuel : 1,  Crew : 1 };
-						bp_activeCostsForLocations(i_ct) := data { Loading : 1,  Admin : 1 };
-					endblock;
 				}
 			}
 		}
@@ -478,8 +363,15 @@ Model Main_Vessel_Schedule {
 				dex::Dataset: Import;
 				dex::TableName: LocationData;
 			}
-			Parameter p_locationCost {
-				IndexDomain: (i_loc,i_ct) | bp_activeCostsForLocations(i_ct);
+			Parameter p_adminCostAtLocation {
+				IndexDomain: (i_loc);
+				Unit: $;
+				dex::ColumnName: Costs;
+				dex::Dataset: Import;
+				dex::TableName: LocationCosts;
+			}
+			Parameter p_loadingCostAtLocation {
+				IndexDomain: (i_loc);
 				Unit: $;
 				dex::ColumnName: Costs;
 				dex::Dataset: Import;
@@ -544,7 +436,7 @@ Model Main_Vessel_Schedule {
 				Unit: $;
 				Definition: {
 					p_calc_totalDaysTravelPerRoute(i_route) 
-					* sum(i_ct, p_vesselCost(ep_calc_vesselOnRoute(i_route), i_ct))
+					* p_vesselCost(ep_calc_vesselOnRoute(i_route))
 				}
 				Comment: "Same results as  cracc::p_def_routeSailingCost";
 			}
@@ -686,8 +578,8 @@ Model Main_Vessel_Schedule {
 					IndexDomain: i_route;
 					Unit: $;
 					Definition: {
-						p_def_routeSailingDays(i_route) * 
-							sum( i_ct, p_vesselCost( ep_routeVessel(i_route), i_ct ) )
+						p_def_routeSailingDays(i_route) 
+						* p_vesselCost( ep_routeVessel(i_route))
 					}
 					Comment: "same results as p_def_totalRouteMovementCost";
 				}
@@ -695,16 +587,15 @@ Model Main_Vessel_Schedule {
 					IndexDomain: i_route;
 					Unit: $;
 					Definition: {
-						sum( i_leg | 
-							ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingPickup  or
-							ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingDelivery  ,
-							p_locationCost( ep_vesselActivityLocation(i_route, i_leg), ep_costTypeAdmin  ) 
-						)
+						sum(i_leg | 
+						        ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingPickup  
+						        or ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingDelivery,
+							p_adminCostAtLocation(ep_vesselActivityLocation(i_route, i_leg)))
 						+
-						sum( i_leg | 
-							ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingPickup  ,
-							p_locationCost( ep_vesselActivityLocation(i_route, i_leg), ep_costTypeLoading ) 
-						)
+						
+						sum(i_leg | 
+							    ep_vesselActivityType(i_route, i_leg) = ep_vesselSailingPickup,
+							p_loadingCostAtLocation(ep_vesselActivityLocation(i_route, i_leg)))
 					}
 					Comment: {
 						"The admin costs for visiting each location, and 
@@ -715,8 +606,9 @@ Model Main_Vessel_Schedule {
 					IndexDomain: i_route;
 					Unit: $;
 					Definition: {
-						sum( i_cargo | i_cargo in s_cargosHandled(i_route),
-							sum( i_act_ct_cargo, p_cargoCost(i_cargo, i_act_ct_cargo) ) )
+						sum(i_cargo | 
+						        i_cargo in s_cargosHandled(i_route),
+							p_cargoCost(i_cargo))
 					}
 				}
 				Parameter p_def_routeIdleCost {
@@ -1050,22 +942,21 @@ Model Main_Vessel_Schedule {
 					!                    p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo))
 					!                    * p_cargoCost(i_act_cargo, i_act_ct_cargo));
 					
-					        p_calc_totalCargoFixedCost(ep_route) := sum(i_act_ct_cargo | not bp_def_isCostPerDay(i_act_ct_cargo), p_cargoCost(i_act_cargo, i_act_ct_cargo));
+					        p_calc_totalCargoFixedCost(ep_route) := p_cargoCost(i_act_cargo);
 					
 					        !Vessel cost
 					        p_calc_totalVesselDailyCost(ep_route) 
-					        :=  sum(i_act_ct_vessel | bp_def_isCostPerDay(i_act_ct_vessel), 
-					                    p_calc_totalDaysTravelPerRoute(ep_route)
-					                    * p_vesselCost(ep_calc_vesselOnRoute(ep_route), i_act_ct_vessel));
+					        :=  p_calc_totalDaysTravelPerRoute(ep_route)
+					            * p_vesselCost(ep_calc_vesselOnRoute(ep_route));
 					
 					        !p_calc_totalVesselFixedCost(ep_route) := sum(i_act_ct_vessel | not bp_def_isCostPerDay(i_act_ct_vessel), p_vesselCost(ep_calc_vesselOnRoute(ep_route), i_act_ct_vessel));
 					
 					        !Location cost
 					        p_calc_totalLocationFixedCost(ep_route) 
-					        :=  sum((i_act_ct_loc, i_loc) | 
-					                        not bp_def_isCostPerDay(i_act_ct_loc)
-					                        and bp_calc_routeLocations(ep_route, i_loc), 
-					                    p_locationCost(i_loc, i_act_ct_loc));
+					        :=  sum((i_loc) |    
+					                    bp_calc_routeLocations(ep_route, i_loc), 
+					                p_adminCostAtLocation(i_loc)
+					                + p_loadingCostAtLocation(i_loc));
 					
 					
 					        !Cannot come earlier then arrival time
@@ -1194,19 +1085,18 @@ Model Main_Vessel_Schedule {
 					            if ep_deliveringPortsCargo(ep_loc_lastCargoFromRoute(i_loc_sub_route)) <> ep_loadingPortsCargo(i_act_cargo) then
 					                p_calc_totalRouteLocationCost(ep_route) 
 					                :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
-					                    + sum(i_act_ct_cargo, 
-					                            p_locationCost(ep_loadingPortsCargo(i_act_cargo), i_act_ct_cargo) 
-					                            + p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));
+					                    + p_loadingCostAtLocation(ep_loadingPortsCargo(i_act_cargo)) 
+					                    + p_loadingCostAtLocation(ep_deliveringPortsCargo(i_act_cargo));
 					            else 
 					                p_calc_totalRouteLocationCost(ep_route) 
 					                :=  p_calc_totalRouteLocationCost(i_loc_sub_route)
-					                    + sum(i_act_ct_cargo, p_locationCost(ep_deliveringPortsCargo(i_act_cargo), i_act_ct_cargo));                                
+					                    + p_loadingCostAtLocation(ep_deliveringPortsCargo(i_act_cargo));                                
 					            endif;                
 					
 					            !Cost for the other cargoes
 					            p_calc_totalCargoFixedCost(ep_route) 
 					            :=  p_calc_totalCargoFixedCost(i_loc_sub_route)
-					                + sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
+					                + p_cargoCost(i_act_cargo);
 					
 					
 					        endfor;
@@ -1561,7 +1451,7 @@ Model Main_Vessel_Schedule {
 				dex::GenerateDatasetMappings;
 				
 				!Delete old data
-				empty Cargoes, Vessels, Cost_Types, Locations, Routes;
+				empty Cargoes, Vessels, Locations, Routes;
 				
 				!Importeren van de data
 				dex::AddMapping(
@@ -1571,9 +1461,6 @@ Model Main_Vessel_Schedule {
 				dex::ReadFromFile(
 				    dataFile : "data\\DataForImport_test_v2.xlsx", !Uiteindelijke variant DataForImport.xlsx
 				    mappingName : "ImportData");
-				
-				! Repair step.
-				pr_dataCostTypes();
 				
 				!Activate all master data
 				bp_activeCargoes(i_cargo):= 1;
@@ -1843,9 +1730,6 @@ Model Main_Vessel_Schedule {
 			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 		}
 		Procedure PostMainInitialization {
-			Body: {
-				pr_dataCostTypes();
-			}
 			Comment: {
 				"Add initialization statements here that require that the libraries are already initialized properly,
 				or add statements that require the Data Management module to be initialized."

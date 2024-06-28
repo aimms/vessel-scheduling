@@ -200,7 +200,10 @@ LibraryModule MathematicalModel {
 				ep_calc_routeOfCargo(i_act_cargo) :=  first(i_route | exists(i_act_vessel | bp_def_allocatedCargoOnVesselPerRoute(i_act_vessel, i_route, i_act_cargo)));
 				
 				p_calc_totalCostPerCargo(i_act_cargo) | bv_cargoOnCharteredVessel(i_act_cargo) := p_spotCostVessel(i_act_cargo);
-				p_calc_totalCostPerCargo(i_act_cargo) | not p_calc_totalCostPerCargo(i_act_cargo) := sum(i_act_ct_cargo, p_cargoCost(i_act_cargo, i_act_ct_cargo));
+				
+				p_calc_totalCostPerCargo(i_act_cargo) | 
+				        not p_calc_totalCostPerCargo(i_act_cargo) 
+				:=  p_cargoCost(i_act_cargo);
 				
 				sp_calc_loadingTimePerCargo(i_act_cargo) |
 				          ep_calc_routeOfCargo(i_act_cargo)

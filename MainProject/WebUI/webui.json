@@ -3253,10 +3253,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -20.34462694382967
+      "literal": 29.53522956294847
     },
     "center.longitude": {
-      "literal": 18.962402343750004
+      "literal": 53.45013829942328
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3497,7 +3497,7 @@
       "literal": "view"
     },
     "zoom": {
-      "literal": 5
+      "literal": 3
     }
   },
   "widgets/MappingCargoesWithCollors": {

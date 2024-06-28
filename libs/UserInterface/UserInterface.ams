@@ -214,73 +214,6 @@ LibraryModule UserInterface {
 				}
 			}
 		}
-		Section CRUD_Cost_Type {
-			Procedure pr_openAddCostType {
-				Body: {
-					empty sp_addEditElement;
-					
-					s_loc_actions:= {'Cancel','OK'};
-					
-					webui::OpenDialogPage(
-						pageId  :  'CRUD', 
-						title   :  "Add Cost Type", 
-						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_addCostType');
-				}
-				Set s_loc_actions {
-					InitialData: {
-						{'Cancel', 'OK'}
-					}
-				}
-			}
-			Procedure pr_addCostType {
-				Arguments: sp_arg_action;
-				Body: {
-					if sp_arg_action = 'OK' then
-					    ep_costType := StringToElement(s_costTypes, sp_addEditElement, 1);
-					endif;
-				}
-				StringParameter sp_arg_action {
-					Property: Input;
-				}
-			}
-			Procedure pr_openEditCostType {
-				Body: {
-					sp_addEditElement := ep_costType;
-					
-					s_loc_actions:= {'Cancel','OK'};
-					
-					webui::OpenDialogPage(
-						pageId  :  'CRUD', 
-						title   :  "Edit Cost Type", 
-						actions :  s_loc_actions, 
-						onDone  :  'ui::pr_editCostType');
-				}
-				Set s_loc_actions {
-					InitialData: {
-						{'Cancel', 'OK'}
-					}
-				}
-			}
-			Procedure pr_editCostType {
-				Arguments: sp_arg_action;
-				Body: {
-					if sp_arg_action = 'OK' then
-					    SetElementRename(s_costTypes, ep_costType , sp_addEditElement);
-					endif;
-				}
-				StringParameter sp_arg_action {
-					Property: Input;
-				}
-			}
-			Procedure pr_deleteCostType {
-				Body: {
-					s_costTypes -= ep_costType;
-					
-					ep_costType := first(i_ct);
-				}
-			}
-		}
 	}
 	Section System {
 		DeclarationSection System_Workflow {
@@ -457,8 +390,6 @@ LibraryModule UserInterface {
 					Body: {
 						empty s_vessels, s_cargoes, s_locations; 
 						
-						pr_dataCostTypes();
-						
 						block !locations
 							dex::AddMapping(
 								mappingName : "ImportDefaultLocations", 
@@ -468,13 +399,14 @@ LibraryModule UserInterface {
 								dataFile : "data\\LocationData.xlsx", 
 								mappingName : "ImportDefaultLocations");
 						
-							p_locationCost(i_loc, i_ct) | bp_activeCostsForLocations(i_ct) := (round(uniform(400,4000)))[up_def_costUnit(i_ct)];  
+							p_adminCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+							p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
 						endblock;
 						
 						block !vessels
 							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
 							ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
-							p_vesselCost(i_vessel, i_ct) | bp_activeCostsForVessels(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+							p_vesselCost(i_vessel) := (round(uniform(50,200)))[$/day];
 						endblock;
 						
 						block !cargoes
@@ -482,7 +414,7 @@ LibraryModule UserInterface {
 							ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
 							ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
 							p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
-							p_cargoCost(i_cargo, i_ct) | bp_activeCostsForCargoes(i_ct) := (round(uniform(50,200)))[up_def_costUnit(i_ct)];
+							p_cargoCost(i_cargo) := (round(uniform(50,200)))[$];
 							ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
 							ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
 						endblock;
@@ -576,20 +508,6 @@ LibraryModule UserInterface {
 				webui::AnnotationsIdentifier: sp_def_editAnnotation;
 				webui::TooltipIdentifier: sp_def_editTooltip;
 				webui::UponChangeProcedure: pr_openEditVessel;
-			}
-			Parameter p_deleteTypeOfCosts {
-				IndexDomain: i_ct;
-				Range: binary;
-				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
-				webui::TooltipIdentifier: sp_def_deleteTooltip;
-				webui::UponChangeProcedure: pr_deleteCostType;
-			}
-			Parameter p_editTypeOfCosts {
-				IndexDomain: i_ct;
-				Range: binary;
-				webui::AnnotationsIdentifier: sp_def_editAnnotation;
-				webui::TooltipIdentifier: sp_def_editTooltip;
-				webui::UponChangeProcedure: pr_openEditCostType;
 			}
 			StringParameter sp_def_deleteAnnotation {
 				Definition: "delete-element";
