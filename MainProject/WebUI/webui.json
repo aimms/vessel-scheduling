@@ -381,9 +381,9 @@
       "literal": {
         "componentName": "Grid",
         "props": {
-          "gridTemplateColumns": "3fr 1fr",
-          "gridTemplateRows": "1fr 1fr 1fr",
-          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-c\" \"area-a area-c\""
+          "gridTemplateColumns": "1fr 2fr",
+          "gridTemplateRows": "1fr 5fr",
+          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-c\""
         },
         "items": [
           {
@@ -407,7 +407,7 @@
             "props": {
               "gridArea": "area-c",
               "name": "Area C",
-              "gridAutoFlow": "row"
+              "gridAutoFlow": "column"
             }
           }
         ]
@@ -1180,6 +1180,16 @@
     "bindings": {
       "literal": [
         {
+          "widgetUri": "Cargoes",
+          "gridArea": "area-c",
+          "dndId": "area-aCargoes3"
+        },
+        {
+          "widgetUri": "Vessels",
+          "gridArea": "area-c",
+          "dndId": "area-cVessels0"
+        },
+        {
           "widgetUri": "Date",
           "gridArea": "area-b",
           "dndId": "area-bDate1"
@@ -1188,21 +1198,6 @@
           "widgetUri": "Latitude",
           "gridArea": "area-a",
           "dndId": "area-aLatitude2"
-        },
-        {
-          "widgetUri": "Cargoes",
-          "gridArea": "area-a",
-          "dndId": "area-aCargoes3"
-        },
-        {
-          "widgetUri": "Vessels",
-          "gridArea": "area-a",
-          "dndId": "area-aVessels4"
-        },
-        {
-          "widgetUri": "Table Cost Type",
-          "gridArea": "area-c",
-          "dndId": "area-cTable Cost Type6"
         }
       ]
     },
@@ -1275,13 +1270,6 @@
         },
         {
           "uri": "Date",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Table Cost Type",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -2278,48 +2266,13 @@
           "ep_deliveringPortsCargo",
           "ep_minTimeWindow",
           "ep_maxTimeWindow",
-          "p_spotCostVessel",
-          "p_cargoCost"
+          "p_spotCostVessel"
         ]
       }
     },
     "contents.displaydomain": {
       "literal": {
         "p_allocatedcargoes": "1"
-      }
-    },
-    "contents.filters": {
-      "literal": {
-        "logicalOperator": "AND",
-        "filters": [
-          {
-            "filter": {
-              "type": "min",
-              "operator": "<",
-              "value": 10,
-              "enabled": true,
-              "arguments": [
-                10
-              ],
-              "field": "Minimum Loading Time - -",
-              "displayName": "Minimum Loading Time - -",
-              "isElementHeader": false,
-              "slice": [
-                {
-                  "index": "<IDENTIFIER-SET>",
-                  "type": "fixed-element",
-                  "value": "ep_minTimeWindow"
-                },
-                {
-                  "index": "i_ct",
-                  "type": "fixed-element",
-                  "value": "-"
-                }
-              ]
-            },
-            "logicalOperator": "NOT"
-          }
-        ]
       }
     },
     "contents.partition": {
@@ -2745,21 +2698,6 @@
       "aimms": {
         "slices": [
           {
-            "identifier": "p_LocationCost",
-            "slice": [
-              {
-                "index": "i_loc",
-                "type": "subset",
-                "value": "i_act_loc"
-              },
-              {
-                "index": "i_ct",
-                "type": "free",
-                "value": "i_ct"
-              }
-            ]
-          },
-          {
             "identifier": "p_idleCostLocation",
             "slice": [
               {
@@ -2770,24 +2708,40 @@
             ]
           },
           {
-            "identifier": "p_locationCost",
+            "identifier": "p_adminCostAtLocation",
             "slice": [
               {
                 "index": "i_loc",
                 "type": "subset",
                 "value": "i_act_loc"
-              },
+              }
+            ]
+          },
+          {
+            "identifier": "p_loadingCostAtLocation",
+            "slice": [
               {
-                "index": "i_ct",
-                "type": "free",
-                "value": "i_ct"
+                "index": "i_loc",
+                "type": "subset",
+                "value": "i_act_loc"
+              }
+            ]
+          },
+          {
+            "identifier": "p_cargoCost",
+            "slice": [
+              {
+                "index": "i_cargo",
+                "type": "subset",
+                "value": "i_act_cargo"
               }
             ]
           }
         ],
         "contents": [
           "p_idleCostLocation",
-          "p_locationCost"
+          "p_adminCostAtLocation",
+          "p_loadingCostAtLocation"
         ]
       }
     },
@@ -3253,10 +3207,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 29.53522956294847
+      "literal": 24.206889622398023
     },
     "center.longitude": {
-      "literal": 53.45013829942328
+      "literal": 34.36934018142222
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4090,173 +4044,6 @@
       "literal": "sp_aimms_logo (1)"
     }
   },
-  "widgets/Table Cost Type": {
-    "aimms.widget.type": {
-      "literal": "table"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "bp_activeCostsForCargoes",
-          "bp_activeCostsForLocations",
-          "bp_activeCostsForVessels",
-          "ep_costUnit",
-          "ui::p_editTypeOfCosts",
-          "ui::p_deleteTypeOfCosts"
-        ]
-      }
-    },
-    "contents.displaydomain": {
-      "literal": {
-        "bp_activecostsforcargoes": "1",
-        "bp_activecostsforvessels": "1",
-        "ui::p_deletetypeofcosts": "1",
-        "ui::p_edittypeofcosts": "1",
-        "bp_activecostsforlocations": "bp_def_isNotCostPerDay(i_ct)",
-        "ep_costunit": "1"
-      }
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "i_ct"
-        ],
-        "colHeader": [
-          "<IDENTIFIER-SET>"
-        ],
-        "aggregated": []
-      }
-    },
-    "contextmenu": {
-      "aimms": {
-        "contents": [
-          "ui::sp_TypeOfCostItemActions"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::sp_TypeOfCostItemActions",
-            "slice": [
-              {
-                "index": "webui::indexWidgetItemActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetItemActionSpec"
-              },
-              {
-                "index": "webui::indexPageExtension",
-                "type": "free",
-                "value": "webui::indexPageExtension"
-              },
-              {
-                "index": "webui::indexWidgetActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetActionSpec"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "rowHeader",
-          "colKey": "i_CostType",
-          "width": 20.1
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "ui::p_deleteTypeOfCosts"
-          },
-          "width": 8.31
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "ui::p_editTypeOfCosts"
-          },
-          "width": 7.58
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "ep_costUnit"
-          },
-          "width": 14.5
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForCargoes"
-          },
-          "width": 22.9
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForLocations"
-          },
-          "width": 8.84
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
-            "<IDENTIFIER-SET>": "bp_activeCostsForVessels"
-          },
-          "width": 23.51
-        }
-      ]
-    },
-    "default.column.width": {
-      "literal": 30
-    },
-    "name": {
-      "literal": "Table Cost Type"
-    },
-    "store.focus.in": {
-      "literal": {
-        "i_ct": "ep_costType"
-      }
-    },
-    "title": {
-      "literal": "Type of Operational Costs"
-    },
-    "views": {
-      "literal": {}
-    },
-    "views.__display_order__": {
-      "literal": [
-        "views.0"
-      ]
-    },
-    "views.0.type": {
-      "literal": "view"
-    },
-    "widgetactions": {
-      "aimms": {
-        "contents": [
-          "ui::sp_typeOfCostWidgetActions"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::sp_typeOfCostWidgetActions",
-            "slice": [
-              {
-                "index": "webui::indexPageExtension",
-                "type": "free",
-                "value": "webui::indexPageExtension"
-              },
-              {
-                "index": "webui::indexWidgetActionSpec",
-                "type": "free",
-                "value": "webui::indexWidgetActionSpec"
-              }
-            ]
-          }
-        ]
-      }
-    }
-  },
   "widgets/tableHandledCargos": {
     "aimms.widget.type": {
       "literal": "table"
@@ -4587,14 +4374,13 @@
     "contents.partition": {
       "literal": {
         "rowHeader": [
-          "i_loc_from"
-        ],
-        "colHeader": [
+          "i_loc_from",
           "i_loc_to"
         ],
-        "aggregated": [
+        "colHeader": [
           "<IDENTIFIER-SET>"
-        ]
+        ],
+        "aggregated": []
       }
     },
     "custom.column.widths": {
@@ -4603,6 +4389,13 @@
           "type": "rowHeader",
           "colKey": "i_loc_from",
           "width": 41.23
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_distanceBetweenLocations"
+          },
+          "width": 16.87
         }
       ]
     },
@@ -4848,8 +4641,7 @@
           }
         ],
         "contents": [
-          "ep_originPortOfVessel",
-          "p_vesselCost"
+          "ep_originPortOfVessel"
         ]
       }
     },

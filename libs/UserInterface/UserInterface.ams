@@ -403,12 +403,6 @@ LibraryModule UserInterface {
 							p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
 						endblock;
 						
-						block !vessels
-							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
-							ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
-							p_vesselCost(i_vessel) := (round(uniform(50,200)))[$/day];
-						endblock;
-						
 						block !cargoes
 							s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
 							ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
@@ -419,6 +413,11 @@ LibraryModule UserInterface {
 							ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
 						endblock;
 						
+						block !vessels
+							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
+							ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
+							p_vesselCost(i_vessel) := (round(uniform(50,200)))[$/day];
+						endblock;
 						
 						!Activate all master data
 						bp_activeCargoes(i_cargo):= 1;
@@ -952,7 +951,27 @@ LibraryModule UserInterface {
 			webui::IdentifierElementText( _i_presentableId ) := "" ;
 			
 			! And set the identifier element text of the following ones:
-			webui::IdentifierElementText(IndexIdentifiers) += data {
+			webui::IdentifierElementText(IndexIdentifiers) 
+			+=  data {
+			
+			    ! Master Page
+				's_Cargoes' : "Cargoes",
+				's_def_activeCargoes' : "Active Cargoes",
+				's_Locations' : "Locations",
+				's_def_activeLocations' : "Active Locations",
+				's_vessels' : "Vessels",
+				's_def_activeVessels' : "Active Vessels",
+				'bp_ActiveCargoes' : "Active?",
+				'bp_ActiveVessels' : "Active?",
+				'bp_ActiveLocations' : "Active?",
+				'p_Latitude' : "Latitude",
+				'p_Longitude' : "Longitude",
+				'ui::p_deleteLocations' : "",
+				'ui::p_editLocations' : "",
+				'ui::p_deleteCargoes' : "",
+				'ui::p_editCargoes' : "",
+				'ui::p_deleteVessels' : "",
+				'ui::p_editVessels' : "",
 			
 				'p_calc_totalRouteIdleCost' : "idle",
 				'p_def_totalRouteMovementCost' : "sailing",
@@ -964,7 +983,6 @@ LibraryModule UserInterface {
 				'ui::p_vesselsQuantity' : " " ,
 			
 				'p_spotCostVessel' : "Spot Cost" ,
-				'ep_costUnit' : "Unit" ,
 				'i_loc_from' : "From" ,
 				'i_loc_to' : "To" ,
 			
@@ -991,6 +1009,8 @@ LibraryModule UserInterface {
 				'ui::p_costsCargo' : "Costs cargo",
 				'ui::p_costsIdle' : "Costs idle",
 				'ui::p_costsRoute' : "Total cost",
+				'ui::p_cargoesQuantity' : "Cargoes Quantity",
+				'ui::p_vesselsQuantity' : "Vessel Quantity",
 			
 				'cracc::ep_vesselActivityType' : "type" ,
 				'cracc::ep_vesselActivityLocation' : "loc" ,
@@ -998,7 +1018,8 @@ LibraryModule UserInterface {
 				'cracc::ep_vesselActivityLast' : "last" ,
 				'cracc::p_def_vesselActivityLength' : "len",
 				'cracc::i_leg' : "#"
-			};
+			
+			    };
 		}
 		Set _s_presentableIds {
 			SubsetOf: AllIdentifiers;

@@ -182,7 +182,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_cargo);
 				Range: free;
 				Unit: $;
-				dex::ColumnName: Type Costs;
+				dex::ColumnName: Costs;
 				dex::Dataset: Import;
 				dex::TableName: CargoCosts;
 			}
@@ -366,14 +366,14 @@ Model Main_Vessel_Schedule {
 			Parameter p_adminCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
-				dex::ColumnName: Costs;
+				dex::ColumnName: Admin Costs;
 				dex::Dataset: Import;
 				dex::TableName: LocationCosts;
 			}
 			Parameter p_loadingCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
-				dex::ColumnName: Costs;
+				dex::ColumnName: Loading Costs;
 				dex::Dataset: Import;
 				dex::TableName: LocationCosts;
 			}
@@ -1506,46 +1506,6 @@ Model Main_Vessel_Schedule {
 		}
 	}
 	Section WebUIVessel {
-		Procedure pr_LegendRouteViz {
-			Body: {
-				for i_CargLocLoadRoute do
-				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_CargLocLoadRoute));
-				endfor;
-				
-				for i_CargLocDelRoute do   
-				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_CargLocDelRoute));   
-				endfor;
-				
-				for i_VesselPortOrigin do
-				    setelementadd(s_SortPortsRouteVis,ep_SortPortsRouteVis,sp_PortsVisualisationPageAnnotation(i_VesselPortOrigin)); 
-				endfor;
-			}
-		}
-		Procedure pr_LegendCargoViz {
-			Body: {
-				for i_locLoad do
-				    setelementadd(s_SortOfPortsCargo,ep_SortOfPortsCargo,ui::sp_def_cargoesMapAnnotation(i_locLoad));
-				endfor;
-				
-				for i_locDeliv do   
-				    setelementadd(s_SortOfPortsCargo,ep_SortOfPortsCargo,ui::sp_def_cargoesMapAnnotation(i_locDeliv));   
-				endfor;
-			}
-		}
-		DeclarationSection Declaration_Mapping_CargoData {
-			Set s_SortOfPortsCargo {
-				Index: i_SortOfPort;
-				Parameter: ep_SortOfPortsCargo;
-				Definition: pr_LegendCargoViz;
-			}
-			Set s_SelectedCargoesInMap {
-				SubsetOf: s_def_activeCargoes;
-				Index: i_selectedCargo;
-				Definition: {
-					{i_act_cargo | p_AllocatedCargoes(i_act_cargo)}
-				}
-			}
-		}
 		DeclarationSection Declaration_Mapping_Visualisation_Route {
 			Set s_CargoesOnSelectedRoutes {
 				SubsetOf: s_cargoes;
@@ -1562,58 +1522,9 @@ Model Main_Vessel_Schedule {
 					{i_act_vessel | exists(mm::i_allcRoute|ep_calc_vesselOnRoute(mm::i_allcRoute)=i_act_vessel)}
 				}
 			}
-			Set s_SubsetCargoLoadingRoutePorts {
-				SubsetOf: s_locations;
-				Index: i_CargLocLoadRoute;
-				Definition: {
-					{i_Loc|exists(i_SelectedCargoOnRoute | i_Loc = ep_LoadingPortsCargo(i_SelectedCargoOnRoute))}
-				}
-			}
-			Set s_SubsetCargoDeliveringRoutePorts {
-				SubsetOf: s_locations;
-				Index: i_CargLocDelRoute;
-				Definition: {
-					{i_Loc|exists(i_SelectedCargoOnRoute | i_Loc = ep_DeliveringPortsCargo(i_SelectedCargoOnRoute))}
-				}
-			}
-			Set s_SubsetVesselLoadingPorts {
-				SubsetOf: s_locations;
-				Index: i_VesselPortOrigin;
-				Definition: {
-					!{i_Loc|exists(i_ActiveVessel | i_Loc = ep_LoadingPortsVessel(i_ActiveVessel)| v_IdleVessel(i_ActiveVessel)<1)}
-					{i_Loc|exists(i_ActiveVesselUsed | i_Loc = ep_originPortOfVessel(i_ActiveVesselUsed))}
-				}
-			}
-			StringParameter sp_PortsVisualisationPageAnnotation {
-				IndexDomain: i_Loc;
-				Definition: {
-					if (i_Loc in s_SubsetCargoLoadingRoutePorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) and 
-					    (i_Loc in s_SubsetVesselLoadingPorts) then
-					    "AllThreePorts"
-					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) then
-					    "VesAndDelPort"
-					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoLoadingRoutePorts) then
-					    "VesAndLoadPort"
-					elseif (i_Loc in s_SubsetVesselLoadingPorts) and (i_loc in s_SubsetCargoDeliveringRoutePorts) then
-					    "LoadAndDelPort"    
-					elseif i_Loc in s_SubsetVesselLoadingPorts then
-					    "VesPort"
-					elseif i_Loc in s_def_loadingPorts then
-					    "LoadPort"
-					else
-					    "DelPort"
-					endif;
-				}
-			}
-			Set s_SortPortsRouteVis {
-				Index: i_SortRouteVis;
-				Parameter: ep_SortPortsRouteVis;
-				Definition: pr_LegendRouteViz;
-			}
 			Parameter p_SizeRoutesLocation {
 				IndexDomain: i_Loc;
 				Definition: 1;
-				webui::AnnotationsIdentifier: sp_PortsVisualisationPageAnnotation(i_Loc);
 			}
 		}
 		DeclarationSection Declaration_GanttChart {
@@ -1720,53 +1631,6 @@ Model Main_Vessel_Schedule {
 			}
 		}
 	}
-	Section app_start_and_stop {
-		Procedure MainInitialization {
-			Body: {
-				ProfilerStart();
-				sp_today := CurrentToString("%c%y-%m-%d");
-				! ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
-			}
-			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
-		}
-		Procedure PostMainInitialization {
-			Comment: {
-				"Add initialization statements here that require that the libraries are already initialized properly,
-				or add statements that require the Data Management module to be initialized."
-			}
-		}
-		Procedure pr_start;
-		Procedure pr_goodbye {
-			Body: {
-				if ProjectDeveloperMode() then
-					ExitAimms();
-				else
-					pro::sessionmanager::FinishSession();
-				endif ;
-			}
-		}
-		Procedure PreMainTermination {
-			Body: {
-				return 1;!DataManagementExit();
-			}
-			Comment: {
-				"Add termination statements here that require all libraries to be still alive.
-				Return 1 if you allow the termination sequence to continue.
-				Return 0 if you want to cancel the termination sequence."
-			}
-		}
-		Procedure MainTermination {
-			Body: {
-				return 1;
-			}
-			Comment: {
-				"Add termination statements here that do not require all libraries to be still alive.
-				Return 1 to allow the termination sequence to continue.
-				Return 0 if you want to cancel the termination sequence.
-				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
-			}
-		}
-	}
 	Section app_test {
 		Procedure pr_dumpData {
 			Body: {
@@ -1794,6 +1658,51 @@ Model Main_Vessel_Schedule {
 				!Get the arcs
 				pr_CalculateAllArcs;
 			}
+		}
+	}
+	Procedure MainInitialization {
+		Body: {
+			ProfilerStart();
+			
+			sp_today := CurrentToString("%c%y-%m-%d");
+			ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
+		}
+		Comment: "Add initialization statements here that do NOT require any library being initialized already.";
+	}
+	Procedure PostMainInitialization {
+		Comment: {
+			"Add initialization statements here that require that the libraries are already initialized properly,
+			or add statements that require the Data Management module to be initialized."
+		}
+	}
+	Procedure pr_goodbye {
+		Body: {
+			if ProjectDeveloperMode() then
+				ExitAimms();
+			else
+				pro::sessionmanager::FinishSession();
+			endif ;
+		}
+	}
+	Procedure PreMainTermination {
+		Body: {
+			return 1;!DataManagementExit();
+		}
+		Comment: {
+			"Add termination statements here that require all libraries to be still alive.
+			Return 1 if you allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence."
+		}
+	}
+	Procedure MainTermination {
+		Body: {
+			return 1;
+		}
+		Comment: {
+			"Add termination statements here that do not require all libraries to be still alive.
+			Return 1 to allow the termination sequence to continue.
+			Return 0 if you want to cancel the termination sequence.
+			It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
 		}
 	}
 }
