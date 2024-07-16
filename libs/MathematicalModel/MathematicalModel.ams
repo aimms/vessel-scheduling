@@ -8,9 +8,9 @@ LibraryModule MathematicalModel {
 			IndexDomain: i_route;
 			Unit: $;
 			Definition: {
-				p_calc_totalCargoFixedCost(i_route)
-				+ p_calc_totalRouteLocationCost(i_route)
-				+ p_calc_totalRouteIdleCost(i_route)
+				p_def_cargoCost(i_route)
+				+ p_def_locationVisitingCost(i_route)
+				+ p_def_routeIdleCost(i_route)
 				+ p_def_totalRouteMovementCost(i_route)
 			}
 		}
@@ -19,8 +19,8 @@ LibraryModule MathematicalModel {
 		Constraint c_assignCargoToOneVessel {
 			IndexDomain: i_act_cargo;
 			Definition: {
-				sum(i_route | p_calc_cargoesOnRoute(i_route, i_act_cargo), 
-				    v_allocateVesselToRoute(ep_calc_vesselOnRoute(i_route), i_route)) 
+				sum(i_route | p_def_cargoesOnRoute(i_route, i_act_cargo), 
+				    v_allocateVesselToRoute(ep_calc_routeVessel(i_route), i_route)) 
 				+  bv_cargoOnCharteredVessel(i_act_cargo) 
 				= 1
 			}
@@ -43,7 +43,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: (i_act_vessel,i_route);
 			Range: binary;
 			Property: NoSave;
-			Definition: 1 $ (i_act_vessel = ep_calc_vesselOnRoute(i_route));
+			Definition: 1 $ (i_act_vessel = ep_calc_routeVessel(i_route));
 		}
 		Variable bv_cargoOnCharteredVessel {
 			IndexDomain: i_act_cargo;
@@ -105,7 +105,7 @@ LibraryModule MathematicalModel {
 			SubsetOf: s_calc_feasibleRoutes;
 			Index: i_allcRoute;
 			Parameter: ep_allcRoute;
-			OrderBy: ep_calc_vesselOnRoute(i_allcRoute);
+			OrderBy: ep_calc_routeVessel(i_allcRoute);
 			Definition: {
 				{(i_route) | exists((i_act_vessel) | v_allocateVesselToRoute(i_act_vessel, i_route))};
 			}
@@ -151,7 +151,7 @@ LibraryModule MathematicalModel {
 				_bp_routeVessel( i_act_vessel, i_route ) := round(  v_allocateVesselToRoute(i_act_vessel, i_route) );
 				ep_calc_routeOfVessel(i_act_vessel) := first(i_route | _bp_routeVessel(i_act_vessel, i_route) );
 				p_calc_operationalCostPerVessel(i_act_vessel) := p_def_operationalCostPerRoute(ep_calc_routeOfVessel(i_act_vessel));
-				p_calc_totalTravelDaysPerVessel(i_act_vessel) := p_calc_totalDaysTravelPerRoute(ep_calc_routeOfVessel(i_act_vessel));
+				p_calc_totalTravelDaysPerVessel(i_act_vessel) := p_def_routeSailingDays(ep_calc_routeOfVessel(i_act_vessel));
 				bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo) := bp_def_cargoesOnRoute(ep_calc_routeOfVessel(i_act_vessel), i_act_cargo);
 				
 				s_calc_routesOptimalSolution := { i_route | exists( i_act_vessel |  _bp_routeVessel(i_act_vessel, i_route) ) };
@@ -207,7 +207,7 @@ LibraryModule MathematicalModel {
 				
 				sp_calc_loadingTimePerCargo(i_act_cargo) |
 				          ep_calc_routeOfCargo(i_act_cargo)
-				:=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_calc_loadingTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
+				:=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_def_loadingTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
 				
 				sp_calc_deleveringTimePerCargo(i_act_cargo) |
 				        ep_calc_routeOfCargo(i_act_cargo)
@@ -215,34 +215,36 @@ LibraryModule MathematicalModel {
 			}
 		}
 	}
-	Procedure LibraryInitialization {
-		Comment: "Add initialization statements here that do not require any other library being initialized already.";
-	}
-	Procedure PostLibraryInitialization {
-		Comment: {
-			"Add initialization statements here that require another library to be initialized already,
-			or add statements that require the Data Management module to be initialized."
+	Section Librar_Start_and_Finish {
+		Procedure LibraryInitialization {
+			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}
-	}
-	Procedure PreLibraryTermination {
-		Body: {
-			return 1;
+		Procedure PostLibraryInitialization {
+			Comment: {
+				"Add initialization statements here that require another library to be initialized already,
+				or add statements that require the Data Management module to be initialized."
+			}
 		}
-		Comment: {
-			"Add termination statements here that require all other libraries to be still alive.
-			Return 1 if you allow the termination sequence to continue.
-			Return 0 if you want to cancel the termination sequence."
+		Procedure PreLibraryTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that require all other libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
+			}
 		}
-	}
-	Procedure LibraryTermination {
-		Body: {
-			return 1;
-		}
-		Comment: {
-			"Add termination statements here that do not require other libraries to be still alive.
-			Return 1 to allow the termination sequence to continue.
-			Return 0 if you want to cancel the termination sequence.
-			It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+		Procedure LibraryTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that do not require other libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+			}
 		}
 	}
 }

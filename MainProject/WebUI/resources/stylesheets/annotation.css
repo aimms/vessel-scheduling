@@ -43,6 +43,9 @@
     background: #ffc21b2c;
 }
 
+.annotation-highlight-cell {
+    background: var(--secondary90Transparent);
+}
 
 
 

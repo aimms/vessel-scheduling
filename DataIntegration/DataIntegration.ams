@@ -2,10 +2,69 @@
 
 LibraryModule DataIntegration {
 	Prefix: di;
-	Interface: PublicSection;
-	Section PublicSection;
-	Section PrivateSection {
-		Section Library_start_and_finish {
+	Interface: Public_Declarations;
+	Section Public_Declarations {
+		Procedure pr_importExcel {
+			Body: {
+				dex::GenerateDatasetMappings;
+				
+				!Delete old data
+				empty Cargoes, Vessels, Locations, Routes;
+				
+				!Importeren van de data
+				dex::AddMapping(
+				    mappingName : "ImportData", 
+				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+				
+				dex::ReadFromFile(
+				    dataFile : "data\\DataForImport_test_v2.xlsx", !Uiteindelijke variant DataForImport.xlsx
+				    mappingName : "ImportData");
+				
+				!Activate all master data
+				bp_activeCargoes(i_cargo):= 1;
+				bp_activeVessels(i_vessel) := 1;
+				bp_activeLocations(i_loc) := 1;
+				ui::p_AllocatedCargoes(i_act_cargo) :=1;
+				
+				!Activate generating routes
+				ui::sp_systemSecondaryActions(3,'state'):= 'active';
+				
+				!Changes to status bar
+				ui::sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
+				ui::sp_systemStatusBar(1,'color') := "Green";
+				ui::sp_systemStatusBar(1,'tooltip') := "Data is succesfully imported.";
+				ui::sp_systemStatusBar(2,'color') := "Orange";
+				ui::sp_systemStatusBar(2,'icon'):= "aimms-circle2";
+				ui::sp_systemStatusBar(2,'tooltip') := "Application ready to generate routes.";
+				ui::sp_systemStatusBar(2,'state') := "active";
+				ui::sp_systemStatusBar(3,'color') := "red";
+				ui::sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
+				ui::sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
+				ui::sp_systemStatusBar(3,'state') := 'inactive';
+				
+				!Open Overview dataset
+				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
+			}
+		}
+		Procedure pr_exportExcel {
+			Body: {
+				dex::AddMapping(
+				    mappingName : "Import",
+				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+				
+				dex::WriteToFile(
+				    dataFile : "data\\FormatDataScheduling.xlsx",
+				    mappingName : "Import");
+			}
+		}
+		Procedure pr_emptyData {
+			Body: {
+				!@TODO
+			}
+		}
+	}
+	Section Private_Declarations {
+		Section Library_Start_and_Finish {
 			Procedure LibraryInitialization {
 				Comment: "Add initialization statements here that do not require any other library being initialized already.";
 			}
