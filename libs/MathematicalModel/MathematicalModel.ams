@@ -114,7 +114,7 @@ LibraryModule MathematicalModel {
 			IndexDomain: (i_act_vessel, i_route,i_act_cargo);
 			Definition: {
 				1 $ (v_allocateVesselToRoute(i_act_vessel, i_route) 
-				        and bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo))
+				    and bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo))
 			}
 		}
 		DeclarationSection Post_Vessels {
@@ -154,7 +154,7 @@ LibraryModule MathematicalModel {
 				p_calc_totalTravelDaysPerVessel(i_act_vessel) := p_def_routeSailingDays(ep_calc_routeOfVessel(i_act_vessel));
 				bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo) := bp_def_cargoesOnRoute(ep_calc_routeOfVessel(i_act_vessel), i_act_cargo);
 				
-				s_calc_routesOptimalSolution := { i_route | exists( i_act_vessel |  _bp_routeVessel(i_act_vessel, i_route) ) };
+				s_calc_usedRoutes := { i_route | exists( i_act_vessel |  _bp_routeVessel(i_act_vessel, i_route) ) };
 			}
 			Parameter _bp_routeVessel {
 				IndexDomain: (i_act_vessel,i_route);

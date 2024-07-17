@@ -396,9 +396,9 @@ Model Main_Vessel_Schedule {
 					{ 1 .. 1000 }
 				}
 			}
-			Set s_calc_routesOptimalSolution {
+			Set s_calc_usedRoutes {
 				SubsetOf: s_calc_feasibleRoutes;
-				Index: i_optRoute;
+				Index: i_used_route;
 				Comment: "The routes in the solution of the last solved mm::mp_vesselScheduling.";
 			}
 			Set s_calc_cargosHandled {
@@ -470,7 +470,7 @@ Model Main_Vessel_Schedule {
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_def_vesselActivityLength {
-				IndexDomain: (i_route,i_leg)|ep_calc_vesselActivityLast(i_route, i_leg);
+				IndexDomain: (i_route,i_leg) | ep_calc_vesselActivityLast(i_route, i_leg);
 				Unit: day;
 				Definition: ((ep_calc_vesselActivityLast(i_route, i_leg) - ep_calc_vesselActivityFirst(i_route, i_leg)));
 			}
@@ -603,7 +603,7 @@ Model Main_Vessel_Schedule {
 					pr_processRouteList();
 					
 					block ! update UI 
-					!Activate solve button
+					!Changes to the Secondary Actions
 					ui::sp_systemSecondaryActions(4,'state'):= 'active';
 					
 					!Changes to status bar
@@ -614,6 +614,12 @@ Model Main_Vessel_Schedule {
 					ui::sp_systemStatusBar(3,'icon') := "aimms-circle2";
 					ui::sp_systemStatusBar(3,'tooltip') := "Data is ready, time to solve!";
 					ui::sp_systemStatusBar(3,'state') := "active";
+					
+					!Changes to workflow
+					ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
+					ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "inactive";
+					ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "inactive";
+					ui::sp_systemWorkFlowSteps(1,11,'workflowPageState') := "inactive";
 					endblock;
 				}
 			}
@@ -824,13 +830,17 @@ Model Main_Vessel_Schedule {
 		Body: {
 			solve mm::mp_vesselScheduling;
 			
-			ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
 			ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,11,'workflowPageState') := "active";
 			
 			!Changes statusbar
 			ui::sp_systemStatusBar(3,'icon') := "aimms-checkmark-circle";
 			ui::sp_systemStatusBar(3,'color') := "Green";
 			ui::sp_systemStatusBar(3,'tooltip') := "The model has been solved.";
+			
+			!Open Overview dataset
+			ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
 			
 			!Post Execution
 			mm::pr_post_vesselResults;

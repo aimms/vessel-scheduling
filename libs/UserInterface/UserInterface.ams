@@ -218,6 +218,8 @@ LibraryModule UserInterface {
 	Section System {
 		Procedure pr_adaptNamesForPresentationInWebUI {
 			Body: {
+				empty webui::IdentifierElementText;
+				
 				_s_presentableIds := Main_Vessel_Schedule + UserInterface ;
 				
 				! Clear identifier element text of all identifiers in the Main model.
@@ -253,6 +255,7 @@ LibraryModule UserInterface {
 					'ui::p_editCargoes' : " ",
 					'ui::p_deleteVessels' : " ",
 					'ui::p_editVessels' : " ",
+					'ep_startHorizonDate' : " ",
 				
 				    ! Random Data
 					'ui::p_cargoesQuantity' : " ",
@@ -275,10 +278,11 @@ LibraryModule UserInterface {
 					'ep_originPortOfVessel' : "Origin Port",
 					'p_vesselCost' : "Vessel Cost",
 				
+				    ! Routes
+				
 				    ! Generated Itineraries
-				    'ui::bp_viewAllRoutes' : "All Routes?" ,
 					'ui::ep_selectedRoute' : "Selected Route" ,
-					'ui::ep_selectedVessel' : "Vessel" ,
+					'ui::ep_def_selectedVessel' : "Vessel" ,
 					'ui::ep_berthVesselSelectedRoute' : "Berth" ,
 					'ui::p_noDaysSailing' : "Days Sailing",
 					'ui::p_noDaysIdle' : "Days Idle",
@@ -287,41 +291,29 @@ LibraryModule UserInterface {
 					'ep_calc_vesselActivityFirst' : "Start" ,
 					'ep_calc_vesselActivityLast' : "Finish" ,
 					'p_def_vesselActivityLength' : "Total Duration",
-				
+					'ui::i_cargoOfSelectedRoute' : "Cargoes",
+					'ui::ep_def_minTimeWindow' : "Minimum Loading Time",
+					'ui::ep_def_maxTimeWindow' : "Maximum Loading Time",
+					'ui::ep_def_loadingPortsCargo' : "Loading Port",
+					'ui::ep_def_deliveringPortsCargo' : "Delivering Port",
 					'i_leg' : "#",
 					'ui::i_leg' : "#",
 				
-					!Auxiliar
+				    ! Optimized Results
+					'mm::ep_calc_routeOfVessel' : "Route",
+					'mm::p_calc_operationalCostPerVessel' : "Route Cost",
+					'mm::p_calc_totalTravelDaysPerVessel' : "Route Period",
+					'mm::ep_calc_vesselOfCargo' : "Vessel Used",
+					'mm::p_calc_totalCostPerCargo' : "Cost",
+					'mm::sp_calc_loadingTimePerCargo' : "Loading Time",
+					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+				
+				    ! Visualizations
+				
+					! Auxiliar
 					'ui::sp_addEditElement' : " " 
 				
-				
-				
 				    };
-			}
-			Comment: {
-				"	\'p_calc_totalRouteIdleCost\' : \"idle\",
-					\'p_def_totalRouteMovementCost\' : \"sailing\",
-					\'p_calc_totalCargoFixedCost\' : \"cargo handling\",
-					\'p_calc_totalRouteLocationCost\' : \"location visiting\",
-					\'mm::ep_calc_routeOfVessel\' : \"Route\" ,
-					\'mm::p_calc_operationalCostPerVessel\' : \"Operational<br>Cost\" ,
-					\'mm::bp_calc_cargoesOnVessel\' : \"Cargoes\" ,
-					\'mm::p_calc_totalTravelDaysPerVessel\' : \"Travel<br>Days\" ,
-				
-					\'mm::ep_calc_vesselOfCargo\' : \"Vessel\" ,
-					\'mm::p_calc_totalCostPerCargo\' : \"Total<br>Cost\" ,
-					\'mm::sp_calc_loadingTimePerCargo\' : \"Loading<br>Date\" ,
-					\'mm::sp_calc_deleveringTimePerCargo\' : \"Delivered<br>Date\" ,
-				
-					\'ui::i_cargoSelectedRoute\' : \"cargo\",
-					\'ui::p_vesselDailycost\' : \"Daily sailing cost\",
-					\'ui::p_costsSailing\' : \"Costs sailing\",
-					\'ui::p_costsVisiting\' : \"Costs visiting\",
-					\'ui::p_costsCargo\' : \"Costs cargo\",
-					\'ui::p_costsIdle\' : \"Costs idle\",
-					\'ui::p_costsRoute\' : \"Total cost\",
-					\'ui::p_cargoesQuantity\' : \"Cargoes Quantity\",
-					\'ui::p_vesselsQuantity\' : \"Vessel Quantity\","
 			}
 			Set _s_presentableIds {
 				SubsetOf: AllIdentifiers;
@@ -392,24 +384,31 @@ LibraryModule UserInterface {
 					  ( 1, 7, workflowPageState ) : "Active",
 					  ( 1, 7, parentPageId      ) : "overview_datasets",
 					
-					  ( 1, 8, displayText       ) : "Generated Itineraries",
+					  ( 1, 8, displayText       ) : "Routes",
 					  ( 1, 8, icon              ) : "aimms-film4",
-					  ( 1, 8, pageId            ) : "generated_itineraries",
-					  ( 1, 8, tooltip           ) : "Vessel data",
-					  ( 1, 8, workflowPageState ) : "Active",
+					  ( 1, 8, pageId            ) : "routes",
+					  ( 1, 8, tooltip           ) : "Generated routes",
+					  ( 1, 8, workflowPageState ) : "Inactive",
 					  ( 1, 8, parentPageId      ) : "",
 					
-					  ( 1, 9, displayText       ) : "Optimized Results",
-					  ( 1, 9, icon              ) : "aimms-stats-decline",
-					  ( 1, 9, pageId            ) : "optimized_results",
-					  ( 1, 9, tooltip           ) : "Results after solving the model",
+					  ( 1, 9, displayText       ) : "Generated Itineraries",
+					  ( 1, 9, icon              ) : "aimms-film4",
+					  ( 1, 9, pageId            ) : "generated_itineraries",
+					  ( 1, 9, tooltip           ) : "Vessel data",
 					  ( 1, 9, workflowPageState ) : "Inactive",
+					  ( 1, 9, parentPageId      ) : "",
 					
-					  ( 1, 10, displayText       ) : "Visualizations",
-					  ( 1, 10, icon              ) : "aimms-pie-chart8",
-					  ( 1, 10, pageId            ) : "all_visualisations",
-					  ( 1, 10, tooltip           ) : "All visualizations explaining results",
-					  ( 1, 10, workflowPageState ) : "Inactive" }
+					  ( 1, 10, displayText       ) : "Optimized Results",
+					  ( 1, 10, icon              ) : "aimms-stats-decline",
+					  ( 1, 10, pageId            ) : "optimized_results",
+					  ( 1, 10, tooltip           ) : "Results after solving the model",
+					  ( 1, 10, workflowPageState ) : "Inactive",
+					
+					  ( 1, 11, displayText       ) : "Visualizations",
+					  ( 1, 11, icon              ) : "aimms-pie-chart8",
+					  ( 1, 11, pageId            ) : "all_visualisations",
+					  ( 1, 11, tooltip           ) : "All visualizations explaining results",
+					  ( 1, 11, workflowPageState ) : "Inactive" }
 				}
 			}
 			StringParameter sp_systemWorkflowFoldingStates {
@@ -437,7 +436,7 @@ LibraryModule UserInterface {
 					  ( 3, displaytext ) : "Generate Routes"                ,  
 					  ( 3, icon        ) : "aimms-direction"                ,
 					  ( 3, procedure   ) : "pr_calculateRoutesAndCost",  
-					  ( 3, state       ) : "active"                         ,
+					  ( 3, state       ) : "inactive"                         ,
 					
 					  ( 4, displaytext ) : "Solve"                          ,  
 					  ( 4, icon        ) : "aimms-cog"                      ,
@@ -446,7 +445,7 @@ LibraryModule UserInterface {
 					
 					  ( 5, displaytext ) : "Empty Case"                    ,  
 					  ( 5, icon        ) : "aimms-bin2"                     ,
-					  ( 5, procedure   ) : "pr_emptyData"                  ,  
+					  ( 5, procedure   ) : "di::pr_emptyData"                  ,  
 					  ( 5, state       ) : "Active"                          }
 				}
 			}
@@ -457,19 +456,19 @@ LibraryModule UserInterface {
 				Property: NoSave;
 				InitialData: {
 					data
-					{ ( '1', 'icon'      ) : "aimms-checkmark-circle"               ,  
-					  ( '1', 'color'     ) : "Green"                                ,
+					{ ( '1', 'icon'      ) : "aimms-circle2"               ,  
+					  ( '1', 'color'     ) : "Orange"                               ,
 					  ( '1', 'text'      ) : "Import Excel"                         ,  
-					  ( '1', 'tooltip'   ) : "Data is succesfully imported."        ,
-					  ( '1', 'procedure' ) : "pr_importExcel"                       ,  
+					  ( '1', 'tooltip'   ) : "Click to import Excel file."        ,
+					  ( '1', 'procedure' ) : "di::pr_importExcel"                       ,  
 					  ( '1', 'state'     ) : "Active"                               ,
 					
-					  ( '2', 'icon'      ) : "aimms-circle2"                        ,  
-					  ( '2', 'color'     ) : "Orange"                               ,
+					  ( '2', 'icon'      ) : "aimms-cancel-circle2"                        ,  
+					  ( '2', 'color'     ) : "red"                               ,
 					  ( '2', 'text'      ) : "Generate Routes"                      ,  
-					  ( '2', 'tooltip'   ) : "Application ready to generate routes.",
+					  ( '2', 'tooltip'   ) : "Application not ready to generate routes.",
 					  ( '2', 'procedure' ) : "pr_calculateRoutesAndCost"            ,  
-					  ( '2', 'state'     ) : "active"                               ,
+					  ( '2', 'state'     ) : "inactive"                               ,
 					
 					  ( '3', 'icon'      ) : "aimms-cancel-circle2"                 ,  
 					  ( '3', 'color'     ) : "red"                                  ,
@@ -479,8 +478,8 @@ LibraryModule UserInterface {
 					  ( '3', 'state'     ) : "inactive"                             ,
 					
 					  ( '4', 'header'    ) : "Excel:"                               ,  
-					  ( '4', 'icon'      ) : "aimms-briefcase"                      ,
-					  ( '4', 'text'      ) : "DataForImport.xlsx"                   ,  
+					  ( '4', 'icon'      ) : "aimms-warning2"                      ,
+					  ( '4', 'text'      ) : "Nothing Imported"                   ,  
 					  ( '4', 'state'     ) : "Inactive" ,                             
 					
 					  ( '5', 'icon'      ) : "aimms-exit"                 ,  
@@ -517,12 +516,12 @@ LibraryModule UserInterface {
 						
 						block !cargoes
 							s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
-							ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
-							ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+							::ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
+							::ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
 							p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
 							p_cargoCost(i_cargo) := (round(uniform(50,200)))[$];
-							ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
-							ep_maxTimeWindow(i_cargo) := ep_minTimeWindow(i_cargo) + round(uniform(0,10));
+							::ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
+							::ep_maxTimeWindow(i_cargo) := ::ep_minTimeWindow(i_cargo) + round(uniform(0,10));
 						endblock;
 						
 						block !vessels
@@ -536,7 +535,7 @@ LibraryModule UserInterface {
 						bp_activeVessels(i_vessel) := 1;
 						bp_activeLocations(i_loc) := 1;
 						
-						!Activate generating routes
+						!Changes to secondary actions
 						sp_systemSecondaryActions(3,'state'):= 'active';
 						sp_systemSecondaryActions(4,'state') := 'inactive';
 						
@@ -553,10 +552,14 @@ LibraryModule UserInterface {
 						sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
 						sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
 						sp_systemStatusBar(3,'state') := 'inactive';
+						ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
+						ui::sp_systemStatusBar(4,'text') := "Data Generated";
 						
-						!Pages connecting
+						!Changes to workflow
 						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
 						sp_systemWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+						ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
+						ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 						
 						!Open Overview dataset
 						sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
@@ -802,8 +805,8 @@ LibraryModule UserInterface {
 				Parameter: ep_locationInUsage;
 				Definition: {
 					{i_act_loc | 
-					        exists(i_act_cargo | i_act_loc = ep_LoadingPortsCargo(i_act_cargo))
-					        or exists(i_act_cargo | i_act_loc = ep_DeliveringPortsCargo(i_act_cargo))
+					        exists(i_act_cargo | i_act_loc = ep_def_loadingPortsCargo(i_act_cargo))
+					        or exists(i_act_cargo | i_act_loc = ep_def_deliveringPortsCargo(i_act_cargo))
 					        or exists(i_act_vessel | i_act_loc = ep_originPortOfVessel(i_act_vessel))}
 				}
 				webui::AnnotationsIdentifier: sp_locationInUsageAnnotation(ui::i_loc_usag);
@@ -835,6 +838,13 @@ LibraryModule UserInterface {
 					    "highlight-cell"
 					else 
 					    ""
+					endif;
+				}
+			}
+			Procedure pr_uponLoadLocationsPage {
+				Body: {
+					if not ep_location then
+					    ep_location := first(i_loc);
 					endif;
 				}
 			}
@@ -881,8 +891,8 @@ LibraryModule UserInterface {
 				Definition: {
 					p_distanceBetweenLocations(i_loc_usag,i_loc_usag2) $ 
 					        exists(i_act_cargo |
-					                (i_loc_usag = ep_loadingPortsCargo(i_act_cargo)
-					                and i_loc_usag2 = ep_deliveringPortsCargo(i_act_cargo)))
+					                (i_loc_usag = ep_def_loadingPortsCargo(i_act_cargo)
+					                and i_loc_usag2 = ep_def_deliveringPortsCargo(i_act_cargo)))
 				}
 				webui::TooltipIdentifier: sp_def_deliveringToLoadingPortsTooltip(i_loc_usag,i_loc_usag2);
 			}
@@ -920,7 +930,6 @@ LibraryModule UserInterface {
 					if not ep_selectedRoute then
 						ep_selectedRoute := last( s_calc_feasibleRoutes );
 					endif ;
-					pr_uponChangeSelectedItinerary();
 				}
 			}
 			StringParameter sp_def_titleScalarSelectRoute {
@@ -935,7 +944,7 @@ LibraryModule UserInterface {
 				SubsetOf: s_calc_legs;
 				Index: i_leg;
 				Definition: {
-					{i_leg | p_def_vesselActivityLength(ep_selectedRoute, i_leg)}
+					{::i_leg | p_def_vesselActivityLength(ep_selectedRoute, ::i_leg)}
 				}
 			}
 			Set s_def_cargosOfSelectedRoute {
@@ -944,42 +953,47 @@ LibraryModule UserInterface {
 				OrderBy: user;
 				Definition: s_calc_cargosHandled(ep_selectedRoute);
 			}
-			Parameter bp_viewAllRoutes {
-				Range: binary;
-				InitialData: 1;
+			ElementParameter ep_def_minTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				Definition: ::ep_minTimeWindow(i_cargo);
+			}
+			ElementParameter ep_def_maxTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				Definition: ::ep_maxTimeWindow(i_cargo);
+			}
+			ElementParameter ep_def_loadingPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				Definition: ::ep_loadingPortsCargo(i_cargo);
+			}
+			ElementParameter ep_def_deliveringPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				Definition: ::ep_deliveringPortsCargo(i_cargo);
+			}
+			ElementParameter ep_selectedRoute {
+				Range: s_calc_usedRoutes;
+				InitialData: '';
+			}
+			ElementParameter ep_def_selectedVessel {
+				Range: s_vessels;
+				Definition: ep_calc_routeVessel(ep_selectedRoute);
+			}
+			ElementParameter ep_berthVesselSelectedRoute {
+				Range: s_locations;
+				Definition: ep_originPortOfVessel( ep_def_selectedVessel );
+			}
+			Parameter p_noDaysSailing {
+				Unit: day;
+				Definition: p_def_routeSailingDays( ep_selectedRoute );
+			}
+			Parameter p_noDaysIdle {
+				Unit: day;
+				Definition: p_def_routeIdleDays( ep_selectedRoute );
 			}
 			Section Scalar_select_itinerary {
-				Set s_selectableRoutes {
-					SubsetOf: s_calc_feasibleRoutes;
-					Index: i_selectableRoute;
-					Definition: {
-						if bp_viewAllRoutes then
-							s_calc_feasibleRoutes
-						else
-							s_calc_routesOptimalSolution
-						endif
-					}
-				}
-				ElementParameter ep_selectedRoute {
-					Range: s_selectableRoutes;
-					InitialData: '';
-				}
-				ElementParameter ep_def_selectedVessel {
-					Range: s_vessels;
-					Definition: ep_calc_routeVessel(ep_selectedRoute);
-				}
-				ElementParameter ep_berthVesselSelectedRoute {
-					Range: s_locations;
-					Definition: ep_originPortOfVessel( ep_def_selectedVessel );
-				}
-				Parameter p_noDaysSailing {
-					Unit: day;
-					Definition: p_def_routeSailingDays( ep_selectedRoute );
-				}
-				Parameter p_noDaysIdle {
-					Unit: day;
-					Definition: p_def_routeIdleDays( ep_selectedRoute );
-				}
 				Parameter p_vesselDailycost {
 					Unit: $/day;
 					Definition: ::p_vesselCost( ep_def_selectedVessel );
@@ -1012,9 +1026,7 @@ LibraryModule UserInterface {
 				Definition: {
 					data 
 					{ ( 1, displayText ) : "KPIs "             ,  ( 1, pageId      ) : "side_panel_results",
-					  ( 1, icon        ) : "aimms-meter-fast"  ,  ( 1, state       ) : "Active"            ,
-					  ( 2, displayText ) : "Select Route"      ,  ( 2, pageId      ) : "select_route_panel",
-					  ( 2, icon        ) : "aimms-select2"     ,  ( 2, state       ) : "Active"             }
+					  ( 1, icon        ) : "aimms-meter-fast"  ,  ( 1, state       ) : "Active"             }
 				}
 			}
 			StringParameter sp_def_vesselNotUsedAnnotation {
@@ -1052,15 +1064,15 @@ LibraryModule UserInterface {
 						for mm::i_allcRoute do
 						
 						    !Calculate location from berth to the location of the loading of the first cargo
-						    p_FromBerthToCargoTest(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1))):=1;
+						    p_FromBerthToCargoTest(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_def_loadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1))):=1;
 						    mm::ep_allcRoute := mm::i_allcRoute;
 						    s_loc_currentCargos := {i_act_cargo | p_def_cargoesOnRoute(mm::ep_allcRoute, i_act_cargo)};
-						    sp_RouteInformation(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_LoadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1)))+="<br>Picking up cargo: "+first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1);
+						    sp_RouteInformation(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_def_loadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1)))+="<br>Picking up cargo: "+first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1);
 						
 						    for i_loc_cargo | p_def_cargoesOnRoute(mm::i_allcRoute, i_loc_cargo) do 
 						    	!Calculate location of the loading and delivering of the cargo
-						        p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo)) := 1;
-							sp_RouteInformation(ep_LoadingPortsCargo(i_loc_cargo), ep_DeliveringPortsCargo(i_loc_cargo))+="<br>Deliver cargo: "+i_loc_cargo;
+						        p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo), ep_def_deliveringPortsCargo(i_loc_cargo)) := 1;
+							sp_RouteInformation(ep_def_loadingPortsCargo(i_loc_cargo), ep_def_deliveringPortsCargo(i_loc_cargo))+="<br>Deliver cargo: "+i_loc_cargo;
 						
 							!Calculate the location from delivering to the loading point of the new cargo
 						        for i_loc_cargo1 | 
@@ -1069,14 +1081,14 @@ LibraryModule UserInterface {
 						
 						            p_mapArcPerCargo(mm::i_allcRoute, i_loc_cargo, i_loc_cargo1) := 1;
 						
-						            if ep_DeliveringPortsCargo(i_loc_cargo) = ep_LoadingPortsCargo(i_loc_cargo1) then
-						                p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo1), ep_DeliveringPortsCargo(i_loc_cargo1)) := 1;
+						            if ep_def_deliveringPortsCargo(i_loc_cargo) = ep_def_loadingPortsCargo(i_loc_cargo1) then
+						                p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo1), ep_def_deliveringPortsCargo(i_loc_cargo1)) := 1;
 						                p_loc_aux := 1;
 						            else
-						                p_MapArcPerCargoLocations(ep_DeliveringPortsCargo(i_loc_cargo), ep_LoadingPortsCargo(i_loc_cargo1)) := 1;
-						                p_MapArcPerCargoLocations(ep_LoadingPortsCargo(i_loc_cargo1), ep_DeliveringPortsCargo(i_loc_cargo1)) := 1;
+						                p_MapArcPerCargoLocations(ep_def_deliveringPortsCargo(i_loc_cargo), ep_def_loadingPortsCargo(i_loc_cargo1)) := 1;
+						                p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo1), ep_def_deliveringPortsCargo(i_loc_cargo1)) := 1;
 						
-						                sp_RouteInformation(ep_DeliveringPortsCargo(i_loc_cargo), ep_LoadingPortsCargo(i_loc_cargo1))+="<br>Picking up cargo: "+i_loc_cargo1;
+						                sp_RouteInformation(ep_def_deliveringPortsCargo(i_loc_cargo), ep_def_loadingPortsCargo(i_loc_cargo1))+="<br>Picking up cargo: "+i_loc_cargo1;
 						
 						            endif;
 						
@@ -1106,10 +1118,6 @@ LibraryModule UserInterface {
 						IndexDomain: mm::i_allcRoute;
 						Range: mm::s_def_allocatedRoutes;
 					}
-					Parameter p_AllocatedCargoes {
-						IndexDomain: i_act_cargo;
-						Range: binary;
-					}
 					Parameter p_FromToDestination {
 						IndexDomain: i_route;
 					}
@@ -1132,6 +1140,25 @@ LibraryModule UserInterface {
 						IndexDomain: (mm::i_allcRoute,i_Loc,i_loc_from);
 						Range: binary;
 					}
+					Set s_cargoesOnSelectedRoutes {
+						SubsetOf: s_cargoes;
+						Index: i_SelectedCargoOnRoute;
+						Definition: {
+							{i_act_cargo|exists(mm::i_allcRoute| p_def_cargoesOnRoute(mm::i_allcRoute, i_act_cargo))}
+						}
+						Comment: "{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo)}";
+					}
+					Set s_vesselOnSelectedRoutes {
+						SubsetOf: s_vessels;
+						Index: i_ActiveVesselUsed;
+						Definition: {
+							{i_act_vessel | exists(mm::i_allcRoute|ep_calc_routeVessel(mm::i_allcRoute)=i_act_vessel)}
+						}
+					}
+					Parameter p_sizeRoutesLocation {
+						IndexDomain: i_Loc;
+						Definition: 1;
+					}
 				}
 			}
 			StringParameter sp_def_visualizationsSidePanel {
@@ -1145,34 +1172,21 @@ LibraryModule UserInterface {
 			StringParameter sp_def_ganttChartStartTime {
 				Definition: FormatString("%e", ep_startHorizonDate);
 			}
-			Parameter p_def_DurationCargoOnRoute {
+			Parameter p_def_durationCargoOnRoute {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
 				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
+				webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
+				webui::TooltipIdentifier: sp_def_empty;
 			}
-			Parameter p_LoadingTimeCargoRouteInHours {
+			Parameter p_def_loadingTimeCargoRouteInHours {
 				IndexDomain: (i_act_cargo,i_route);
 				Unit: day;
-				Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route)*24;
+				Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
 			}
-			Set s_CargoesOnSelectedRoutes {
-				SubsetOf: s_cargoes;
-				Index: i_SelectedCargoOnRoute;
-				Definition: {
-					{i_act_cargo|exists(mm::i_allcRoute| p_def_cargoesOnRoute(mm::i_allcRoute, i_act_cargo))}
-				}
-				Comment: "{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo)}";
-			}
-			Set s_VesselOnSelectedRoutes {
-				SubsetOf: s_vessels;
-				Index: i_ActiveVesselUsed;
-				Definition: {
-					{i_act_vessel | exists(mm::i_allcRoute|ep_calc_routeVessel(mm::i_allcRoute)=i_act_vessel)}
-				}
-			}
-			Parameter p_SizeRoutesLocation {
-				IndexDomain: i_Loc;
-				Definition: 1;
+			StringParameter sp_def_cargoName {
+				IndexDomain: i_cargo;
+				Definition: i_cargo;
 			}
 		}
 	}

@@ -4,6 +4,7 @@ LibraryModule DataIntegration {
 	Prefix: di;
 	Interface: Public_Declarations;
 	Section Public_Declarations {
+		StringParameter sp_fileName;
 		Procedure pr_importExcel {
 			Body: {
 				dex::GenerateDatasetMappings;
@@ -16,6 +17,8 @@ LibraryModule DataIntegration {
 				    mappingName : "ImportData", 
 				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
 				
+				sp_fileName := "DataForImport_test_v2.xlsx";
+				
 				dex::ReadFromFile(
 				    dataFile : "data\\DataForImport_test_v2.xlsx", !Uiteindelijke variant DataForImport.xlsx
 				    mappingName : "ImportData");
@@ -24,10 +27,10 @@ LibraryModule DataIntegration {
 				bp_activeCargoes(i_cargo):= 1;
 				bp_activeVessels(i_vessel) := 1;
 				bp_activeLocations(i_loc) := 1;
-				ui::p_AllocatedCargoes(i_act_cargo) :=1;
 				
-				!Activate generating routes
+				!Changes to secondary actions
 				ui::sp_systemSecondaryActions(3,'state'):= 'active';
+				ui::sp_systemSecondaryActions(4,'state') := 'inactive';
 				
 				!Changes to status bar
 				ui::sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
@@ -41,6 +44,14 @@ LibraryModule DataIntegration {
 				ui::sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
 				ui::sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
 				ui::sp_systemStatusBar(3,'state') := 'inactive';
+				ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
+				ui::sp_systemStatusBar(4,'text') := sp_fileName;
+				
+				!Changes to workflow
+				ui::sp_systemWorkflowSteps(1,8,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 				
 				!Open Overview dataset
 				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
@@ -59,7 +70,33 @@ LibraryModule DataIntegration {
 		}
 		Procedure pr_emptyData {
 			Body: {
-				!@TODO
+				empty Data_Model;
+				
+				!Changes to secondary actions
+				ui::sp_systemSecondaryActions(3,'state'):= 'inactive';
+				ui::sp_systemSecondaryActions(4,'state') := 'inactive';
+				
+				!Changes to status bar
+				ui::sp_systemStatusBar(1,'icon') := "aimms-circle2";
+				ui::sp_systemStatusBar(1,'color') := "Orange";
+				ui::sp_systemStatusBar(1,'tooltip') := "Click to import Excel file.";
+				ui::sp_systemStatusBar(1,'text') := "Import Excel";
+				ui::sp_systemStatusBar(2,'color') := "red";
+				ui::sp_systemStatusBar(2,'icon'):= "aimms-cancel-circle2";
+				ui::sp_systemStatusBar(2,'tooltip') := "Application not ready to generate routes.";
+				ui::sp_systemStatusBar(2,'state') := "inactive";
+				ui::sp_systemStatusBar(3,'color') := "red";
+				ui::sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
+				ui::sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
+				ui::sp_systemStatusBar(3,'state') := 'inactive';
+				ui::sp_systemStatusBar(4,'icon'):= "aimms-warning2";
+				ui::sp_systemStatusBar(4,'text') := "Nothing Imported";
+				
+				!Changes to workflow
+				ui::sp_systemWorkflowSteps(1,8,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 			}
 		}
 	}
