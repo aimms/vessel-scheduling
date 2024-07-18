@@ -126,7 +126,20 @@
                 "name": "Generated itineraries",
                 "type": "pagev2-grid",
                 "slug": "generated_itineraries",
-                "children": []
+                "children": [
+                  {
+                    "name": "Activity Details",
+                    "type": "pagev2-grid",
+                    "slug": "activity_details",
+                    "children": []
+                  },
+                  {
+                    "name": "Planned Routes",
+                    "type": "pagev2-grid",
+                    "slug": "planned_routes",
+                    "children": []
+                  }
+                ]
               },
               {
                 "name": "Model Results",
@@ -145,18 +158,6 @@
                 "name": "Visualize Routes",
                 "type": "pagev2-grid",
                 "slug": "all_visualisations",
-                "children": []
-              },
-              {
-                "name": "select_route_side_panel",
-                "type": "pagev2-grid-sidepanel",
-                "slug": "select_route_side_panel",
-                "children": []
-              },
-              {
-                "name": "Debug",
-                "type": "pagev2-grid",
-                "slug": "debug",
                 "children": []
               }
             ]
@@ -277,6 +278,39 @@
       }
     }
   },
+  "layouts/custom_05af9bb7-b8a2-4b0a-a6b1-1866663a863e": {
+    "definition": {
+      "literal": {
+        "componentName": "Grid",
+        "props": {
+          "gridTemplateColumns": "1.5fr 2fr",
+          "gridTemplateRows": "1.5fr 2fr",
+          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-b\""
+        },
+        "items": [
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-a",
+              "name": "Area A",
+              "gridAutoFlow": "column"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-b",
+              "name": "Area B",
+              "gridAutoFlow": "row"
+            }
+          }
+        ]
+      }
+    },
+    "displayName": {
+      "literal": "VesselsPage"
+    }
+  },
   "layouts/custom_24197f78-2749-4faa-ae4d-8b84aed3376e": {
     "definition": {
       "literal": {
@@ -307,7 +341,7 @@
       }
     },
     "displayName": {
-      "literal": "Locations"
+      "literal": "LocationsPage"
     }
   },
   "layouts/custom_2fb05458-43ae-4540-b6fc-c131ef57ce5e": {
@@ -341,39 +375,6 @@
     },
     "displayName": {
       "literal": "RandomData"
-    }
-  },
-  "layouts/custom_34565e73-ea37-4446-919a-1afa12b3dabc": {
-    "definition": {
-      "literal": {
-        "componentName": "Grid",
-        "props": {
-          "gridTemplateColumns": "1fr",
-          "gridTemplateRows": "1fr 1fr",
-          "gridTemplateAreas": "\"area-a area-a\" \"area-b area-b\" "
-        },
-        "items": [
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-a",
-              "name": "Area A",
-              "gridAutoFlow": "column"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-b",
-              "name": "Area B",
-              "gridAutoFlow": "row"
-            }
-          }
-        ]
-      }
-    },
-    "displayName": {
-      "literal": "Cargo"
     }
   },
   "layouts/custom_45a8c4b8-e0b6-4777-910c-4302c29760a5": {
@@ -414,7 +415,7 @@
       }
     },
     "displayName": {
-      "literal": "Layout10 Copy"
+      "literal": "MasterPage"
     }
   },
   "layouts/custom_53fc9f02-5427-4a37-8183-6307d6c78e1b": {
@@ -423,7 +424,7 @@
         "componentName": "Grid",
         "props": {
           "gridTemplateColumns": "1fr 3fr",
-          "gridTemplateRows": "1fr 1fr",
+          "gridTemplateRows": "1fr 2fr",
           "gridTemplateAreas": "\"area-a area-b\" \"area-a area-c\""
         },
         "items": [
@@ -455,7 +456,7 @@
       }
     },
     "displayName": {
-      "literal": "Layout4 Copy"
+      "literal": "ItinerariesPage"
     }
   },
   "layouts/custom_6c7b7c07-77e5-40ac-acfd-ad680ded2e1b": {
@@ -504,7 +505,7 @@
       }
     },
     "displayName": {
-      "literal": "New introduction"
+      "literal": "StoryPage"
     }
   },
   "layouts/custom_8393ec99-8f18-43ee-a7b0-d2325c6fc01e": {
@@ -537,156 +538,17 @@
       }
     },
     "displayName": {
-      "literal": "Cargoes"
+      "literal": "CargoesPage"
     }
   },
-  "layouts/custom_9718d987-ea23-4b6f-8efa-dbf0dd23416b": {
+  "layouts/custom_84b3a1cd-3e48-4f4b-bae1-1ac32605be3a": {
     "definition": {
       "literal": {
         "componentName": "Grid",
         "props": {
-          "gridTemplateColumns": "1.5fr 2fr",
-          "gridTemplateRows": "2fr 2fr",
-          "gridTemplateAreas": "\"area-b area-a\" \"area-c area-a\""
-        },
-        "items": [
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-a",
-              "name": "Area A",
-              "gridAutoFlow": "column"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-b",
-              "name": "Area B",
-              "gridAutoFlow": "row"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-c",
-              "name": "Area C",
-              "gridAutoFlow": "row"
-            }
-          }
-        ]
-      }
-    },
-    "displayName": {
-      "literal": "OverviewDataNoLegend"
-    }
-  },
-  "layouts/custom_a0dc60f6-81e7-46fa-8bdb-7ec33e45b740": {
-    "definition": {
-      "literal": {
-        "componentName": "Grid",
-        "props": {
-          "gridTemplateColumns": "1.5fr 2fr",
-          "gridTemplateRows": "3fr 2fr 2fr",
-          "gridTemplateAreas": "\"area-b area-a\" \"area-c area-a\" \"area-c area-d\""
-        },
-        "items": [
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-a",
-              "name": "Area A",
-              "gridAutoFlow": "column"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-b",
-              "name": "Area B",
-              "gridAutoFlow": "row"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-c",
-              "name": "Area C",
-              "gridAutoFlow": "row"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-d",
-              "name": "Area D",
-              "gridAutoFlow": "column"
-            }
-          }
-        ]
-      }
-    },
-    "displayName": {
-      "literal": "Layout10 Copy"
-    }
-  },
-  "layouts/custom_a4f224bb-9377-46ec-b984-aa157ac696cc": {
-    "definition": {
-      "literal": {
-        "componentName": "Grid",
-        "props": {
-          "gridTemplateColumns": "1fr 1fr 2fr",
-          "gridTemplateRows": "1fr 1fr",
-          "gridTemplateAreas": "\"area-a area-a area-b\" \"area-c area-d area-d\""
-        },
-        "items": [
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-a",
-              "name": "Area A",
-              "gridAutoFlow": "row"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-b",
-              "name": "Area B",
-              "gridAutoFlow": "row"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-c",
-              "name": "Area C",
-              "gridAutoFlow": "column"
-            }
-          },
-          {
-            "componentName": "WidgetArea",
-            "props": {
-              "gridArea": "area-d",
-              "name": "Area D",
-              "gridAutoFlow": "column"
-            }
-          }
-        ]
-      }
-    },
-    "displayName": {
-      "literal": "Layout6 Copy"
-    }
-  },
-  "layouts/custom_bbe58ea4-07d5-46fd-a5fd-26420205cf1f": {
-    "definition": {
-      "literal": {
-        "componentName": "Grid",
-        "props": {
-          "gridTemplateColumns": "1fr 1fr",
+          "gridTemplateColumns": "2fr 1fr",
           "gridTemplateRows": "2fr 1fr",
-          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-d\""
+          "gridTemplateAreas": "\"area-a area-c\" \"area-a area-d\""
         },
         "items": [
           {
@@ -700,8 +562,49 @@
           {
             "componentName": "WidgetArea",
             "props": {
+              "gridArea": "area-c",
+              "name": "Area C",
+              "gridAutoFlow": "row"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
               "gridArea": "area-d",
               "name": "Area D",
+              "gridAutoFlow": "column"
+            }
+          }
+        ]
+      }
+    },
+    "displayName": {
+      "literal": "WelcomePage"
+    }
+  },
+  "layouts/custom_bfe68fbb-2026-47ae-8b31-52cf652a9995": {
+    "definition": {
+      "literal": {
+        "componentName": "Grid",
+        "props": {
+          "gridTemplateColumns": "1fr 0.3fr",
+          "gridTemplateRows": "1fr",
+          "gridTemplateAreas": "\"area-a area-b\""
+        },
+        "items": [
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-a",
+              "name": "Area A",
+              "gridAutoFlow": "column"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-b",
+              "name": "Area B",
               "gridAutoFlow": "row"
             }
           }
@@ -709,7 +612,35 @@
       }
     },
     "displayName": {
-      "literal": "New layout Copy"
+      "literal": "VizualizationsPage"
+    }
+  },
+  "pages/activity_details": {
+    "aimms.widget.type": {
+      "literal": "pagev2-grid"
+    },
+    "bindings": {
+      "literal": [
+        {
+          "widgetUri": "tableItinerary",
+          "gridArea": "area-a",
+          "dndId": "Unassigned widgetstableItinerary0"
+        }
+      ]
+    },
+    "layoutId": {
+      "literal": "Layout9"
+    },
+    "widgets": {
+      "literal": [
+        {
+          "uri": "tableItinerary",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        }
+      ]
     }
   },
   "pages/all_visualisations": {
@@ -719,39 +650,19 @@
     "bindings": {
       "literal": [
         {
-          "widgetUri": "Map",
-          "gridArea": "area-b",
-          "dndId": "area-aMap1"
-        },
-        {
-          "widgetUri": "Vessel loading",
+          "widgetUri": "MappingCargoesWithCollors_1",
           "gridArea": "area-a",
-          "dndId": "area-aVessel loading0"
+          "dndId": "area-aMappingCargoesWithCollors_10"
         },
         {
-          "widgetUri": "Routes",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsRoutes2"
-        },
-        {
-          "widgetUri": "SelectedRoutes",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsSelectedRoutes3"
-        },
-        {
-          "widgetUri": "Routes_feasible",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsRoutes_feasible4"
+          "widgetUri": "msl_selecRoutes",
+          "gridArea": "area-b",
+          "dndId": "Unassigned widgetsmsl_selecRoutes"
         }
       ]
     },
     "layoutId": {
-      "literal": "Layout1"
-    },
-    "onload": {
-      "aimms": {
-        "run": "pr_CloseDataOverView"
-      }
+      "literal": "custom_bfe68fbb-2026-47ae-8b31-52cf652a9995"
     },
     "secondarypageactions": {
       "aimms": {
@@ -777,62 +688,17 @@
         ]
       }
     },
-    "sidepanels": {
-      "aimms": {
-        "contents": [
-          "ui::sp_def_visualizationsSidePanel"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::sp_def_visualizationsSidePanel",
-            "slice": [
-              {
-                "index": "webui::indexPageExtension",
-                "type": "free",
-                "value": "webui::indexPageExtension"
-              },
-              {
-                "index": "webui::indexSidePanelSpec",
-                "type": "free",
-                "value": "webui::indexSidePanelSpec"
-              }
-            ]
-          }
-        ]
-      }
-    },
     "widgets": {
       "literal": [
         {
-          "uri": "Map",
+          "uri": "MappingCargoesWithCollors_1",
           "layoutInfo": {
             "width": "2",
             "height": "1"
           }
         },
         {
-          "uri": "Vessel loading",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Routes",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Routes_feasible",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "SelectedRoutes",
+          "uri": "msl_selecRoutes",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -943,9 +809,9 @@
     "bindings": {
       "literal": [
         {
-          "widgetUri": "tableItinerary",
+          "widgetUri": "tab_itinerary",
           "gridArea": "area-c",
-          "dndId": "area-btableItinerary0"
+          "dndId": "Unassigned widgetstab_itinerary0"
         },
         {
           "widgetUri": "tableHandledCargos",
@@ -984,7 +850,7 @@
           }
         },
         {
-          "uri": "tableItinerary",
+          "uri": "tab_itinerary",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1002,42 +868,20 @@
         {
           "widgetUri": "sp_aimms_logo",
           "gridArea": "area-d",
-          "dndId": "area-dsp_aimms_logo0"
-        },
-        {
-          "widgetUri": "text_problemDescription",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetstext_problemDescription1"
-        },
-        {
-          "widgetUri": "LegendsPorts_1",
-          "gridArea": "Unassigned widgets",
-          "dndId": "Unassigned widgetsLegendsPorts_12"
+          "dndId": "area-dsp_aimms_logo1"
         },
         {
           "widgetUri": "lol",
           "gridArea": "area-a",
           "dndId": "area-alol3"
-        },
-        {
-          "widgetUri": "textSourceAttribution",
-          "gridArea": "area-c",
-          "dndId": "Unassigned widgetstextSourceAttribution"
         }
       ]
     },
     "layoutId": {
-      "literal": "custom_6c7b7c07-77e5-40ac-acfd-ad680ded2e1b"
+      "literal": "custom_84b3a1cd-3e48-4f4b-bae1-1ac32605be3a"
     },
     "widgets": {
       "literal": [
-        {
-          "uri": "text_problemDescription",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
         {
           "uri": "lol",
           "layoutInfo": {
@@ -1047,20 +891,6 @@
         },
         {
           "uri": "sp_aimms_logo",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "LegendsPorts_1",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "textSourceAttribution",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1157,29 +987,24 @@
     "bindings": {
       "literal": [
         {
-          "widgetUri": "All cost groups_1",
+          "widgetUri": "Vessel loading_1",
           "gridArea": "area-b",
-          "dndId": "Unassigned widgetsAll cost groups_10"
+          "dndId": "area-bVessel loading_11"
         },
         {
           "widgetUri": "Allocated Routes",
           "gridArea": "area-a",
-          "dndId": "area-aAllocated Routes1"
+          "dndId": "area-aAllocated Routes2"
         },
         {
           "widgetUri": "Cargo Results",
           "gridArea": "area-a",
-          "dndId": "area-aCargo Results2"
+          "dndId": "area-aCargo Results3"
         }
       ]
     },
     "layoutId": {
       "literal": "Layout1"
-    },
-    "onload": {
-      "aimms": {
-        "run": "pr_CloseDataOverView"
-      }
     },
     "secondarypageactions": {
       "aimms": {
@@ -1244,10 +1069,6 @@
             "width": "2",
             "height": "1"
           }
-        },
-        {
-          "uri": "All cost groups_1",
-          "layoutInfo": {}
         }
       ]
     }
@@ -1433,6 +1254,34 @@
       ]
     }
   },
+  "pages/planned_routes": {
+    "aimms.widget.type": {
+      "literal": "pagev2-grid"
+    },
+    "bindings": {
+      "literal": [
+        {
+          "widgetUri": "Vessel loading_1",
+          "gridArea": "area-a",
+          "dndId": "Unassigned widgetsVessel loading_10"
+        }
+      ]
+    },
+    "layoutId": {
+      "literal": "Layout9"
+    },
+    "widgets": {
+      "literal": [
+        {
+          "uri": "Vessel loading_1",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        }
+      ]
+    }
+  },
   "pages/problem_statement": {
     "aimms.widget.type": {
       "literal": "pagev2-grid"
@@ -1465,43 +1314,6 @@
         },
         {
           "uri": "sp_aimms_logo_1",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        }
-      ]
-    }
-  },
-  "pages/select_route_side_panel": {
-    "aimms.widget.type": {
-      "literal": "pagev2-grid-sidepanel"
-    },
-    "bindings": {
-      "literal": [
-        {
-          "widgetUri": "SelectedRoutes_1",
-          "gridArea": "area-a",
-          "dndId": "area-aSelectedRoutes_11"
-        },
-        {
-          "widgetUri": "Legend Map Ports",
-          "gridArea": "area-a",
-          "dndId": "Unassigned widgetsLegend Map Ports0"
-        }
-      ]
-    },
-    "widgets": {
-      "literal": [
-        {
-          "uri": "SelectedRoutes_1",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        },
-        {
-          "uri": "Legend Map Ports",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1634,7 +1446,7 @@
       ]
     },
     "layoutId": {
-      "literal": "custom_24197f78-2749-4faa-ae4d-8b84aed3376e"
+      "literal": "custom_05af9bb7-b8a2-4b0a-a6b1-1866663a863e"
     },
     "secondarypageactions": {
       "aimms": {
@@ -1677,54 +1489,6 @@
           }
         }
       ]
-    }
-  },
-  "widgets/All cost groups_1": {
-    "aimms.widget.type": {
-      "literal": "combinationchart"
-    },
-    "axis.x.0.label": {
-      "literal": "Routes"
-    },
-    "axis.y.0.label": {
-      "literal": "Total Cost ($)"
-    },
-    "contents.__display_order__": {
-      "literal": [
-        "contents.0"
-      ]
-    },
-    "contents.partition": {
-      "literal": {
-        "header": [
-          "i_selectedRoute"
-        ],
-        "grouped": [],
-        "stacked": [
-          "<IDENTIFIER-SET>"
-        ],
-        "aggregated": []
-      }
-    },
-    "data.labels.show": {
-      "literal": false
-    },
-    "indices.__display_order__": {
-      "literal": [
-        "indices.0"
-      ]
-    },
-    "legend.show": {
-      "literal": true
-    },
-    "name": {
-      "literal": "BarChartRouteCost"
-    },
-    "title": {
-      "literal": "Distribution costs of routes"
-    },
-    "views": {
-      "literal": {}
     }
   },
   "widgets/Allocated Routes": {
@@ -2398,6 +2162,11 @@
     "name": {
       "literal": "CargoInfoTable"
     },
+    "store.focus.in": {
+      "literal": {
+        "i_act_cargo": "ep_cargo"
+      }
+    },
     "title": {
       "literal": "Information per Cargo"
     },
@@ -2673,42 +2442,6 @@
       "literal": "Legend Cost Barchart"
     }
   },
-  "widgets/Legend Map Ports": {
-    "aimms.widget.type": {
-      "literal": "legend"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "ep_SortPortsRouteVis"
-        ]
-      }
-    },
-    "name": {
-      "literal": "Legend Map Ports"
-    },
-    "title": {
-      "literal": "Legend Port"
-    }
-  },
-  "widgets/LegendsPorts_1": {
-    "aimms.widget.type": {
-      "literal": "legend"
-    },
-    "contents": {
-      "aimms": {
-        "contents": [
-          "ep_SortOfPortsCargo"
-        ]
-      }
-    },
-    "name": {
-      "literal": "LegendsPorts (1)"
-    },
-    "title": {
-      "literal": "Legend Sort Ports"
-    }
-  },
   "widgets/LocationCostTableV2": {
     "aimms.widget.type": {
       "literal": "table"
@@ -2838,382 +2571,7 @@
       "literal": "<div><span style=\"background-color: inherit; font-size: 32px;\"><b>Welcome!</b></span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You are in an AIMMS Example. Feel free to play around and create something more in this app!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">&nbsp;</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">If you do, please fork this repository and commit your changes.&nbsp;This ensures our GitHub stays up-to-date for the entire community!</span></div><div><span style=\"background-color: inherit; font-size: 18px;\">For questions that can't be posted on the community, contact us at&nbsp;</span><i style=\"background-color: rgb(255, 255, 204); font-size: 18px;\">support@aimms.com</i><span style=\"background-color: inherit; font-size: 18px;\">.</span></div><div><br></div><div><span style=\"background-color: inherit; font-size: 18px;\">You can also check our other interactive resources:</span></div><div><br></div><ul><li><span style=\"background-color: inherit; font-size: 18px;\">In the Online&nbsp;</span><a href=\"https://community.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Community</span></a><span style=\"background-color: inherit; font-size: 18px;\">, talk to other developers and AIMMSians about the product, modeling, use cases, and more.</span></li><li><span style=\"background-color: inherit; font-size: 18px;\">In the&nbsp;</span><a href=\"https://academy.aimms.com/\" style=\"font-size: 18px;\" target=\"_blank\"><span style=\"color: rgb(102, 163, 224); background-color: inherit;\">Academy</span></a><span style=\"background-color: inherit; font-size: 18px;\">, learn new skills and challenge yourself. We are busy creating new courses, so keep an eye out!</span></li></ul>"
     },
     "name": {
-      "literal": "text_Intro"
-    }
-  },
-  "widgets/Map": {
-    "aimms.widget.type": {
-      "literal": "map-v2"
-    },
-    "arcs.__display_order__": {
-      "literal": [
-        "arcs.0",
-        "arcs.1"
-      ]
-    },
-    "arcs.0": {
-      "aimms": {
-        "contents": [
-          "ui::p_FromBerthToCargoTest"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::p_FromBerthToCargoTest",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_loc_usag"
-              },
-              {
-                "index": "i_Loc2",
-                "type": "free",
-                "value": "i_Loc2"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "arcs.0.label.hide": {
-      "literal": true
-    },
-    "arcs.0.value": {
-      "literal": {
-        "identifier": "ui::p_FromBerthToCargoTest",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_loc_usag"
-          },
-          {
-            "index": "i_Loc2",
-            "type": "free",
-            "value": "i_Loc2"
-          }
-        ]
-      }
-    },
-    "arcs.1": {
-      "aimms": {
-        "contents": [
-          "ui::p_MapArcPerCargoLocations"
-        ],
-        "slices": [
-          {
-            "identifier": "ui::p_MapArcPerCargoLocations",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "ui::i_loc_usag"
-              },
-              {
-                "index": "i_Loc2",
-                "type": "free",
-                "value": "i_Loc2"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "arcs.1.label.hide": {
-      "literal": true
-    },
-    "arcs.1.value": {
-      "literal": {
-        "identifier": "ui::p_MapArcPerCargoLocations",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "ui::i_loc_usag"
-          },
-          {
-            "index": "i_Loc2",
-            "type": "free",
-            "value": "i_Loc2"
-          }
-        ]
-      }
-    },
-    "center.latitude": {
-      "literal": -14.26438308756265
-    },
-    "center.longitude": {
-      "literal": -24.257812500000004
-    },
-    "heatmaps.__display_order__": {
-      "literal": [
-        "heatmaps.0"
-      ]
-    },
-    "name": {
-      "literal": "Map"
-    },
-    "nodes.__display_order__": {
-      "literal": [
-        "nodes.0",
-        "nodes.1",
-        "nodes.2"
-      ]
-    },
-    "nodes.0": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude",
-          "ui::p_SizeRoutesLocation"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocDelRoute"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocDelRoute"
-              }
-            ]
-          },
-          {
-            "identifier": "ui::p_SizeRoutesLocation",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocDelRoute"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "nodes.0.index": {
-      "literal": {
-        "identifier": "i_CargLocDelRoute"
-      }
-    },
-    "nodes.0.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocDelRoute"
-          }
-        ]
-      }
-    },
-    "nodes.0.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocDelRoute"
-          }
-        ]
-      }
-    },
-    "nodes.0.size": {
-      "literal": {
-        "identifier": "ui::p_SizeRoutesLocation",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocDelRoute"
-          }
-        ]
-      }
-    },
-    "nodes.1": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude",
-          "ui::p_SizeRoutesLocation"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocLoadRoute"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocLoadRoute"
-              }
-            ]
-          },
-          {
-            "identifier": "ui::p_SizeRoutesLocation",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_CargLocLoadRoute"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "nodes.1.index": {
-      "literal": {
-        "identifier": "i_CargLocLoadRoute"
-      }
-    },
-    "nodes.1.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocLoadRoute"
-          }
-        ]
-      }
-    },
-    "nodes.1.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocLoadRoute"
-          }
-        ]
-      }
-    },
-    "nodes.1.size": {
-      "literal": {
-        "identifier": "ui::p_SizeRoutesLocation",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_CargLocLoadRoute"
-          }
-        ]
-      }
-    },
-    "nodes.2": {
-      "aimms": {
-        "contents": [
-          "p_Longitude",
-          "p_Latitude",
-          "ui::p_SizeRoutesLocation"
-        ],
-        "slices": [
-          {
-            "identifier": "p_Longitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_VesselPortOrigin"
-              }
-            ]
-          },
-          {
-            "identifier": "p_Latitude",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_VesselPortOrigin"
-              }
-            ]
-          },
-          {
-            "identifier": "ui::p_SizeRoutesLocation",
-            "slice": [
-              {
-                "index": "i_Loc",
-                "type": "subset",
-                "value": "i_VesselPortOrigin"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "nodes.2.index": {
-      "literal": {
-        "identifier": "i_VesselPortOrigin"
-      }
-    },
-    "nodes.2.latitude": {
-      "literal": {
-        "identifier": "p_Latitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_VesselPortOrigin"
-          }
-        ]
-      }
-    },
-    "nodes.2.longitude": {
-      "literal": {
-        "identifier": "p_Longitude",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_VesselPortOrigin"
-          }
-        ]
-      }
-    },
-    "nodes.2.size": {
-      "literal": {
-        "identifier": "ui::p_SizeRoutesLocation",
-        "slice": [
-          {
-            "index": "i_Loc",
-            "type": "subset",
-            "value": "i_VesselPortOrigin"
-          }
-        ]
-      }
-    },
-    "title": {
-      "literal": "Map Selected Routes"
-    },
-    "views": {
-      "literal": {}
-    },
-    "zoom": {
-      "literal": 3
+      "literal": "txt_Intro"
     }
   },
   "widgets/Map_locations": {
@@ -3226,10 +2584,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -0.7031073524364783
+      "literal": 29.93502238196353
     },
     "center.longitude": {
-      "literal": -16.339244945206364
+      "literal": 24.200778855532977
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3492,6 +2850,207 @@
             "identifier": "ui::p_def_deliveringToLoadingPorts",
             "slice": [
               {
+                "index": "i_loc_from",
+                "type": "free",
+                "value": "i_loc_from"
+              },
+              {
+                "index": "i_loc_to",
+                "type": "free",
+                "value": "i_loc_to"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "arcs.0.label.hide": {
+      "literal": false
+    },
+    "arcs.0.line.straight": {
+      "literal": false
+    },
+    "arcs.0.value": {
+      "literal": {
+        "identifier": "ui::p_def_deliveringToLoadingPorts",
+        "slice": [
+          {
+            "index": "i_loc_from",
+            "type": "free",
+            "value": "i_loc_from"
+          },
+          {
+            "index": "i_loc_to",
+            "type": "free",
+            "value": "i_loc_to"
+          }
+        ]
+      }
+    },
+    "arcs.0.width.dynamic": {
+      "literal": true
+    },
+    "center.latitude": {
+      "literal": 14.944784875088372
+    },
+    "center.longitude": {
+      "literal": 91.23046875
+    },
+    "heatmaps.__display_order__": {
+      "literal": [
+        "heatmaps.0"
+      ]
+    },
+    "name": {
+      "literal": "MappingCargoesWithCollors"
+    },
+    "nodes.__display_order__": {
+      "literal": [
+        "nodes.0"
+      ]
+    },
+    "nodes.0": {
+      "aimms": {
+        "contents": [
+          "p_longitude",
+          "p_latitude",
+          "ui::p_def_cargoesMapSize",
+          "ui::sp_def_cargoesMapIcon"
+        ],
+        "slices": [
+          {
+            "identifier": "p_longitude",
+            "slice": [
+              {
+                "index": "i_loc",
+                "type": "subset",
+                "value": "ui::i_loc_visiblecargo"
+              }
+            ]
+          },
+          {
+            "identifier": "p_latitude",
+            "slice": [
+              {
+                "index": "i_loc",
+                "type": "subset",
+                "value": "ui::i_loc_visiblecargo"
+              }
+            ]
+          },
+          {
+            "identifier": "ui::p_def_cargoesMapSize",
+            "slice": [
+              {
+                "index": "i_loc",
+                "type": "subset",
+                "value": "ui::i_loc_visiblecargo"
+              }
+            ]
+          },
+          {
+            "identifier": "ui::sp_def_cargoesMapIcon",
+            "slice": [
+              {
+                "index": "i_loc",
+                "type": "subset",
+                "value": "ui::i_loc_visiblecargo"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "nodes.0.icon": {
+      "literal": {
+        "identifier": "ui::sp_def_cargoesMapIcon",
+        "slice": [
+          {
+            "index": "i_loc",
+            "type": "subset",
+            "value": "ui::i_loc_visiblecargo"
+          }
+        ]
+      }
+    },
+    "nodes.0.index": {
+      "literal": {
+        "identifier": "ui::i_loc_visiblecargo"
+      }
+    },
+    "nodes.0.latitude": {
+      "literal": {
+        "identifier": "p_latitude",
+        "slice": [
+          {
+            "index": "i_loc",
+            "type": "subset",
+            "value": "ui::i_loc_visiblecargo"
+          }
+        ]
+      }
+    },
+    "nodes.0.longitude": {
+      "literal": {
+        "identifier": "p_longitude",
+        "slice": [
+          {
+            "index": "i_loc",
+            "type": "subset",
+            "value": "ui::i_loc_visiblecargo"
+          }
+        ]
+      }
+    },
+    "nodes.0.size": {
+      "literal": {
+        "identifier": "ui::p_def_cargoesMapSize",
+        "slice": [
+          {
+            "index": "i_loc",
+            "type": "subset",
+            "value": "ui::i_loc_visiblecargo"
+          }
+        ]
+      }
+    },
+    "title": {
+      "literal": "Map of Cargo Route"
+    },
+    "views": {
+      "literal": {}
+    },
+    "views.__display_order__": {
+      "literal": [
+        "views.0"
+      ]
+    },
+    "views.0.type": {
+      "literal": "view"
+    },
+    "zoom": {
+      "literal": 2
+    }
+  },
+  "widgets/MappingCargoesWithCollors_1": {
+    "aimms.widget.type": {
+      "literal": "map-v2"
+    },
+    "arcs.__display_order__": {
+      "literal": [
+        "arcs.0"
+      ]
+    },
+    "arcs.0": {
+      "aimms": {
+        "contents": [
+          "ui::p_def_deliveringToLoadingPorts"
+        ],
+        "slices": [
+          {
+            "identifier": "ui::p_def_deliveringToLoadingPorts",
+            "slice": [
+              {
                 "index": "ui::i_loc_usag",
                 "type": "free",
                 "value": "ui::i_loc_usag"
@@ -3533,10 +3092,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 13.581920900545857
+      "literal": -9.188870084473391
     },
     "center.longitude": {
-      "literal": -13.623046875
+      "literal": -25.66154064570857
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3544,7 +3103,7 @@
       ]
     },
     "name": {
-      "literal": "MappingCargoesWithCollors"
+      "literal": "SolutionRoutes"
     },
     "nodes.__display_order__": {
       "literal": [
@@ -3768,66 +3327,35 @@
     "views": {
       "literal": {}
     },
+    "views.__display_order__": {
+      "literal": [
+        "views.0",
+        "views.1"
+      ]
+    },
+    "views.0.type": {
+      "literal": "view"
+    },
+    "views.1.type": {
+      "literal": "template"
+    },
     "zoom": {
       "literal": 3
     }
   },
-  "widgets/Routes": {
-    "aimms.widget.type": {
-      "literal": "slider"
-    },
-    "contents.partition": {
-      "literal": {
-        "rowHeader": [
-          "<IDENTIFIER-SET>"
-        ],
-        "colHeader": [],
-        "aggregated": [
-          "i_route"
-        ]
-      }
-    },
-    "custom.column.widths": {
-      "literal": [
-        {
-          "type": "colHeader",
-          "colKey": {
-            "i_route": "Vessel1_e1"
-          },
-          "width": 16.54
-        },
-        {
-          "type": "rowHeader",
-          "colKey": "i_route",
-          "width": 45.03
-        },
-        {
-          "type": "rowHeader",
-          "colKey": "<IDENTIFIER-SET>",
-          "width": 15.85
-        }
-      ]
-    },
-    "name": {
-      "literal": "Routes"
-    },
-    "title": {
-      "literal": "Routes"
-    }
-  },
-  "widgets/Routes_feasible": {
+  "widgets/msl_selecRoutes": {
     "aimms.widget.type": {
       "literal": "multiselect"
     },
     "contents": {
       "aimms": {
         "contents": [
-          "s_calc_feasibleRoutes"
+          "ui::bp_selectInUsedRoutes"
         ]
       }
     },
     "name": {
-      "literal": "Routes_feasible"
+      "literal": "msl_selecRoutes"
     }
   },
   "widgets/scalarSelectRoute": {
@@ -3902,41 +3430,6 @@
     },
     "name": {
       "literal": "Select Routes Side"
-    },
-    "title": {
-      "literal": "Select Routes"
-    }
-  },
-  "widgets/SelectedRoutes": {
-    "aimms.widget.type": {
-      "literal": "multiselect"
-    },
-    "contents": {
-      "aimms": {
-        "slices": [],
-        "contents": [
-          "p_Allocatedroutes"
-        ]
-      }
-    },
-    "name": {
-      "literal": "SelectedRoutes"
-    }
-  },
-  "widgets/SelectedRoutes_1": {
-    "aimms.widget.type": {
-      "literal": "multiselect"
-    },
-    "contents": {
-      "aimms": {
-        "slices": [],
-        "contents": [
-          "p_Allocatedroutes"
-        ]
-      }
-    },
-    "name": {
-      "literal": "SelectedRoutes (1)"
     },
     "title": {
       "literal": "Select Routes"
@@ -4037,7 +3530,7 @@
       }
     },
     "name": {
-      "literal": "sp_aimms_logo"
+      "literal": "img_aimmslogo"
     }
   },
   "widgets/sp_aimms_logo_1": {
@@ -4053,6 +3546,41 @@
     },
     "name": {
       "literal": "sp_aimms_logo (1)"
+    }
+  },
+  "widgets/tab_itinerary": {
+    "aimms.widget.type": {
+      "literal": "tabbedpages"
+    },
+    "hidetabs": {
+      "literal": false
+    },
+    "name": {
+      "literal": "tab_itinerary"
+    },
+    "tabbedpages.tabs": {
+      "aimms": {
+        "contents": [
+          "ui::sp_tabbedWidgetContentsItineraryPage"
+        ],
+        "slices": [
+          {
+            "identifier": "ui::sp_tabbedWidgetContentsItineraryPage",
+            "slice": [
+              {
+                "index": "webui::indexNoOfTabs",
+                "type": "free",
+                "value": "webui::indexNoOfTabs"
+              },
+              {
+                "index": "webui::indexTabSpec",
+                "type": "free",
+                "value": "webui::indexTabSpec"
+              }
+            ]
+          }
+        ]
+      }
     }
   },
   "widgets/tableHandledCargos": {
@@ -4175,13 +3703,6 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ui::ep_def_deliveringPortsCargo"
-          },
-          "width": 36.43
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
             "<IDENTIFIER-SET>": "ui::ep_def_minTimeWindow"
           },
           "width": 31.14
@@ -4199,6 +3720,13 @@
             "<IDENTIFIER-SET>": "ui::ep_def_loadingPortsCargo"
           },
           "width": 29.22
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ui::ep_def_deliveringPortsCargo"
+          },
+          "width": 45.9
         }
       ]
     },
@@ -4386,13 +3914,6 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ep_calc_vesselActivityLocation"
-          },
-          "width": 29.58
-        },
-        {
-          "type": "colHeader",
-          "colKey": {
             "<IDENTIFIER-SET>": "ep_calc_vesselActivityFirst"
           },
           "width": 21.18
@@ -4410,8 +3931,18 @@
             "<IDENTIFIER-SET>": "ep_calc_vesselActivityLast"
           },
           "width": 20.44
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "ep_calc_vesselActivityLocation"
+          },
+          "width": 38.11
         }
       ]
+    },
+    "header.visibility": {
+      "literal": "SHOW_ROW_COLUMN_HEADER"
     },
     "name": {
       "literal": "tableItinerary"
@@ -4424,6 +3955,18 @@
     },
     "views": {
       "literal": {}
+    },
+    "views.__display_order__": {
+      "literal": [
+        "views.0",
+        "views.1"
+      ]
+    },
+    "views.0.type": {
+      "literal": "template"
+    },
+    "views.1.type": {
+      "literal": "view"
     }
   },
   "widgets/tbl_distances": {
@@ -4524,37 +4067,15 @@
       "literal": "TestTabl"
     }
   },
-  "widgets/text_problemDescription": {
-    "aimms.widget.type": {
-      "literal": "text"
-    },
-    "contents": {
-      "literal": "<div><span style=\"font-size: 32px;\">Problem</span></div><div><br></div><div><span style=\"font-size: 18px;\">In this practical example, an efficient plan is devoloped for delevering oil tankers which are pre-coupled to a set of cargoes. Prior to the optimization, all feasible routes need to be generated after importing the data. When creating the routes, the loading window of the cargo is taken into consideration, as all cargoes must be delivered on time. Afterwards, each cargo will be allocated to a time-chartered or voyage-chartered vessel within the model. The objective of the model is to determine the minimum costsfor combinations of cargoes and routes.&nbsp;</span></div><div><br></div><div><span style=\"font-size: 18px;\">Additionaly, the model has some assumptions and constraints. One of these assumptions is thatthe ship can only carry one cargo at a time. Furthermore, it is assumed that all used vessels will go directly to the loading port onethe timehorizon begins. The two constraints are as follows: each cargo can ultimately be transported by only one vessel, and charter vessels can only be assigned to one route at a time.&nbsp;</span></div><div><br></div>"
-    },
-    "name": {
-      "literal": "text_problemDescription"
-    }
-  },
   "widgets/text_problemDescription_1": {
     "aimms.widget.type": {
       "literal": "text"
     },
     "contents": {
-      "literal": "<div><span style=\"font-size: 32px;\"><b>Problem</b></span></div><div><br></div><div><span style=\"font-size: 18px;\">In this practical example, an efficient plan is devoloped for delevering oil tankers which are pre-coupled to a set of cargoes. Prior to the optimization, all feasible routes need to be generated after importing the data. When creating the routes, the loading window of the cargo is taken into consideration, as all cargoes must be delivered on time. Afterwards, each cargo will be allocated to a time-chartered or voyage-chartered vessel within the model. The objective of the model is to determine the minimum costs for combinations of cargoes and routes.&nbsp;</span></div><div><br></div><div><span style=\"font-size: 18px;\">Additionaly, the model has some assumptions and constraints. One of these assumptions is that the ship can only carry one cargo at a time. Furthermore, it is assumed that all used vessels will go directly to the loading port once the timehorizon begins. The two constraints are as follows: each cargo can ultimately be transported by only one vessel, and charter vessels can only be assigned to one route at a time.&nbsp;</span></div><div><br></div>"
+      "literal": "<div><span style=\"font-size: 32px;\"><b>Problem</b></span></div><div><br></div><div><span style=\"font-size: 18px;\">In this practical example, an efficient plan is devoloped for delevering oil tankers which are pre-coupled to a set of cargoes. Prior to the optimization, all feasible routes need to be generated after importing the data. When creating the routes, the loading window of the cargo is taken into consideration, as all cargoes must be delivered on time. Afterwards, each cargo will be allocated to a time-chartered or voyage-chartered vessel within the model. The objective of the model is to determine the minimum costs for combinations of cargoes and routes.&nbsp;</span></div><div><br></div><div><span style=\"font-size: 18px;\">Additionaly, the model has some assumptions and constraints. One of these assumptions is that the ship can only carry one cargo at a time. Furthermore, it is assumed that all used vessels will go directly to the loading port once the timehorizon begins. The two constraints are as follows: each cargo can ultimately be transported by only one vessel, and charter vessels can only be assigned to one route at a time.&nbsp;</span></div><div><br></div><div><br></div><div><br></div><div>Source attribution:</div><div><br></div><div>* Idea: Petrobras Vessel Scheduling article:&nbsp;</div><div>&nbsp; &nbsp;Decision Support System for PETROBRAS Ship Scheduling,</div><div>&nbsp; &nbsp;Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher,</div><div>&nbsp; &nbsp;Interfaces 44(6):555-566,&nbsp;</div><div><br></div><div>* Launch Icon:</div><div>&nbsp; &nbsp;T Hengl,&nbsp;http://www.nceas.ucsb.edu/globalmarine/impacts</div><div>&nbsp; &nbsp;also:&nbsp;https://commons.wikimedia.org/wiki/File:Shipping_routes.png</div><div>&nbsp; &nbsp;Similar maps can be created at shipmap.org</div>"
     },
     "name": {
       "literal": "text_problemDescription (1)"
-    }
-  },
-  "widgets/textSourceAttribution": {
-    "aimms.widget.type": {
-      "literal": "text"
-    },
-    "contents": {
-      "literal": "<div>Source attribution:</div><div><br></div><div>* Idea: Petrobras Vessel Scheduling article:&nbsp;</div><div>&nbsp; &nbsp;Decision Support System for PETROBRAS Ship Scheduling, </div><div>&nbsp; &nbsp;Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher, </div><div>&nbsp; &nbsp;Interfaces 44(6):555-566,&nbsp;</div><div><br></div><div>* Launch Icon:</div><div>&nbsp; &nbsp;T Hengl,&nbsp;http://www.nceas.ucsb.edu/globalmarine/impacts</div><div>&nbsp; &nbsp;also:&nbsp;https://commons.wikimedia.org/wiki/File:Shipping_routes.png</div><div>&nbsp; &nbsp;Similar maps can be created at shipmap.org</div>"
-    },
-    "name": {
-      "literal": "textSourceAttribution"
     }
   },
   "widgets/Total Operationalcost": {
@@ -4580,7 +4101,7 @@
       "literal": {}
     }
   },
-  "widgets/Vessel loading": {
+  "widgets/Vessel loading_1": {
     "aimms.widget.type": {
       "literal": "ganttchart"
     },
@@ -4658,10 +4179,15 @@
       }
     },
     "name": {
-      "literal": "Vessel loading"
+      "literal": "RoutePlan"
     },
     "resource.height.max": {
       "literal": 5
+    },
+    "store.focus.in": {
+      "literal": {
+        "i_used_route": "ui::ep_selectedRoute"
+      }
     },
     "time.reference": {
       "aimms": {
@@ -4828,10 +4354,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -33.7243396617476
+      "literal": 16.636191878397664
     },
     "center.longitude": {
-      "literal": -0.17083029159227436
+      "literal": -5.275228140916805
     },
     "heatmaps.__display_order__": {
       "literal": [

@@ -125,10 +125,10 @@ Model Main_Vessel_Schedule {
 			Parameter p_spotCostVessel {
 				IndexDomain: i_cargo;
 				Unit: $;
-				Comment: "todo: what this is?";
 				dex::ColumnName: Spotcost on Vessel;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
 			ElementParameter ep_minTimeWindow {
 				IndexDomain: i_cargo;
@@ -136,6 +136,7 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Minimum Loading Time;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
 			ElementParameter ep_maxTimeWindow {
 				IndexDomain: i_cargo;
@@ -143,17 +144,7 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Maximum Loading Time;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
-			}
-			ElementParameter ep_maxDeliveryDate {
-				IndexDomain: i_cargo;
-				Range: cal_days;
-				Comment: {
-					"The last possible delivery date of this cargo
-					is defined as the last possible pickup date + 
-					delivery time,
-					whereby delivery time is defined as the distance (in days)
-					between pickup point and delivery point."
-				}
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
 			ElementParameter ep_loadingPortsCargo {
 				IndexDomain: i_cargo;
@@ -161,6 +152,7 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Loading Port;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
 			ElementParameter ep_deliveringPortsCargo {
 				IndexDomain: i_cargo;
@@ -168,6 +160,7 @@ Model Main_Vessel_Schedule {
 				dex::ColumnName: Delevering Port;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
 			Parameter p_def_deliveryTimeCargo {
 				IndexDomain: i_cargo;
@@ -390,7 +383,7 @@ Model Main_Vessel_Schedule {
 			}
 			Set s_calc_legs {
 				SubsetOf: Integers;
-				Index: i_leg;
+				Index: i_leg, i_leg_aux;
 				Property: ElementsAreLabels;
 				Definition: {
 					{ 1 .. 1000 }
@@ -468,6 +461,10 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_route,i_leg);
 				Range: cal_days;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_calc_arcsPerRoute {
+				IndexDomain: (i_route,i_loc_from,i_loc_to);
+				Range: binary;
 			}
 			Parameter p_def_vesselActivityLength {
 				IndexDomain: (i_route,i_leg) | ep_calc_vesselActivityLast(i_route, i_leg);
@@ -602,6 +599,22 @@ Model Main_Vessel_Schedule {
 					
 					pr_processRouteList();
 					
+					! create arcs for map
+					empty p_calc_arcsPerRoute;
+					for (i_route) do
+					    if sum(i_leg | ep_calc_vesselActivityLocation(i_route, i_leg), 1) = 1 then
+					        skip;
+					    endif;
+					
+					    for i_leg | ep_calc_vesselActivityLocation(i_route, i_leg) do
+					        if ep_calc_vesselActivityLocation(i_route, i_leg - 1) = ep_calc_vesselActivityLocation(i_route, i_leg) then
+					            skip;
+					        endif;
+					
+					        p_calc_arcsPerRoute(i_route, ep_calc_vesselActivityLocation(i_route, i_leg - 1), ep_calc_vesselActivityLocation(i_route, i_leg)) := 1;
+					    endfor;
+					endfor;
+					
 					block ! update UI 
 					!Changes to the Secondary Actions
 					ui::sp_systemSecondaryActions(4,'state'):= 'active';
@@ -710,7 +723,7 @@ Model Main_Vessel_Schedule {
 						ep_temp_nextSailingDay(ep_loc_newRoute) := ep_loc_nextSailingDay(i_act_cargo);
 						ep_temp_lastLocation(ep_loc_newRoute) := ep_deliveringPortsCargo(i_act_cargo);
 						ep_calc_routeVessel(ep_loc_newRoute) := ep_calc_routeVessel(ep_in_workingRoute);
-						ep_calc_pickupDate(ep_loc_newRoute, i_cargo) := ep_calc_pickupDate(ep_in_workingRoute, i_cargo);
+						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo) := ep_calc_pickupDate(ep_in_workingRoute, i_act_cargo);
 						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo) := ep_loc_pickupDay(i_act_cargo);
 					
 						! First copy legs from working route to new route.
@@ -732,7 +745,7 @@ Model Main_Vessel_Schedule {
 						endif;
 					
 						! last leg (idle-retired) will be replaced by sailing to pickup for i_act_cargo.
-						!if ep_temp_lastLocation(ep_workingRoute) <> ep_loadingPortsCargo(i_act_cargo)  then
+						if ep_temp_lastLocation(ep_in_workingRoute) <> ep_loadingPortsCargo(i_act_cargo)  then
 							if ep_calc_vesselActivityType( ep_loc_newRoute, ep_loc_lastLeg ) <> ep_def_vesselIdleRetired then
 								 ep_loc_lastLeg += 1;
 							endif ;
@@ -741,7 +754,7 @@ Model Main_Vessel_Schedule {
 							ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loadingPortsCargo(i_act_cargo) ;
 							ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_calc_vesselActivityFirst( ep_loc_newRoute, ep_loc_legSailingPickup ) ; ! so no change.
 							ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loc_arrivalDay( i_act_cargo ) ;
-						!endif ;
+						endif ;
 					
 						if ep_loc_arrivalDay(i_act_cargo) < ep_minTimeWindow(i_act_cargo) then
 							! need to wait for the cargo to become available in the pickup port.
@@ -845,9 +858,6 @@ Model Main_Vessel_Schedule {
 			!Post Execution
 			mm::pr_post_vesselResults;
 			mm::pr_post_cargoResults;
-			
-			!Get the arcs
-			ui::pr_CalculateAllArcs;
 		}
 	}
 	Procedure PreMainTermination {

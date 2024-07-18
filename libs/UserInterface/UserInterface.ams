@@ -504,7 +504,7 @@ LibraryModule UserInterface {
 						block !locations
 							dex::AddMapping(
 								mappingName : "ImportDefaultLocations", 
-								mappingFile : "./Mappings/Generated/Import-Locations.xml");
+								mappingFile : "./Mappings/Import-Locations.xml");
 						
 							dex::ReadFromFile(
 								dataFile : "data\\LocationData.xlsx", 
@@ -850,18 +850,24 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Cargoes_Page {
+			Set s_def_visibleCargoLocations {
+				SubsetOf: s_locations;
+				Index: i_loc_visiblecargo;
+				Definition: {
+					{i_loc |  
+					    ep_loadingPortsCargo(ep_cargo) = i_loc 
+					    or ep_deliveringPortsCargo(ep_cargo) = i_loc}
+				}
+			}
 			StringParameter sp_def_cargoesMapIcon {
 				IndexDomain: i_loc;
 				Definition: {
-					if (i_loc in s_def_loadingPorts) 
-					    and (i_loc in s_def_deleveringPorts) then
-					    "aimms-package"    
+					if (i_loc in s_def_loadingPorts)  then
+					    "aimms-watch2"    
 					
-					elseif i_loc in s_def_loadingPorts then
-					    "aimms-ship"
-					
-					else
+					elseif (i_loc in s_def_deleveringPorts) then
 					    "aimms-finish"
+					
 					endif;
 				}
 			}
@@ -873,33 +879,39 @@ LibraryModule UserInterface {
 			StringParameter sp_def_cargoesMapAnnotation {
 				IndexDomain: i_loc;
 				Definition: {
-					if (i_loc in s_def_loadingPorts) 
-					    and (i_loc in s_def_deleveringPorts) then
-					    "LoadingAndDeliveringPort"    
+					if (i_loc in s_def_loadingPorts)  then
+					    "LoadingPort"    
 					
-					elseif i_loc in s_def_loadingPorts then
-					    "LoadingPort"
-					
-					else
+					elseif (i_loc in s_def_deleveringPorts) then
 					    "DeliveringPort"
+					
 					endif;
 				}
 			}
 			Parameter p_def_deliveringToLoadingPorts {
-				IndexDomain: (i_loc_usag,i_loc_usag2);
+				IndexDomain: (i_loc_from,i_loc_to);
 				Unit: day;
 				Definition: {
-					p_distanceBetweenLocations(i_loc_usag,i_loc_usag2) $ 
-					        exists(i_act_cargo |
-					                (i_loc_usag = ep_def_loadingPortsCargo(i_act_cargo)
-					                and i_loc_usag2 = ep_def_deliveringPortsCargo(i_act_cargo)))
+					p_distanceBetweenLocations(i_loc_from, i_loc_to) $
+					        (i_loc_from = ep_def_loadingPortsCargo(ep_cargo)
+					        and i_loc_to = ep_def_deliveringPortsCargo(ep_cargo))
 				}
-				webui::TooltipIdentifier: sp_def_deliveringToLoadingPortsTooltip(i_loc_usag,i_loc_usag2);
+				webui::TooltipIdentifier: sp_def_deliveringToLoadingPortsTooltip(i_loc_from,i_loc_to);
 			}
 			StringParameter sp_def_deliveringToLoadingPortsTooltip {
-				IndexDomain: (i_loc_usag,i_loc_usag2);
+				IndexDomain: (i_loc_from,i_loc_to);
 				Definition: {
-					FormatString("From: %e<br>To: %e.", i_loc_usag, i_loc_usag2);
+					FormatString("From: %e<br>To: %e.", i_loc_from, i_loc_to);
+				}
+			}
+			StringParameter sp_def_focusedCargo {
+				IndexDomain: i_cargo;
+				Definition: {
+					if ep_cargo = i_cargo then
+					    "highlight-cell"
+					else 
+					    ""
+					endif;
 				}
 			}
 		}
@@ -928,7 +940,7 @@ LibraryModule UserInterface {
 			Procedure pr_uponLoadPageGeneratedItineraries {
 				Body: {
 					if not ep_selectedRoute then
-						ep_selectedRoute := last( s_calc_feasibleRoutes );
+						ep_selectedRoute := first(s_calc_usedRoutes);
 					endif ;
 				}
 			}
@@ -993,6 +1005,33 @@ LibraryModule UserInterface {
 				Unit: day;
 				Definition: p_def_routeIdleDays( ep_selectedRoute );
 			}
+			StringParameter sp_tabbedWidgetContentsItineraryPage {
+				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Activity Details",  ( 1, pageId      ) : "activity_details",  ( 1, state       ) : "active",
+					  ( 2, displayText ) : "Planned Routes"  ,  ( 2, pageId      ) : "planned_routes"  ,  ( 2, state       ) : "active" }
+				}
+			}
+			StringParameter sp_def_ganttChartStartTime {
+				Definition: FormatString("%e", ep_startHorizonDate);
+			}
+			Parameter p_def_durationCargoOnRoute {
+				IndexDomain: (i_act_cargo,i_route);
+				Unit: day;
+				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
+				webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
+				webui::TooltipIdentifier: sp_def_empty;
+			}
+			Parameter p_def_loadingTimeCargoRouteInHours {
+				IndexDomain: (i_act_cargo,i_route);
+				Unit: day;
+				Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
+			}
+			StringParameter sp_def_cargoName {
+				IndexDomain: i_cargo;
+				Definition: i_cargo;
+			}
 			Section Scalar_select_itinerary {
 				Parameter p_vesselDailycost {
 					Unit: $/day;
@@ -1055,138 +1094,8 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Visualizations_Page {
-			Section Arcs {
-				Procedure pr_CalculateAllArcs {
-					Body: {
-						empty p_mapArcPerCargo, p_mapArcPerCargoConsideringPickupDropoff,p_FromBerthToCargoTest,p_FromBerthToCargo,p_MapArcPerCargoLocations,sp_RouteInformation;
-						sp_RouteInformation(i_Loc,i_loc_from):=FormatString("%e <br>to<br>%s",i_Loc,i_loc_from);
-						
-						for mm::i_allcRoute do
-						
-						    !Calculate location from berth to the location of the loading of the first cargo
-						    p_FromBerthToCargoTest(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_def_loadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1))):=1;
-						    mm::ep_allcRoute := mm::i_allcRoute;
-						    s_loc_currentCargos := {i_act_cargo | p_def_cargoesOnRoute(mm::ep_allcRoute, i_act_cargo)};
-						    sp_RouteInformation(ep_originPortOfVessel(ep_calc_routeVessel(mm::i_allcRoute)),ep_def_loadingPortsCargo(first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1)))+="<br>Picking up cargo: "+first(i_act_cargo|p_def_cargoesOnRoute(mm::i_allcRoute,i_act_cargo)=1);
-						
-						    for i_loc_cargo | p_def_cargoesOnRoute(mm::i_allcRoute, i_loc_cargo) do 
-						    	!Calculate location of the loading and delivering of the cargo
-						        p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo), ep_def_deliveringPortsCargo(i_loc_cargo)) := 1;
-							sp_RouteInformation(ep_def_loadingPortsCargo(i_loc_cargo), ep_def_deliveringPortsCargo(i_loc_cargo))+="<br>Deliver cargo: "+i_loc_cargo;
-						
-							!Calculate the location from delivering to the loading point of the new cargo
-						        for i_loc_cargo1 | 
-						                p_def_cargoesOnRoute(mm::i_allcRoute, i_loc_cargo) < p_def_cargoesOnRoute(mm::i_allcRoute, i_loc_cargo1) 
-						                and i_loc_cargo1 <> i_loc_cargo do
-						
-						            p_mapArcPerCargo(mm::i_allcRoute, i_loc_cargo, i_loc_cargo1) := 1;
-						
-						            if ep_def_deliveringPortsCargo(i_loc_cargo) = ep_def_loadingPortsCargo(i_loc_cargo1) then
-						                p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo1), ep_def_deliveringPortsCargo(i_loc_cargo1)) := 1;
-						                p_loc_aux := 1;
-						            else
-						                p_MapArcPerCargoLocations(ep_def_deliveringPortsCargo(i_loc_cargo), ep_def_loadingPortsCargo(i_loc_cargo1)) := 1;
-						                p_MapArcPerCargoLocations(ep_def_loadingPortsCargo(i_loc_cargo1), ep_def_deliveringPortsCargo(i_loc_cargo1)) := 1;
-						
-						                sp_RouteInformation(ep_def_deliveringPortsCargo(i_loc_cargo), ep_def_loadingPortsCargo(i_loc_cargo1))+="<br>Picking up cargo: "+i_loc_cargo1;
-						
-						            endif;
-						
-						            break;
-						        endfor;
-						    endfor;
-						endfor;
-					}
-					Set s_loc_currentCargos {
-						SubsetOf: s_cargoes;
-						Index: i_loc_cargo, i_loc_cargo1;
-						OrderBy: p_def_cargoesOnRoute(mm::ep_allcRoute, i_cargo);
-					}
-					Parameter p_loc_aux;
-				}
-				DeclarationSection Declaration_Arcs {
-					StringParameter sp_CargoLoadingtoCargoDelivery {
-						IndexDomain: (i_loc_usag,i_loc_usag2);
-						Definition: {
-							FormatString("%e <br>to<br>%s <br> %n Days",i_loc_usag,i_loc_usag2,p_def_deliveringToLoadingPorts(i_loc_usag,i_loc_usag2));
-						}
-					}
-					StringParameter sp_RouteInformation {
-						IndexDomain: (i_loc,i_loc_from);
-					}
-					ElementParameter ep_AllocatedRoute {
-						IndexDomain: mm::i_allcRoute;
-						Range: mm::s_def_allocatedRoutes;
-					}
-					Parameter p_FromToDestination {
-						IndexDomain: i_route;
-					}
-					Parameter p_FromBerthToCargo {
-						IndexDomain: (mm::i_allcRoute,i_loc,i_loc_from);
-					}
-					Parameter p_FromBerthToCargoTest {
-						IndexDomain: (i_Loc,i_loc_from);
-						webui::TooltipIdentifier: ui::sp_RouteInformation( i_Loc, i_loc_from );
-					}
-					Parameter p_MapArcPerCargoLocations {
-						IndexDomain: (i_Loc,i_loc_from);
-						webui::TooltipIdentifier: ui::sp_RouteInformation;
-					}
-					Parameter p_mapArcPerCargo {
-						IndexDomain: (mm::i_allcRoute,i_Cargo,i_cargo_aux);
-						Range: binary;
-					}
-					Parameter p_mapArcPerCargoConsideringPickupDropoff {
-						IndexDomain: (mm::i_allcRoute,i_Loc,i_loc_from);
-						Range: binary;
-					}
-					Set s_cargoesOnSelectedRoutes {
-						SubsetOf: s_cargoes;
-						Index: i_SelectedCargoOnRoute;
-						Definition: {
-							{i_act_cargo|exists(mm::i_allcRoute| p_def_cargoesOnRoute(mm::i_allcRoute, i_act_cargo))}
-						}
-						Comment: "{i_ActiveCargo|exists(i_selectedRoute|p_CargoesOnRouteBin(i_selectedRoute, i_ActiveCargo)}";
-					}
-					Set s_vesselOnSelectedRoutes {
-						SubsetOf: s_vessels;
-						Index: i_ActiveVesselUsed;
-						Definition: {
-							{i_act_vessel | exists(mm::i_allcRoute|ep_calc_routeVessel(mm::i_allcRoute)=i_act_vessel)}
-						}
-					}
-					Parameter p_sizeRoutesLocation {
-						IndexDomain: i_Loc;
-						Definition: 1;
-					}
-				}
-			}
-			StringParameter sp_def_visualizationsSidePanel {
-				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
-				Definition: {
-					data 
-					{ ( 1, displayText ) : "Map Options"            ,  ( 1, pageId      ) : "select_route_side_panel",
-					  ( 1, icon        ) : "aimms-menu4"            ,  ( 1, state       ) : "Active"                  }
-				}
-			}
-			StringParameter sp_def_ganttChartStartTime {
-				Definition: FormatString("%e", ep_startHorizonDate);
-			}
-			Parameter p_def_durationCargoOnRoute {
-				IndexDomain: (i_act_cargo,i_route);
-				Unit: day;
-				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
-				webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
-				webui::TooltipIdentifier: sp_def_empty;
-			}
-			Parameter p_def_loadingTimeCargoRouteInHours {
-				IndexDomain: (i_act_cargo,i_route);
-				Unit: day;
-				Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
-			}
-			StringParameter sp_def_cargoName {
-				IndexDomain: i_cargo;
-				Definition: i_cargo;
+			Parameter bp_selectInUsedRoutes {
+				IndexDomain: i_used_route;
 			}
 		}
 	}
