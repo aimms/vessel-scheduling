@@ -59,6 +59,11 @@ Model Main_Vessel_Schedule {
 			Quantity Q_Currency {
 				BaseUnit: $;
 			}
+			Quantity SI_Length {
+				BaseUnit: m;
+				Conversions: km->m : #->1000*#;
+				Comment: "Expresses the value of a distance.";
+			}
 		}
 		Section Calendars {
 			StringParameter sp_today;
@@ -72,23 +77,20 @@ Model Main_Vessel_Schedule {
 			ElementParameter ep_startHorizonDate {
 				Range: cal_days;
 				Comment: "Start of modeling horizon.";
-				dex::ColumnName: HorizonStartDate;
+				dex::ColumnName: StartDate;
 				dex::Dataset: Import;
-				dex::TableName: Master;
+				dex::TableName: Horizon;
 			}
-			ElementParameter ep_finishHorizonDate {
+			ElementParameter ep_def_finishHorizonDate {
 				Range: cal_days;
-				Definition: {
-					! ep_startHorizonDate + (p_noDaysSchedule/1[day])
-					max( i_act_cargo, ep_maxTimeWindow( i_act_cargo ) + ( p_def_deliveryTimeCargo(i_act_cargo) / 1[day] ) )
-				}
+				Definition: max( i_act_cargo, ep_maxTimeWindow( i_act_cargo ) + ( p_def_deliveryTimeCargo(i_act_cargo) / 1[day] ) );
 				Comment: "Last pickup time of cargos";
 			}
-			Parameter p_noDaysSchedule {
+			Parameter p_def_noDaysSchedule {
 				Unit: day;
 				Definition: {
-					if ep_finishHorizonDate and ep_startHorizonDate then
-						( ep_finishHorizonDate - ep_startHorizonDate ) + 1[day]
+					if ep_def_finishHorizonDate and ep_startHorizonDate then
+						( ep_def_finishHorizonDate - ep_startHorizonDate ) + 1[day]
 					else
 						60[day]
 					endif ;
@@ -99,6 +101,12 @@ Model Main_Vessel_Schedule {
 			}
 			StringParameter sp_def_endDate {
 				Definition: "2099-12-31";
+			}
+			Procedure pr_initCalendar {
+				Body: {
+					sp_today := CurrentToString("%c%y-%m-%d");
+					ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
+				}
 			}
 		}
 		Section Cargoes {
@@ -125,7 +133,7 @@ Model Main_Vessel_Schedule {
 			Parameter p_spotCostVessel {
 				IndexDomain: i_cargo;
 				Unit: $;
-				dex::ColumnName: Spotcost on Vessel;
+				dex::ColumnName: Spot Cost;
 				dex::Dataset: Import;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
@@ -166,7 +174,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Unit: day;
 				Definition: {
-					p_distanceBetweenLocations(
+					p_def_distanceBetweenLocations(
 						ep_loadingPortsCargo(i_cargo), 
 						ep_deliveringPortsCargo(i_cargo))
 				}
@@ -175,9 +183,9 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_cargo);
 				Range: free;
 				Unit: $;
-				dex::ColumnName: Costs;
+				dex::ColumnName: Fixed Cost;
 				dex::Dataset: Import;
-				dex::TableName: CargoCosts;
+				dex::TableName: CargoData;
 			}
 			Set s_def_loadingPorts {
 				SubsetOf: s_locations;
@@ -246,21 +254,21 @@ Model Main_Vessel_Schedule {
 				dex::Dataset: Import;
 				dex::TableName: VesselData;
 			}
-			Parameter p_vesselCost {
+			Parameter p_sailingCost {
 				IndexDomain: (i_vessel);
 				Unit: $/day;
 				Comment: {
 					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
 				}
-				dex::ColumnName: DailyCost;
+				dex::ColumnName: Sailing Cost;
 				dex::Dataset: Import;
-				dex::TableName: VesselCosts;
+				dex::TableName: VesselData;
 			}
 			Parameter p_def_idleCostVesselNotUsed {
 				IndexDomain: i_vessel;
 				Unit: $;
 				Definition: {
-					p_noDaysSchedule * 
+					p_def_noDaysSchedule * 
 					p_idleCostLocation( ep_originPortOfVessel( i_vessel ) )
 				}
 			}
@@ -355,25 +363,43 @@ Model Main_Vessel_Schedule {
 			Parameter p_adminCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
-				dex::ColumnName: Admin Costs;
+				dex::ColumnName: Admin Cost;
 				dex::Dataset: Import;
-				dex::TableName: LocationCosts;
+				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
 			Parameter p_loadingCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
-				dex::ColumnName: Loading Costs;
+				dex::ColumnName: Loading Cost;
 				dex::Dataset: Import;
-				dex::TableName: LocationCosts;
+				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
-			Parameter p_distanceBetweenLocations {
+			Parameter p_vesselVelocity {
+				Unit: km/hour;
+				InitialData: 37.04;
+				Comment: "20 knots";
+			}
+			Parameter p_def_harvesineDistanceBetweenLocations {
 				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
 				Unit: day;
-				dex::ColumnName: DeleveringLocation;
-				dex::Dataset: Import;
-				dex::TableName: DistanceBetweenLocations;
+				Definition: {
+					((6371.0[km])
+					    * arccos(
+					        cos(radians(90 - P_latitude(i_loc_from)))
+					        * cos(radians(90 - P_latitude(i_loc_to)))
+					        +
+					        sin(radians(90 - P_latitude(i_loc_from)))
+					        * sin(radians(90 - P_latitude(i_loc_to)))
+					        * cos(radians(p_longitude(i_loc_from) - p_longitude(i_loc_to)))))
+					/$ p_vesselVelocity
+				}
+			}
+			Parameter p_def_distanceBetweenLocations {
+				IndexDomain: (i_loc_from, i_loc_to);
+				Unit: day;
+				Definition: round(p_def_harvesineDistanceBetweenLocations(i_loc_from, i_loc_to),0);
 			}
 		}
 		Section Routes {
@@ -475,10 +501,10 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_route;
 				Unit: day;
 				Definition: {
-					sum( i_leg | 
-						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup or
-						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingDelivery ,
-						p_def_vesselActivityLength(i_route, i_leg) )
+					sum(i_leg | 
+					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup 
+					        or ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingDelivery,
+						p_def_vesselActivityLength(i_route, i_leg))
 				}
 			}
 			Parameter p_def_routeIdleDays {
@@ -496,11 +522,10 @@ Model Main_Vessel_Schedule {
 				Unit: $;
 				Definition: {
 					p_def_routeSailingDays(i_route) 
-					* p_vesselCost( ep_calc_routeVessel(i_route))
+					* p_sailingCost(ep_calc_routeVessel(i_route))
 				}
-				Comment: "same results as p_def_totalRouteMovementCost";
 			}
-			Parameter p_def_locationVisitingCost {
+			Parameter p_def_visitingLocationCost {
 				IndexDomain: i_route;
 				Unit: $;
 				Definition: {
@@ -532,22 +557,21 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_route;
 				Unit: $;
 				Definition: {
-					sum( i_leg | 
-						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo or
-						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleRetired ,
-						p_def_vesselActivityLength(i_route, i_leg) * 
-						p_idleCostLocation( ep_calc_vesselActivityLocation(i_route, i_leg) ) 
-					)
+					sum(i_leg | 
+					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo
+					        or ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleRetired,
+						p_def_vesselActivityLength(i_route, i_leg)
+						* p_idleCostLocation(ep_calc_vesselActivityLocation(i_route, i_leg)))
 				}
 			}
 			Parameter p_def_routeCosts {
 				IndexDomain: i_route;
 				Unit: $;
 				Definition: {
-					p_def_routeSailingCost(i_route) + 
-					p_def_locationVisitingCost(i_route) + 
-					p_def_cargoCost(i_route) +
-					p_def_routeIdleCost(i_route)
+					p_def_routeSailingCost(i_route) 
+					+ p_def_visitingLocationCost(i_route) 
+					+ p_def_cargoCost(i_route) 
+					+ p_def_routeIdleCost(i_route)
 				}
 			}
 			Parameter p_def_loadingTimeCargoRoute {
@@ -567,21 +591,12 @@ Model Main_Vessel_Schedule {
 				Range: binary;
 				Definition: 1 $ p_def_cargoesOnRoute(i_route,i_act_cargo);
 			}
-			Parameter p_def_totalRouteMovementCost {
-				IndexDomain: i_route;
-				Unit: $;
-				Definition: {
-					p_def_routeSailingDays(i_route) 
-					* p_vesselCost(ep_calc_routeVessel(i_route))
-				}
-				Comment: "Same results as  cracc::p_def_routeSailingCost";
-			}
 			Parameter p_def_deleveringTimeCargoRoute {
 				IndexDomain: (i_act_cargo,i_route) | p_def_cargoesOnRoute(i_route,i_act_cargo);
 				Unit: day;
 				Definition: {
 					(p_def_loadingTimeCargoRoute(i_act_cargo, i_route) 
-					+ p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
+					+ p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
 				}
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
@@ -667,7 +682,7 @@ Model Main_Vessel_Schedule {
 						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_leg) := ep_def_vesselIdleRetired;
 						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_leg) := ep_originPortOfVessel(i_act_vessel);
 						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_leg) := ep_startHorizonDate;
-						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_leg) := ep_finishHorizonDate;
+						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_leg) := ep_def_finishHorizonDate;
 					endfor;
 				}
 				ElementParameter ep_loc_newRoute {
@@ -695,7 +710,7 @@ Model Main_Vessel_Schedule {
 					! Earliest possible arrival:
 					ep_loc_arrivalDay(i_act_cargo) 
 					:=  ep_temp_nextSailingDay(ep_in_workingRoute) 
-					    + p_distanceBetweenLocations(ep_temp_lastLocation(ep_in_workingRoute), ep_loadingPortsCargo(i_act_cargo))/1[day];
+					    + p_def_distanceBetweenLocations(ep_temp_lastLocation(ep_in_workingRoute), ep_loadingPortsCargo(i_act_cargo))/1[day];
 					
 					! Earliest possible pickup - both vessel and cargo need to be present.
 					ep_loc_pickupDay(i_act_cargo) := max(ep_loc_arrivalDay(i_act_cargo), ep_minTimeWindow(i_act_cargo));
@@ -703,12 +718,12 @@ Model Main_Vessel_Schedule {
 					! Next sailing day - after pickup the sailing to the delivery:
 					ep_loc_nextSailingDay(i_act_cargo) 
 					:=  ep_loc_pickupDay(i_act_cargo) 
-					    + p_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo))/1[day];
+					    + p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo))/1[day];
 					
 					for i_act_cargo | 
 					        (not (i_act_cargo in s_calc_cargosHandled(ep_in_workingRoute))) 
 					        and (ep_loc_pickupDay(i_act_cargo) <= ep_maxTimeWindow(i_act_cargo)) 
-					        and (ep_loc_nextSailingDay(i_act_cargo) <= ep_finishHorizonDate) do 
+					        and (ep_loc_nextSailingDay(i_act_cargo) <= ep_def_finishHorizonDate) do 
 					
 						! The name of the new route is the same as the old route, with the name of the cargo appended.
 						sp_loc_newRoute := FormatString("%e_%e", ep_in_workingRoute, i_act_cargo);
@@ -780,7 +795,7 @@ Model Main_Vessel_Schedule {
 						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_vesselIdleRetired;
 						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_deliveringPortsCargo(i_act_cargo);
 						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_loc_nextSailingDay(i_act_cargo); 
-						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_finishHorizonDate;
+						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_finishHorizonDate;
 					
 						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_loc_lastLeg;
 					
@@ -828,8 +843,7 @@ Model Main_Vessel_Schedule {
 		Body: {
 			ProfilerStart();
 			
-			sp_today := CurrentToString("%c%y-%m-%d");
-			ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
+			pr_initCalendar;
 		}
 		Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 	}

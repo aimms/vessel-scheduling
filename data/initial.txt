@@ -1,2 +1,0 @@
-! Start of modeling horizon.
-ep_startHorizonDate := '2023-05-23' ;

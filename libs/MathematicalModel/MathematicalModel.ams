@@ -9,9 +9,9 @@ LibraryModule MathematicalModel {
 			Unit: $;
 			Definition: {
 				p_def_cargoCost(i_route)
-				+ p_def_locationVisitingCost(i_route)
+				+ p_def_visitingLocationCost(i_route)
 				+ p_def_routeIdleCost(i_route)
-				+ p_def_totalRouteMovementCost(i_route)
+				+ p_def_routeSailingCost(i_route)
 			}
 		}
 	}

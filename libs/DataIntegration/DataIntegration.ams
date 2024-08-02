@@ -4,8 +4,13 @@ LibraryModule DataIntegration {
 	Prefix: di;
 	Interface: Public_Declarations;
 	Section Public_Declarations {
-		StringParameter sp_fileName;
+		Procedure pr_importRequestFile {
+			Body: {
+				webui::RequestFileUpload(onDone : 'di::pr_importExcel' );
+			}
+		}
 		Procedure pr_importExcel {
+			Arguments: (fname,statusCode,statusDescription);
 			Body: {
 				dex::GenerateDatasetMappings;
 				
@@ -17,10 +22,8 @@ LibraryModule DataIntegration {
 				    mappingName : "ImportData", 
 				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
 				
-				sp_fileName := "DataForImport_test_v2.xlsx";
-				
 				dex::ReadFromFile(
-				    dataFile : "data\\DataForImport_test_v2.xlsx", !Uiteindelijke variant DataForImport.xlsx
+				    dataFile : fname, 
 				    mappingName : "ImportData");
 				
 				!Activate all master data
@@ -45,7 +48,7 @@ LibraryModule DataIntegration {
 				ui::sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
 				ui::sp_systemStatusBar(3,'state') := 'inactive';
 				ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
-				ui::sp_systemStatusBar(4,'text') := sp_fileName;
+				ui::sp_systemStatusBar(4,'text') := fname;
 				
 				!Changes to workflow
 				ui::sp_systemWorkflowSteps(1,8,'workflowPageState'):= "inactive";
@@ -55,6 +58,15 @@ LibraryModule DataIntegration {
 				
 				!Open Overview dataset
 				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
+			}
+			StringParameter fname {
+				Property: Input;
+			}
+			Parameter statusCode {
+				Property: Output;
+			}
+			StringParameter statusDescription {
+				Property: Output;
 			}
 		}
 		Procedure pr_exportExcel {

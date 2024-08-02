@@ -265,7 +265,8 @@ LibraryModule UserInterface {
 				    'p_idleCostLocation' : "Idle Cost",
 				    'p_adminCostAtLocation' : "Admin Cost",
 				    'p_loadingCostAtLocation' : "Loading Cost",
-				    'p_distanceBetweenLocations' : "Distance",
+				    'p_def_harvesineDistanceBetweenLocations' : "Distance",
+				    'p_vesselVelocity' : "Vessel Velocity",
 				
 				    ! Cargoes
 				    'ep_LoadingPortsCargo' : "Loading Port",
@@ -273,10 +274,11 @@ LibraryModule UserInterface {
 				    'ep_MinTimeWindow' : "Minimum Loading Time",
 				    'ep_MaxTimeWindow' : "Maximum Loading Time",
 					'p_spotCostVessel' : "Spot Cost" ,
+					'p_cargoCost' : "Fixed Cost" ,
 				
 				    ! Vessels
 					'ep_originPortOfVessel' : "Origin Port",
-					'p_vesselCost' : "Vessel Cost",
+					'p_sailingCost' : "Sailing Cost",
 				
 				    ! Routes
 				
@@ -298,13 +300,18 @@ LibraryModule UserInterface {
 					'ui::ep_def_deliveringPortsCargo' : "Delivering Port",
 					'i_leg' : "#",
 					'ui::i_leg' : "#",
+					'ui::p_def_totalSailingCost' : "Total Sailing Cost",
+					'ui::p_def_totalVisitingLocationCost' : "Total Visiting Cost",
+					'ui::p_def_totalIdleCost' : "Total Idle Cost",
+					'ui::p_def_totalCargoCost' : "Total Cargo Cost",
+					'ui::p_def_totalRouteCost' : "Total Route Cost",
 				
 				    ! Optimized Results
 					'mm::ep_calc_routeOfVessel' : "Route",
 					'mm::p_calc_operationalCostPerVessel' : "Route Cost",
 					'mm::p_calc_totalTravelDaysPerVessel' : "Route Period",
 					'mm::ep_calc_vesselOfCargo' : "Vessel Used",
-					'mm::p_calc_totalCostPerCargo' : "Cost",
+					'mm::p_calc_totalCostPerCargo' : "Cargo Cost",
 					'mm::sp_calc_loadingTimePerCargo' : "Loading Time",
 					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
 				
@@ -425,7 +432,7 @@ LibraryModule UserInterface {
 					data 
 					{ ( 1, displaytext ) : "Upload Excel"                   ,  
 					  ( 1, icon        ) : "aimms-upload4"                  ,
-					  ( 1, procedure   ) : "pr_importExcel"             ,  
+					  ( 1, procedure   ) : "di::pr_importRequestFile"             ,  
 					  ( 1, state       ) : "Active"                         ,
 					
 					  ( 2, displaytext ) : "Download Excel"                 ,  
@@ -460,7 +467,7 @@ LibraryModule UserInterface {
 					  ( '1', 'color'     ) : "Orange"                               ,
 					  ( '1', 'text'      ) : "Import Excel"                         ,  
 					  ( '1', 'tooltip'   ) : "Click to import Excel file."        ,
-					  ( '1', 'procedure' ) : "di::pr_importExcel"                       ,  
+					  ( '1', 'procedure' ) : "di::pr_importRequestFile"                       ,  
 					  ( '1', 'state'     ) : "Active"                               ,
 					
 					  ( '2', 'icon'      ) : "aimms-cancel-circle2"                        ,  
@@ -501,17 +508,21 @@ LibraryModule UserInterface {
 					Body: {
 						empty s_vessels, s_cargoes, s_locations; 
 						
+						pr_initCalendar;
+						
 						block !locations
 							dex::AddMapping(
-								mappingName : "ImportDefaultLocations", 
-								mappingFile : "./Mappings/Import-Locations.xml");
+								mappingName : "ImportDefaultCoordinates", 
+								mappingFile : "./Mappings/Import-Coordinates.xml");
 						
 							dex::ReadFromFile(
-								dataFile : "data\\LocationData.xlsx", 
-								mappingName : "ImportDefaultLocations");
+								dataFile : "data\\CoordinatesData.xlsx", 
+								mappingName : "ImportDefaultCoordinates");
 						
 							p_adminCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
 							p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+							p_idleCostLocation(i_loc) := (round(uniform(200,800)))[$/day];  
+							p_vesselVelocity := 37.04[km/hour];
 						endblock;
 						
 						block !cargoes
@@ -520,14 +531,14 @@ LibraryModule UserInterface {
 							::ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
 							p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
 							p_cargoCost(i_cargo) := (round(uniform(50,200)))[$];
-							::ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,182));
-							::ep_maxTimeWindow(i_cargo) := ::ep_minTimeWindow(i_cargo) + round(uniform(0,10));
+							::ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,15));
+							::ep_maxTimeWindow(i_cargo) := ::ep_minTimeWindow(i_cargo) + round(uniform(10,30));
 						endblock;
 						
 						block !vessels
 							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
 							ep_originPortOfVessel(i_vessel):= nth(i_loc, round(uniform(1, card(s_locations))));
-							p_vesselCost(i_vessel) := (round(uniform(50,200)))[$/day];
+							p_sailingCost(i_vessel) := (round(uniform(50,200)))[$/day];
 						endblock;
 						
 						!Activate all master data
@@ -766,7 +777,7 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Overview_Datasets_Page {
-			Procedure pr_onPageOpen {
+			Procedure pr_onPageOpenOverviewDatasets {
 				Body: {
 					webui::OpenPage(pageId :  'locations_overview');
 				}
@@ -892,7 +903,7 @@ LibraryModule UserInterface {
 				IndexDomain: (i_loc_from,i_loc_to);
 				Unit: day;
 				Definition: {
-					p_distanceBetweenLocations(i_loc_from, i_loc_to) $
+					p_def_distanceBetweenLocations(i_loc_from, i_loc_to) $
 					        (i_loc_from = ep_def_loadingPortsCargo(ep_cargo)
 					        and i_loc_to = ep_def_deliveringPortsCargo(ep_cargo))
 				}
@@ -912,6 +923,11 @@ LibraryModule UserInterface {
 					else 
 					    ""
 					endif;
+				}
+			}
+			Procedure pr_onPageOpenCargoes {
+				Body: {
+					ep_cargo := first(i_cargo);
 				}
 			}
 		}
@@ -1033,29 +1049,25 @@ LibraryModule UserInterface {
 				Definition: i_cargo;
 			}
 			Section Scalar_select_itinerary {
-				Parameter p_vesselDailycost {
-					Unit: $/day;
-					Definition: ::p_vesselCost( ep_def_selectedVessel );
-				}
-				Parameter p_costsSailing {
+				Parameter p_def_totalSailingCost {
 					Unit: $;
-					Definition: p_def_routeSailingCost( ep_selectedRoute );
+					Definition: p_def_routeSailingCost(ep_selectedRoute);
 				}
-				Parameter p_costsIdle {
+				Parameter p_def_totalIdleCost {
 					Unit: $;
-					Definition: p_def_routeIdleCost( ep_selectedRoute  );
+					Definition: p_def_routeIdleCost(ep_selectedRoute);
 				}
-				Parameter p_costsVisiting {
+				Parameter p_def_totalVisitingLocationCost {
 					Unit: $;
-					Definition: p_def_locationVisitingCost( ep_selectedRoute  );
+					Definition: p_def_visitingLocationCost(ep_selectedRoute);
 				}
-				Parameter p_costsCargo {
+				Parameter p_def_totalCargoCost {
 					Unit: $;
-					Definition: p_def_cargoCost( ep_selectedRoute  );
+					Definition: p_def_cargoCost(ep_selectedRoute);
 				}
-				Parameter p_costsRoute {
+				Parameter p_def_totalRouteCost {
 					Unit: $;
-					Definition: p_def_routeCosts( ep_selectedRoute );
+					Definition: p_def_routeCosts(ep_selectedRoute);
 				}
 			}
 		}

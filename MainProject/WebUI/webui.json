@@ -728,6 +728,11 @@
     "layoutId": {
       "literal": "custom_8393ec99-8f18-43ee-a7b0-d2325c6fc01e"
     },
+    "onload": {
+      "aimms": {
+        "run": "ui::pr_onPageOpenCargoes"
+      }
+    },
     "secondarypageactions": {
       "aimms": {
         "contents": [
@@ -908,17 +913,22 @@
         {
           "widgetUri": "LocationCostTableV2",
           "gridArea": "area-a",
-          "dndId": "area-aLocationCostTableV21"
+          "dndId": "area-aLocationCostTableV20"
         },
         {
           "widgetUri": "Map_locations",
           "gridArea": "area-b",
-          "dndId": "area-bMap_locations0"
+          "dndId": "area-bMap_locations1"
+        },
+        {
+          "widgetUri": "scl_vesselVelocity",
+          "gridArea": "area-b",
+          "dndId": "area-bscl_vesselVelocity3"
         },
         {
           "widgetUri": "tbl_distances",
           "gridArea": "area-b",
-          "dndId": "Unassigned widgetstbl_distances"
+          "dndId": "area-btbl_distances2"
         }
       ]
     },
@@ -972,6 +982,13 @@
         },
         {
           "uri": "tbl_distances",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "scl_vesselVelocity",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -1208,7 +1225,7 @@
     },
     "onload": {
       "aimms": {
-        "run": "ui::pr_onPageOpen"
+        "run": "ui::pr_onPageOpenOverviewDatasets"
       }
     },
     "secondarypageactions": {
@@ -2028,7 +2045,8 @@
           "ep_deliveringPortsCargo",
           "ep_minTimeWindow",
           "ep_maxTimeWindow",
-          "p_spotCostVessel"
+          "p_spotCostVessel",
+          "p_cargoCost"
         ]
       }
     },
@@ -2584,10 +2602,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 29.93502238196353
+      "literal": -1.937695590602213
     },
     "center.longitude": {
-      "literal": 24.200778855532977
+      "literal": 6.814555304916726
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -2891,10 +2909,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 14.944784875088372
+      "literal": -1.0578964146601972
     },
     "center.longitude": {
-      "literal": 91.23046875
+      "literal": 54.30078617642631
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3029,7 +3047,7 @@
       "literal": "view"
     },
     "zoom": {
-      "literal": 2
+      "literal": 4
     }
   },
   "widgets/MappingCargoesWithCollors_1": {
@@ -3092,10 +3110,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -9.188870084473391
+      "literal": -5.842258058544625
     },
     "center.longitude": {
-      "literal": -25.66154064570857
+      "literal": -16.380014196834065
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3370,12 +3388,11 @@
           "ui::ep_berthVesselSelectedRoute",
           "ui::p_noDaysSailing",
           "ui::p_noDaysIdle",
-          "ui::p_vesselDailycost",
-          "ui::p_costsSailing",
-          "ui::p_costsVisiting",
-          "ui::p_costsCargo",
-          "ui::p_costsIdle",
-          "ui::p_costsRoute"
+          "ui::p_def_totalSailingCost",
+          "ui::p_def_totalVisitingLocationCost",
+          "ui::p_def_totalCargoCost",
+          "ui::p_def_totalIdleCost",
+          "ui::p_def_totalRouteCost"
         ]
       }
     },
@@ -3410,6 +3427,33 @@
     },
     "name": {
       "literal": "scl_EditAddElements"
+    },
+    "views": {
+      "literal": {}
+    }
+  },
+  "widgets/scl_vesselVelocity": {
+    "aimms.widget.type": {
+      "literal": "scalar"
+    },
+    "compact": {
+      "literal": 1
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "p_vesselVelocity"
+        ]
+      }
+    },
+    "name": {
+      "literal": "scl_vesselVelocity"
+    },
+    "show.units": {
+      "literal": 1
+    },
+    "title": {
+      "literal": "Vessel Velocity"
     },
     "views": {
       "literal": {}
@@ -3717,16 +3761,16 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ui::ep_def_loadingPortsCargo"
+            "<IDENTIFIER-SET>": "ui::ep_def_deliveringPortsCargo"
           },
-          "width": 29.22
+          "width": 45.9
         },
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ui::ep_def_deliveringPortsCargo"
+            "<IDENTIFIER-SET>": "ui::ep_def_loadingPortsCargo"
           },
-          "width": 45.9
+          "width": 33.24
         }
       ]
     },
@@ -3975,13 +4019,9 @@
     },
     "contents": {
       "aimms": {
-        "contents": [
-          "p_distanceBetweenLocations"
-        ],
-        "prefix": "aimms",
         "slices": [
           {
-            "identifier": "p_distanceBetweenLocations",
+            "identifier": "p_def_harvesineDistanceBetweenLocations",
             "slice": [
               {
                 "index": "i_loc_from",
@@ -3995,6 +4035,9 @@
               }
             ]
           }
+        ],
+        "contents": [
+          "p_def_harvesineDistanceBetweenLocations"
         ]
       }
     },
@@ -4246,7 +4289,7 @@
             ]
           },
           {
-            "identifier": "p_vesselCost",
+            "identifier": "p_sailingCost",
             "slice": [
               {
                 "index": "i_vessel",
@@ -4268,7 +4311,7 @@
         ],
         "contents": [
           "ep_originPortOfVessel",
-          "p_vesselCost"
+          "p_sailingCost"
         ]
       }
     },
@@ -4354,10 +4397,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 16.636191878397664
+      "literal": -20.42509657770062
     },
     "center.longitude": {
-      "literal": -5.275228140916805
+      "literal": 88.39117834280239
     },
     "heatmaps.__display_order__": {
       "literal": [
