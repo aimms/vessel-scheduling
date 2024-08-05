@@ -600,6 +600,27 @@ Model Main_Vessel_Schedule {
 				}
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
+			Parameter bp_def_deliveringLocationsOnRoute {
+				IndexDomain: (i_route,i_loc);
+				Range: binary;
+				Definition: {
+					exists(i_leg | 
+					    ep_calc_vesselActivityLocation(i_route, i_leg) = i_loc
+					    and ep_calc_vesselActivityType(i_route, i_leg) = 'sailingDelivery')
+				}
+			}
+			Parameter bp_def_loadingLocationsOnRoute {
+				IndexDomain: (i_used_route,i_loc);
+				Range: binary;
+				Definition: {
+					exists(i_leg | 
+					    (ep_calc_vesselActivityLocation(i_used_route, i_leg) = i_loc
+					    and ep_calc_vesselActivityType(i_used_route, i_leg) = 'sailingPickup'))
+					
+					or (ep_originPortOfVessel(ep_calc_routeVessel(i_used_route)) = i_loc
+					    and i_loc = ep_calc_vesselActivityLocation(i_used_route, '1'))
+				}
+			}
 			Procedure pr_calculateRoutesAndCost {
 				Body: {
 					! Determine horizon start (is read in via Excel inp).
@@ -629,6 +650,10 @@ Model Main_Vessel_Schedule {
 					        p_calc_arcsPerRoute(i_route, ep_calc_vesselActivityLocation(i_route, i_leg - 1), ep_calc_vesselActivityLocation(i_route, i_leg)) := 1;
 					    endfor;
 					endfor;
+					
+					p_calc_arcsPerRoute(i_route, ep_originPortOfVessel(ep_calc_routeVessel(i_route)), ep_calc_vesselActivityLocation(i_route, '1')) |
+					        (ep_originPortOfVessel(ep_calc_routeVessel(i_route)) <> ep_calc_vesselActivityLocation(i_route, '1'))
+					:=  1;
 					
 					block ! update UI 
 					!Changes to the Secondary Actions
@@ -738,7 +763,7 @@ Model Main_Vessel_Schedule {
 						ep_temp_nextSailingDay(ep_loc_newRoute) := ep_loc_nextSailingDay(i_act_cargo);
 						ep_temp_lastLocation(ep_loc_newRoute) := ep_deliveringPortsCargo(i_act_cargo);
 						ep_calc_routeVessel(ep_loc_newRoute) := ep_calc_routeVessel(ep_in_workingRoute);
-						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo) := ep_calc_pickupDate(ep_in_workingRoute, i_act_cargo);
+						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo_aux) := ep_calc_pickupDate(ep_in_workingRoute, i_act_cargo_aux);
 						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo) := ep_loc_pickupDay(i_act_cargo);
 					
 						! First copy legs from working route to new route.

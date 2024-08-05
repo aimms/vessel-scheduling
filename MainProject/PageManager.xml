@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<PageManager>
-	<Page Name="All Data Pages" PageGUID="2BAE1906-819C-477A-820E-CFBEE122FC35">
-		<Page Name="[Data Page] p_totalRouteCargoCost" PageGUID="B05C313E-7967-40ED-8979-F465570C2323" />
-		<Page Name="[Data Page] p_calc_loadingTimeCargoRoute" PageGUID="55F17B48-13B2-464B-9E6B-647D3FE4FE2F" />
-		<Page Name="[Data Page] p_def_deleveringTimeCargoRoute" PageGUID="59B7B492-36AD-4AB4-BC97-DA91D9DEEAA8" />
-	</Page>
-	<Page Name="Page 1" PageGUID="7E60F1A7-B020-4FF7-981D-485368466244" />
-</PageManager>

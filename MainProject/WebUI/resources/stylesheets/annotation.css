@@ -5,7 +5,6 @@
 	display: block;	
 }
 
-
 .annotation-edit-element {
 	background: white url(img/pencil.png) no-repeat 50%/contain; 
     background-size: auto 70% ;
@@ -18,7 +17,8 @@
 }
 
 .annotation-NotInUse,
-.annotation-DeliveringPort{
+.annotation-DeliveringPort,
+.annotation-VisibleLocations{
     fill: #FE493F;
     background: #FE493F !important;
 }
@@ -29,17 +29,6 @@
     background: #9E3869 !important;
 }
 
-.annotation-DeliveringPort1{
-    fill:#8D773C;
-    background: #8D773C !important;
-}
-
-.annotation-LoadingAndDeliveringPort{
-    fill: #7570b3;
-    background: #7570b3 !important;
-}
-
-
 .annotation-not-fulfilled{
     background: #ffc21b2c;
 }
@@ -47,72 +36,6 @@
 .annotation-highlight-cell {
     background: var(--secondary90Transparent);
 }
-
-
-
-
-
-
-.annotation-VesPort{
-    fill:rgb(164, 255, 28);    
-    background: rgb(164, 255, 28) !important;    
-}
-
-
-
-.annotation-VesAndLoadPort{
-    fill:#FFC100;
-    background: #FFC100 !important;
-}
-
-.annotation-VesAndDelPort{
-    fill:rgb(120, 203, 161);
-    background: rgb(120, 203, 161) !important;
-}
-
-.annotation-AllThreePorts{
-    fill:rgb(0, 0, 0);
-    background: rgb(0, 0, 0) !important;
-}
-
-/*Color the cargoes on gantt chart*/
-.gantt-chart .chart-item{
-    fill: #3D4368 !important;
-    stroke: #3D4368!important;
-    stroke-width: 0.5 !important;
-}
-
-/* Colloring the graph in results */
-.annotation-p_TotalRouteCargoCost{
-    fill: #b5c9a6 !important;
-    fill-opacity: 0.75;
-    stroke: black!important;
-    stroke-width: 0.5 !important;
-}
-
-.annotation-p_TotalRouteLocationCost{
-    fill: #b9cee3;
-    fill-opacity: 0.75;
-    stroke: black!important;
-    stroke-width: 0.5 !important;
-}
-
-.annotation-p_TotalRouteIdleCost{
-    fill: #f6cec8;
-    fill-opacity: 0.75;
-    stroke: black!important;
-    stroke-width: 0.5 !important;
-}
-
-.annotation-p_TotalRouteMovementCost{
-    fill: #f1d59e;
-    fill-opacity: 0.75;
-    stroke: black!important;
-    stroke-width: 0.5 !important;
-}
-
-
-
 
 
 

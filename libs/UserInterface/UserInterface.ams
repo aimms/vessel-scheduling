@@ -286,8 +286,8 @@ LibraryModule UserInterface {
 					'ui::ep_selectedRoute' : "Selected Route" ,
 					'ui::ep_def_selectedVessel' : "Vessel" ,
 					'ui::ep_berthVesselSelectedRoute' : "Berth" ,
-					'ui::p_noDaysSailing' : "Days Sailing",
-					'ui::p_noDaysIdle' : "Days Idle",
+					'ui::p_def_noDaysSailing' : "Days Sailing",
+					'ui::p_def_noDaysIdle' : "Days Idle",
 					'ep_calc_vesselActivityType' : "Activity Description" ,
 					'ep_calc_vesselActivityLocation' : "Location" ,
 					'ep_calc_vesselActivityFirst' : "Start" ,
@@ -300,11 +300,11 @@ LibraryModule UserInterface {
 					'ui::ep_def_deliveringPortsCargo' : "Delivering Port",
 					'i_leg' : "#",
 					'ui::i_leg' : "#",
-					'ui::p_def_totalSailingCost' : "Total Sailing Cost",
-					'ui::p_def_totalVisitingLocationCost' : "Total Visiting Cost",
-					'ui::p_def_totalIdleCost' : "Total Idle Cost",
-					'ui::p_def_totalCargoCost' : "Total Cargo Cost",
-					'ui::p_def_totalRouteCost' : "Total Route Cost",
+					'ui::p_def_totalSailingCostPerRoute' : "Total Sailing Cost",
+					'ui::p_def_totalVisitingLocationCostPerRoute' : "Total Visiting Cost",
+					'ui::p_def_totalIdleCostPerRoute' : "Total Idle Cost",
+					'ui::p_def_totalCargoCostPerRoute' : "Total Cargo Cost",
+					'ui::p_def_totalRouteCostPerRoute' : "Total Route Cost",
 				
 				    ! Optimized Results
 					'mm::ep_calc_routeOfVessel' : "Route",
@@ -314,6 +314,13 @@ LibraryModule UserInterface {
 					'mm::p_calc_totalCostPerCargo' : "Cargo Cost",
 					'mm::sp_calc_loadingTimePerCargo' : "Loading Time",
 					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+					'ui::p_def_totalCargoCost' : "Cargo Cost",
+					'ui::p_def_totalSailingCost' : "Sailing Cost",
+					'ui::p_def_totalVisitingLocationCost' : "Visiting Location Cost",
+					'ui::p_def_totalIdleCost' : "Idle Cost",
+					'ui::p_def_totalSpotCost' : "Spot Cost",
+				
 				
 				    ! Visualizations
 				
@@ -405,7 +412,7 @@ LibraryModule UserInterface {
 					  ( 1, 9, workflowPageState ) : "Inactive",
 					  ( 1, 9, parentPageId      ) : "",
 					
-					  ( 1, 10, displayText       ) : "Optimized Results",
+					  ( 1, 10, displayText       ) : "Detailed Costs",
 					  ( 1, 10, icon              ) : "aimms-stats-decline",
 					  ( 1, 10, pageId            ) : "optimized_results",
 					  ( 1, 10, tooltip           ) : "Results after solving the model",
@@ -960,8 +967,50 @@ LibraryModule UserInterface {
 					endif ;
 				}
 			}
-			StringParameter sp_def_titleScalarSelectRoute {
-				Definition: "Select Route for Details";
+			DeclarationSection Scalar_Details {
+				StringParameter sp_def_titleScalarSelectRoute {
+					Definition: "Select Route for Details";
+				}
+				ElementParameter ep_selectedRoute {
+					Range: s_calc_usedRoutes;
+					InitialData: '';
+				}
+				ElementParameter ep_def_selectedVessel {
+					Range: s_vessels;
+					Definition: ep_calc_routeVessel(ep_selectedRoute);
+				}
+				ElementParameter ep_berthVesselSelectedRoute {
+					Range: s_locations;
+					Definition: ep_originPortOfVessel( ep_def_selectedVessel );
+				}
+				Parameter p_def_noDaysSailing {
+					Unit: day;
+					Definition: p_def_routeSailingDays( ep_selectedRoute );
+				}
+				Parameter p_def_noDaysIdle {
+					Unit: day;
+					Definition: p_def_routeIdleDays( ep_selectedRoute );
+				}
+				Parameter p_def_totalSailingCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeSailingCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalIdleCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeIdleCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalVisitingLocationCostPerRoute {
+					Unit: $;
+					Definition: p_def_visitingLocationCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalCargoCostPerRoute {
+					Unit: $;
+					Definition: p_def_cargoCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalRouteCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeCosts(ep_selectedRoute);
+				}
 			}
 			StringParameter sp_def_titleTableHandledCargos {
 				Definition: {
@@ -1001,83 +1050,42 @@ LibraryModule UserInterface {
 				Range: s_locations;
 				Definition: ::ep_deliveringPortsCargo(i_cargo);
 			}
-			ElementParameter ep_selectedRoute {
-				Range: s_calc_usedRoutes;
-				InitialData: '';
-			}
-			ElementParameter ep_def_selectedVessel {
-				Range: s_vessels;
-				Definition: ep_calc_routeVessel(ep_selectedRoute);
-			}
-			ElementParameter ep_berthVesselSelectedRoute {
-				Range: s_locations;
-				Definition: ep_originPortOfVessel( ep_def_selectedVessel );
-			}
-			Parameter p_noDaysSailing {
-				Unit: day;
-				Definition: p_def_routeSailingDays( ep_selectedRoute );
-			}
-			Parameter p_noDaysIdle {
-				Unit: day;
-				Definition: p_def_routeIdleDays( ep_selectedRoute );
-			}
-			StringParameter sp_tabbedWidgetContentsItineraryPage {
-				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
-				Definition: {
-					data 
-					{ ( 1, displayText ) : "Activity Details",  ( 1, pageId      ) : "activity_details",  ( 1, state       ) : "active",
-					  ( 2, displayText ) : "Planned Routes"  ,  ( 2, pageId      ) : "planned_routes"  ,  ( 2, state       ) : "active" }
-				}
-			}
-			StringParameter sp_def_ganttChartStartTime {
-				Definition: FormatString("%e", ep_startHorizonDate);
-			}
-			Parameter p_def_durationCargoOnRoute {
-				IndexDomain: (i_act_cargo,i_route);
-				Unit: day;
-				Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
-				webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
-				webui::TooltipIdentifier: sp_def_empty;
-			}
-			Parameter p_def_loadingTimeCargoRouteInHours {
-				IndexDomain: (i_act_cargo,i_route);
-				Unit: day;
-				Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
-			}
-			StringParameter sp_def_cargoName {
-				IndexDomain: i_cargo;
-				Definition: i_cargo;
-			}
-			Section Scalar_select_itinerary {
-				Parameter p_def_totalSailingCost {
-					Unit: $;
-					Definition: p_def_routeSailingCost(ep_selectedRoute);
-				}
-				Parameter p_def_totalIdleCost {
-					Unit: $;
-					Definition: p_def_routeIdleCost(ep_selectedRoute);
-				}
-				Parameter p_def_totalVisitingLocationCost {
-					Unit: $;
-					Definition: p_def_visitingLocationCost(ep_selectedRoute);
-				}
-				Parameter p_def_totalCargoCost {
-					Unit: $;
-					Definition: p_def_cargoCost(ep_selectedRoute);
-				}
-				Parameter p_def_totalRouteCost {
-					Unit: $;
-					Definition: p_def_routeCosts(ep_selectedRoute);
-				}
-			}
 		}
-		Section Optimized_Results_Page {
-			StringParameter sp_def_optimizedResultsPageSidePanel {
-				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+		Section Detailed_Costs_Page {
+			StringParameter sp_def_cargoIsSpotTooltip {
+				IndexDomain: i_act_cargo;
 				Definition: {
-					data 
-					{ ( 1, displayText ) : "KPIs "             ,  ( 1, pageId      ) : "side_panel_results",
-					  ( 1, icon        ) : "aimms-meter-fast"  ,  ( 1, state       ) : "Active"             }
+					if mm::bv_cargoOnCharteredVessel(i_act_cargo) then
+					    "This is a spot cost."
+					endif;
+				}
+			}
+			Parameter p_def_totalCargoCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_cargoCost(i_route));
+			}
+			Parameter p_def_totalSailingCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_routeSailingCost(i_route));
+			}
+			Parameter p_def_totalVisitingLocationCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_visitingLocationCost(i_route));
+			}
+			Parameter p_def_totalIdleCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_routeIdleCost(i_route));
+			}
+			Parameter p_def_totalSpotCost {
+				Unit: $;
+				Definition: sum(i_act_cargo, mm::p_calc_cargoSpotCost(i_act_cargo));
+			}
+			StringParameter sp_def_cargoNotDeliveredAnnotation {
+				IndexDomain: i_act_cargo;
+				Definition: {
+					if not mm::ep_calc_vesselOfCargo(i_act_cargo) then
+					    "not-fulfilled"
+					endif;
 				}
 			}
 			StringParameter sp_def_vesselNotUsedAnnotation {
@@ -1088,26 +1096,90 @@ LibraryModule UserInterface {
 					endif;
 				}
 			}
-			StringParameter sp_def_cargoNotDeliveredAnnotation {
-				IndexDomain: i_act_cargo;
-				Definition: {
-					if not mm::ep_calc_vesselOfCargo(i_act_cargo) then
-					    "not-fulfilled"
-					endif;
-				}
-			}
-			StringParameter sp_def_cargoIsSpotTooltip {
-				IndexDomain: i_act_cargo;
-				Definition: {
-					if mm::bv_cargoOnCharteredVessel(i_act_cargo) then
-					    "This is a spot cost."
-					endif;
-				}
-			}
 		}
 		Section Visualizations_Page {
-			Parameter bp_selectInUsedRoutes {
-				IndexDomain: i_used_route;
+			DeclarationSection Gantt_Details {
+				StringParameter sp_def_ganttChartStartTime {
+					Definition: FormatString("%e", ep_startHorizonDate);
+				}
+				Parameter p_def_durationCargoOnRoute {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
+					webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
+					webui::TooltipIdentifier: sp_def_empty;
+				}
+				Parameter p_def_loadingTimeCargoRouteInHours {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
+				}
+				StringParameter sp_def_cargoName {
+					IndexDomain: i_cargo;
+					Definition: i_cargo;
+				}
+			}
+			DeclarationSection Map_Details {
+				Set s_def_visibleLocations {
+					SubsetOf: s_locations;
+					Index: i_vis_loc, i_vis_locFrom, i_vis_locTo;
+					Definition: {
+						s_def_visibleDeliveringPorts 
+						+ s_def_visibleLoadingPorts
+						+ {i_loc | 
+						        exists(i_used_route, 
+						                bp_selectInUsedRoutes(i_used_route) 
+						                and ep_originPortOfVessel(ep_calc_routeVessel(i_used_route)) = i_loc)}
+					}
+					webui::AnnotationsIdentifier: sp_def_visibleLocationAnnotation(ui::i_vis_loc);
+				}
+				Set s_def_visibleDeliveringPorts {
+					SubsetOf: s_def_deleveringPorts;
+					Index: i_vis_locDeliv;
+					Definition: {
+						{ i_loc | 
+						    exists(i_used_route | 
+						        bp_def_deliveringLocationsOnRoute(i_used_route, i_loc)
+						        and bp_selectInUsedRoutes(i_used_route))}
+					}
+				}
+				Set s_def_visibleLoadingPorts {
+					SubsetOf: ::s_def_loadingPorts;
+					Index: i_vis_locLoad;
+					Definition: {
+						{ i_loc | 
+						    exists(i_used_route | 
+						        bp_def_loadingLocationsOnRoute(i_used_route, i_loc)
+						        and bp_selectInUsedRoutes(i_used_route))}
+					}
+				}
+				Parameter bp_selectInUsedRoutes {
+					IndexDomain: i_used_route;
+				}
+				Parameter p_def_visibleArc {
+					IndexDomain: (i_loc_from,i_loc_to);
+					Definition: {
+						sum(i_used_route | 
+						        bp_selectInUsedRoutes(i_used_route)
+						        and p_calc_arcsPerRoute(i_used_route,i_loc_from,i_loc_to), 1)
+					}
+				}
+				StringParameter sp_def_visibleLocationAnnotation {
+					IndexDomain: i_vis_loc;
+					Definition: "VisibleLocations";
+				}
+				Parameter p_def_locationNodeSize {
+					IndexDomain: i_vis_loc;
+					Definition: 3;
+				}
+			}
+			StringParameter sp_tabbedWidgetContentsItineraryPage {
+				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "View Map"      ,  ( 1, pageId      ) : "visualize_map" ,  ( 1, state       ) : "active"        ,
+					  ( 2, displayText ) : "View Gantt"    ,  ( 2, pageId      ) : "planned_routes",  ( 2, state       ) : "active"         }
+				}
 			}
 		}
 	}

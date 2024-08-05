@@ -25,14 +25,12 @@ input.boolean-cell-editor-contents {
     color: inherit;
 }
 
-
 .aimms-widget[data-widget\.uri="scl_EditAddElements"] .awf-dock.top,
-.aimms-widget[data-widget\.uri="tableItinerary"] .awf-dock.top,
+.aimms-widget[data-widget\.uri="msl_selecRoutes"] .awf-dock.top,
+.aimms-widget[data-widget\.uri="MappingCargoesWithCollors_1"] .awf-dock.top,
 .aimms-widget[data-widget\.uri="Vessel loading_1"] .awf-dock.top{
     display: none;
 }
-
-
 
 .status-message:hover,
 .status-message.clickable:hover .status-display-text { 

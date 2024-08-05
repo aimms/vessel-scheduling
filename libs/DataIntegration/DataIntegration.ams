@@ -16,6 +16,7 @@ LibraryModule DataIntegration {
 				
 				!Delete old data
 				empty Cargoes, Vessels, Locations, Routes;
+				p_vesselVelocity := 37.04 [km/hour];
 				
 				!Importeren van de data
 				dex::AddMapping(

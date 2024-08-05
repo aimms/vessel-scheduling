@@ -191,6 +191,10 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
+			Parameter p_calc_cargoSpotCost {
+				IndexDomain: i_act_cargo;
+				Unit: $;
+			}
 		}
 		Procedure pr_post_cargoResults {
 			Body: {
@@ -212,6 +216,8 @@ LibraryModule MathematicalModel {
 				sp_calc_deleveringTimePerCargo(i_act_cargo) |
 				        ep_calc_routeOfCargo(i_act_cargo)
 				:=  MomentToString("%d/%m/%y",[day], ep_startHorizonDate, p_def_deleveringTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
+				
+				p_calc_cargoSpotCost(i_act_cargo) := v_def_spotCost(i_act_cargo);
 			}
 		}
 	}
