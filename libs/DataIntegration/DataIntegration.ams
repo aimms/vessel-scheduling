@@ -34,7 +34,6 @@ LibraryModule DataIntegration {
 				
 				!Changes to secondary actions
 				ui::sp_systemSecondaryActions(3,'state'):= 'active';
-				ui::sp_systemSecondaryActions(4,'state') := 'inactive';
 				
 				!Changes to status bar
 				ui::sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
@@ -42,20 +41,15 @@ LibraryModule DataIntegration {
 				ui::sp_systemStatusBar(1,'tooltip') := "Data is succesfully imported.";
 				ui::sp_systemStatusBar(2,'color') := "Orange";
 				ui::sp_systemStatusBar(2,'icon'):= "aimms-circle2";
-				ui::sp_systemStatusBar(2,'tooltip') := "Application ready to generate routes.";
+				ui::sp_systemStatusBar(2,'tooltip') := "Application ready to be solved.";
 				ui::sp_systemStatusBar(2,'state') := "active";
-				ui::sp_systemStatusBar(3,'color') := "red";
-				ui::sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
-				ui::sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
-				ui::sp_systemStatusBar(3,'state') := 'inactive';
-				ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
-				ui::sp_systemStatusBar(4,'text') := fname;
+				ui::sp_systemStatusBar(3,'icon'):= "aimms-briefcase";
+				ui::sp_systemStatusBar(3,'text') := fname;
 				
 				!Changes to workflow
 				ui::sp_systemWorkflowSteps(1,8,'workflowPageState'):= "inactive";
 				ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
 				ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
-				ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 				
 				!Open Overview dataset
 				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
@@ -106,10 +100,9 @@ LibraryModule DataIntegration {
 				ui::sp_systemStatusBar(4,'text') := "Nothing Imported";
 				
 				!Changes to workflow
-				ui::sp_systemWorkflowSteps(1,8,'workflowPageState'):= "inactive";
-				ui::sp_systemWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
+				ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
 				ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
-				ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 			}
 		}
 	}

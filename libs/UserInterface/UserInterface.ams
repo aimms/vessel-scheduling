@@ -398,31 +398,24 @@ LibraryModule UserInterface {
 					  ( 1, 7, workflowPageState ) : "Active",
 					  ( 1, 7, parentPageId      ) : "overview_datasets",
 					
-					  ( 1, 8, displayText       ) : "Routes",
+					  ( 1, 8, displayText       ) : "Generated Itineraries",
 					  ( 1, 8, icon              ) : "aimms-film4",
-					  ( 1, 8, pageId            ) : "routes",
-					  ( 1, 8, tooltip           ) : "Generated routes",
+					  ( 1, 8, pageId            ) : "generated_itineraries",
+					  ( 1, 8, tooltip           ) : "Vessel data",
 					  ( 1, 8, workflowPageState ) : "Inactive",
 					  ( 1, 8, parentPageId      ) : "",
 					
-					  ( 1, 9, displayText       ) : "Generated Itineraries",
-					  ( 1, 9, icon              ) : "aimms-film4",
-					  ( 1, 9, pageId            ) : "generated_itineraries",
-					  ( 1, 9, tooltip           ) : "Vessel data",
+					  ( 1, 9, displayText       ) : "Detailed Costs",
+					  ( 1, 9, icon              ) : "aimms-stats-decline",
+					  ( 1, 9, pageId            ) : "optimized_results",
+					  ( 1, 9, tooltip           ) : "Results after solving the model",
 					  ( 1, 9, workflowPageState ) : "Inactive",
-					  ( 1, 9, parentPageId      ) : "",
 					
-					  ( 1, 10, displayText       ) : "Detailed Costs",
-					  ( 1, 10, icon              ) : "aimms-stats-decline",
-					  ( 1, 10, pageId            ) : "optimized_results",
-					  ( 1, 10, tooltip           ) : "Results after solving the model",
-					  ( 1, 10, workflowPageState ) : "Inactive",
-					
-					  ( 1, 11, displayText       ) : "Visualizations",
-					  ( 1, 11, icon              ) : "aimms-pie-chart8",
-					  ( 1, 11, pageId            ) : "all_visualisations",
-					  ( 1, 11, tooltip           ) : "All visualizations explaining results",
-					  ( 1, 11, workflowPageState ) : "Inactive" }
+					  ( 1, 10, displayText       ) : "Visualizations",
+					  ( 1, 10, icon              ) : "aimms-pie-chart8",
+					  ( 1, 10, pageId            ) : "all_visualisations",
+					  ( 1, 10, tooltip           ) : "All visualizations explaining results",
+					  ( 1, 10, workflowPageState ) : "Inactive" }
 				}
 			}
 			StringParameter sp_systemWorkflowFoldingStates {
@@ -447,20 +440,15 @@ LibraryModule UserInterface {
 					  ( 2, procedure   ) : "pr_exportExcel"                  ,  
 					  ( 2, state       ) : "Active"                         ,
 					
-					  ( 3, displaytext ) : "Generate Routes"                ,  
-					  ( 3, icon        ) : "aimms-direction"                ,
-					  ( 3, procedure   ) : "pr_calculateRoutesAndCost",  
-					  ( 3, state       ) : "inactive"                         ,
+					  ( 3, displaytext ) : "Solve"                          ,  
+					  ( 3, icon        ) : "aimms-cog"                      ,
+					  ( 3, procedure   ) : "MainExecution"                  ,  
+					  ( 3, state       ) : "inactive"                       ,
 					
-					  ( 4, displaytext ) : "Solve"                          ,  
-					  ( 4, icon        ) : "aimms-cog"                      ,
-					  ( 4, procedure   ) : "MainExecution"                  ,  
-					  ( 4, state       ) : "inactive"                       ,
-					
-					  ( 5, displaytext ) : "Empty Case"                    ,  
-					  ( 5, icon        ) : "aimms-bin2"                     ,
-					  ( 5, procedure   ) : "di::pr_emptyData"                  ,  
-					  ( 5, state       ) : "Active"                          }
+					  ( 4, displaytext ) : "Empty Case"                    ,  
+					  ( 4, icon        ) : "aimms-bin2"                     ,
+					  ( 4, procedure   ) : "di::pr_emptyData"                  ,  
+					  ( 4, state       ) : "Active"                          }
 				}
 			}
 		}
@@ -477,31 +465,24 @@ LibraryModule UserInterface {
 					  ( '1', 'procedure' ) : "di::pr_importRequestFile"                       ,  
 					  ( '1', 'state'     ) : "Active"                               ,
 					
-					  ( '2', 'icon'      ) : "aimms-cancel-circle2"                        ,  
-					  ( '2', 'color'     ) : "red"                               ,
-					  ( '2', 'text'      ) : "Generate Routes"                      ,  
-					  ( '2', 'tooltip'   ) : "Application not ready to generate routes.",
-					  ( '2', 'procedure' ) : "pr_calculateRoutesAndCost"            ,  
-					  ( '2', 'state'     ) : "inactive"                               ,
+					  ( '2', 'icon'      ) : "aimms-cancel-circle2"                 ,  
+					  ( '2', 'color'     ) : "red"                                  ,
+					  ( '2', 'text'      ) : "Solve Model"                          ,  
+					  ( '2', 'tooltip'   ) : "Model not ready to be solved."        ,
+					  ( '2', 'procedure' ) : "MainExecution"                        ,  
+					  ( '2', 'state'     ) : "inactive"                             ,
 					
-					  ( '3', 'icon'      ) : "aimms-cancel-circle2"                 ,  
-					  ( '3', 'color'     ) : "red"                                  ,
-					  ( '3', 'text'      ) : "Solve Model"                          ,  
-					  ( '3', 'tooltip'   ) : "Model not ready to be solved."        ,
-					  ( '3', 'procedure' ) : "MainExecution"                        ,  
-					  ( '3', 'state'     ) : "inactive"                             ,
+					  ( '3', 'header'    ) : "Excel:"                               ,  
+					  ( '3', 'icon'      ) : "aimms-warning2"                      ,
+					  ( '3', 'text'      ) : "Nothing Imported"                   ,  
+					  ( '3', 'state'     ) : "Inactive" ,                             
 					
-					  ( '4', 'header'    ) : "Excel:"                               ,  
-					  ( '4', 'icon'      ) : "aimms-warning2"                      ,
-					  ( '4', 'text'      ) : "Nothing Imported"                   ,  
-					  ( '4', 'state'     ) : "Inactive" ,                             
-					
-					  ( '5', 'icon'      ) : "aimms-exit"                 ,  
-					  ( '5', 'color'     ) : "green"                                  ,
-					  ( '5', 'text'      ) : "Logoff"                          ,  
-					  ( '5', 'tooltip'   ) : "Stopping AIMMS session"        ,
-					  ( '5', 'procedure' ) : "ui::pr_goodbye"                        ,  
-					  ( '5', 'state'     ) : "Active"                             
+					  ( '4', 'icon'      ) : "aimms-exit"                 ,  
+					  ( '4', 'color'     ) : "green"                                  ,
+					  ( '4', 'text'      ) : "Logoff"                          ,  
+					  ( '4', 'tooltip'   ) : "Stopping AIMMS session"        ,
+					  ( '4', 'procedure' ) : "ui::pr_goodbye"                        ,  
+					  ( '4', 'state'     ) : "Active"                             
 					
 					}
 				}
@@ -575,9 +556,8 @@ LibraryModule UserInterface {
 						
 						!Changes to workflow
 						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
-						sp_systemWorkFlowSteps(1,9,'workflowPageState'):= "inactive";
+						ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
 						ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
-						ui::sp_systemWorkflowSteps(1,11,'workflowPageState'):= "inactive";
 						
 						!Open Overview dataset
 						sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
@@ -881,10 +861,10 @@ LibraryModule UserInterface {
 				IndexDomain: i_loc;
 				Definition: {
 					if (i_loc in s_def_loadingPorts)  then
-					    "aimms-watch2"    
+					    "aimms-esc"    
 					
 					elseif (i_loc in s_def_deleveringPorts) then
-					    "aimms-finish"
+					    "aimms-enter6"
 					
 					endif;
 				}
@@ -897,10 +877,10 @@ LibraryModule UserInterface {
 			StringParameter sp_def_cargoesMapAnnotation {
 				IndexDomain: i_loc;
 				Definition: {
-					if (i_loc in s_def_loadingPorts)  then
+					if (ep_loadingPortsCargo(ep_cargo) = i_loc)  then
 					    "LoadingPort"    
 					
-					elseif (i_loc in s_def_deleveringPorts) then
+					elseif (ep_deliveringPortsCargo(ep_cargo) = i_loc) then
 					    "DeliveringPort"
 					
 					endif;

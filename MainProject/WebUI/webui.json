@@ -117,12 +117,6 @@
                 "children": []
               },
               {
-                "name": "Routes",
-                "type": "pagev2-grid",
-                "slug": "routes",
-                "children": []
-              },
-              {
                 "name": "Generated itineraries",
                 "type": "pagev2-grid",
                 "slug": "generated_itineraries",
@@ -1277,34 +1271,6 @@
         },
         {
           "uri": "sp_aimms_logo_1",
-          "layoutInfo": {
-            "width": "2",
-            "height": "1"
-          }
-        }
-      ]
-    }
-  },
-  "pages/routes": {
-    "aimms.widget.type": {
-      "literal": "pagev2-grid"
-    },
-    "bindings": {
-      "literal": [
-        {
-          "widgetUri": "txt_underContruction",
-          "gridArea": "area-a",
-          "dndId": "Unassigned widgetstxt_underContruction"
-        }
-      ]
-    },
-    "layoutId": {
-      "literal": "Layout9"
-    },
-    "widgets": {
-      "literal": [
-        {
-          "uri": "txt_underContruction",
           "layoutInfo": {
             "width": "2",
             "height": "1"
@@ -2613,10 +2579,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -1.937695590602213
+      "literal": -6.051364250006157
     },
     "center.longitude": {
-      "literal": 6.814555304916726
+      "literal": 49.863397100951246
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -2920,10 +2886,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -3.8286368041538807
+      "literal": 4.86616641980002
     },
     "center.longitude": {
-      "literal": -36.91406250000001
+      "literal": -34.3070709700936
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3051,14 +3017,18 @@
     },
     "views.__display_order__": {
       "literal": [
-        "views.0"
+        "views.0",
+        "views.1"
       ]
     },
     "views.0.type": {
       "literal": "view"
     },
+    "views.1.type": {
+      "literal": "template"
+    },
     "zoom": {
-      "literal": 2
+      "literal": 3
     }
   },
   "widgets/MappingCargoesWithCollors_1": {
@@ -3115,10 +3085,10 @@
       }
     },
     "center.latitude": {
-      "literal": -4.214943141390639
+      "literal": 11.293352029175797
     },
     "center.longitude": {
-      "literal": -23.91173935864045
+      "literal": 34.8062387239425
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3977,17 +3947,6 @@
       "literal": "text_problemDescription (1)"
     }
   },
-  "widgets/txt_underContruction": {
-    "aimms.widget.type": {
-      "literal": "text"
-    },
-    "contents": {
-      "literal": "<div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><br></div><div style=\"text-align: center;\"><b><span style=\"font-size: 32px;\">Not ready yet!</span></b></div><div style=\"text-align: center;\"><span style=\"font-size: 32px;\">Page under construction!</span>&nbsp;</div>"
-    },
-    "name": {
-      "literal": "txt_underContruction"
-    }
-  },
   "widgets/Vessel loading_1": {
     "aimms.widget.type": {
       "literal": "ganttchart"
@@ -4206,16 +4165,16 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ep_originPortOfVessel"
+            "<IDENTIFIER-SET>": "p_vesselCost"
           },
-          "width": 31.5
+          "width": 23.06
         },
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "p_vesselCost"
+            "<IDENTIFIER-SET>": "ep_originPortOfVessel"
           },
-          "width": 23.06
+          "width": 33.38
         }
       ]
     },
