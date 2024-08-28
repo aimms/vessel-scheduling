@@ -12,6 +12,8 @@ LibraryModule DataIntegration {
 		Procedure pr_importExcel {
 			Arguments: (fname,statusCode,statusDescription);
 			Body: {
+				if not FileExists(webui::GetIOFilePath(fname)) then return; endif;
+				
 				dex::GenerateDatasetMappings;
 				
 				!Delete old data

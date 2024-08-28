@@ -1,0 +1,6 @@
+## ams_version=1.0
+
+Module Module_SolveService {
+	Prefix: modSolveService;
+	Procedure pr_solve;
+}

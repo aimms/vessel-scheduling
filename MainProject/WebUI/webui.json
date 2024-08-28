@@ -2579,10 +2579,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -6.051364250006157
+      "literal": -22.553147478403194
     },
     "center.longitude": {
-      "literal": 49.863397100951246
+      "literal": -50.05371093750001
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -2823,7 +2823,7 @@
       "literal": "view"
     },
     "zoom": {
-      "literal": 2
+      "literal": 4
     }
   },
   "widgets/MappingCargoesWithCollors": {
@@ -4201,10 +4201,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -20.42509657770062
+      "literal": 2.986927393334876
     },
     "center.longitude": {
-      "literal": 88.39117834280239
+      "literal": -6.852361976405096
     },
     "heatmaps.__display_order__": {
       "literal": [
