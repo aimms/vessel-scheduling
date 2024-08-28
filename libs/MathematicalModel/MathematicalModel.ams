@@ -221,7 +221,7 @@ LibraryModule MathematicalModel {
 			}
 		}
 	}
-	Section Librar_Start_and_Finish {
+	Section Library_Start_and_Finish {
 		Procedure LibraryInitialization {
 			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}

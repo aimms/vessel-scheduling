@@ -35,6 +35,43 @@ Model Main_Vessel_Schedule {
 		  - Computations
 		  - Reporting"
 	}
+	Procedure pr_test {
+		Body: {
+			di::pr_importExcel("data/DeftaultDataChris.xlsx",_p_stat, _sp_desc);
+			
+			pr_calculateRoutesAndCost();
+			pr_routeGenOutput();
+		}
+		Parameter _p_stat;
+		StringParameter _sp_desc;
+	}
+	Procedure pr_routeGenOutput {
+		Body: {
+			_f_outf.pagewidth := 32000;
+			put _f_outf ;
+			display { 
+				ep_calc_pickupDate,
+				ep_calc_deliveryDate
+			};
+			display { 
+				ep_calc_vesselActivityType, 
+				ep_calc_vesselActivityLocation, 
+				ep_calc_vesselActivityFirst, 
+				ep_calc_vesselActivityLast 
+			};
+			putclose ;
+		}
+		File _f_outf {
+			Name: "oldgen.results";
+			Device: Disk;
+			Mode: replace;
+		}
+	}
+	Procedure pr_routeGenRead {
+		Body: {
+			read from file "oldgen.results" ;
+		}
+	}
 	Section Data_Model {
 		Section Quantities_and_Units {
 			Comment: {
