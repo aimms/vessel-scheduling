@@ -24,4 +24,3 @@ warning_not_initialized off
 * NETSOL
 * Environment
 Project_Title "Vessel Scheduling"
-Open_WebUI_on_Startup 1
