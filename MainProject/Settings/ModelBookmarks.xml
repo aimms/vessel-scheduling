@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
-<ModelBookmarks TimeStamp="2024-06-10 08:37:32">
-	<Category Name="RouteGeneration">
-		<Bookmark Identifier="ui::s_routesAndCostAuthors">
-			<TextLine>s_routesAndCostAuthors</TextLine>
+<ModelBookmarks TimeStamp="2024-08-28 11:08:25">
+	<Category Name="old geenration">
+		<Bookmark Node="pr_processRouteList">
+			<TextLine>pr_processRouteList</TextLine>
 		</Bookmark>
-		<Bookmark Node="cracc::pr_calculateRoutesAndCostChris" Attribute="body" LineNumber="1">
-			<TextLine>! Determine horizon start (is read in via Excel inp).</TextLine>
+	</Category>
+	<Category Name="new route generation">
+		<Bookmark Node="pr_processRouteListEx" Attribute="body" LineNumber="1">
+			<TextLine>_s_inputList := s_temp_routeWorkingList ;</TextLine>
 		</Bookmark>
 	</Category>
 </ModelBookmarks>

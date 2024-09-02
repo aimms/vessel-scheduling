@@ -4,7 +4,6 @@
 	<StatementMargin>
 		<Entry Value="hits" Format="7" />
 		<Entry Value="gross time" Format="6:3" />
-		<Entry Value="net time" Format="6:2" />
 	</StatementMargin>
 	<StatementTooltip>
 		<Entry Value="hits" Format="4" />
@@ -12,7 +11,7 @@
 		<Entry Value="net time" Format="6:3" />
 	</StatementTooltip>
 	<ProcedureMargin>
-		<Entry Value="hits" Format="7" />
+		<Entry Value="hits" Format="4" />
 		<Entry Value="gross time" Format="6:3" />
 		<Entry Value="net time" Format="6:3" />
 	</ProcedureMargin>

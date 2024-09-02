@@ -1,4 +1,5 @@
 ﻿* AIMMS
+listing_page_width 32000
 rounding_compatibility Aimms_3_7
 use_UTC_forCaseAndStartEndDate 1
 warning_not_initialized off
@@ -23,4 +24,3 @@ warning_not_initialized off
 * NETSOL
 * Environment
 Project_Title "Vessel Scheduling"
-Open_WebUI_on_Startup 1
