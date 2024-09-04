@@ -14,25 +14,9 @@ LibraryModule DataIntegration {
 			Body: {
 				if not FileExists(webui::GetIOFilePath(fname)) then return; endif;
 				
-				dex::GenerateDatasetMappings;
 				
-				!Delete old data
-				empty Cargoes, Vessels, Locations, Routes;
-				p_vesselVelocity := 37.04 [km/hour];
+				pr_actuallyImportExcel(fname);
 				
-				!Importeren van de data
-				dex::AddMapping(
-				    mappingName : "ImportData", 
-				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
-				
-				dex::ReadFromFile(
-				    dataFile : fname, 
-				    mappingName : "ImportData");
-				
-				!Activate all master data
-				bp_activeCargoes(i_cargo):= 1;
-				bp_activeVessels(i_vessel) := 1;
-				bp_activeLocations(i_loc) := 1;
 				
 				!Changes to secondary actions
 				ui::sp_systemSecondaryActions(3,'state'):= 'active';
@@ -66,15 +50,45 @@ LibraryModule DataIntegration {
 				Property: Output;
 			}
 		}
-		Procedure pr_exportExcel {
+		Procedure pr_actuallyImportExcel {
+			Arguments: (fname);
+			Body: {
+				!dex::GenerateDatasetMappings;
+				
+				!Delete old data
+				empty Cargoes, Vessels, Locations, Routes;
+				p_vesselVelocity := 37.04 [km/hour];
+				
+				!!Importeren van de data
+				!dex::AddMapping(
+				!	mappingName : "ImportData", 
+				!	mappingFile : "./Mappings/Generated/ImportDataSet-Excel.xml");
+				! 'Generated/ImportDataSet-Excel
+				!dex::ReadFromFile(
+				!	dataFile : fname, 
+				!	mappingName : "ImportData");
+				dex::ReadFromFile(
+					dataFile : fname, 
+					mappingName : "Generated/ImportDataSet-Excel");
+				
+				!Activate all master data
+				bp_activeCargoes(i_cargo):= 1;
+				bp_activeVessels(i_vessel) := 1;
+				bp_activeLocations(i_loc) := 1;
+			}
+			StringParameter fname {
+				Property: Input;
+			}
+		}
+		Procedure pr_exportExcelInputFile {
 			Body: {
 				dex::AddMapping(
-				    mappingName : "Import",
+				    mappingName : "ImportDataSet",
 				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
 				
 				dex::WriteToFile(
 				    dataFile : "data\\FormatDataScheduling.xlsx",
-				    mappingName : "Import");
+				    mappingName : "ImportDataSet");
 			}
 		}
 		Procedure pr_emptyData {
@@ -105,6 +119,24 @@ LibraryModule DataIntegration {
 				ui::sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
 				ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
 				ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
+			}
+		}
+		Procedure pr_actuallyExportSolutionFile {
+			Arguments: (fname);
+			Body: {
+				!display "pr_actuallyExportSolutionFile", fname ;
+				
+				if FileExists( fname ) then
+					FileDelete( fname );
+				endif ;
+				
+				dex::WriteToFile(
+					dataFile    :  fname, 
+					mappingName :  "Generated/ExportDataSet-Excel", 
+					pretty      :  0);
+			}
+			StringParameter fname {
+				Property: Input;
 			}
 		}
 	}

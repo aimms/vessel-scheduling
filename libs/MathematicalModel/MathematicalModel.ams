@@ -121,18 +121,27 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_calc_routeOfVessel {
 				IndexDomain: i_vessel;
 				Range: s_calc_feasibleRoutes;
+				dex::ColumnName: Route;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Vessel;
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_calc_operationalCostPerVessel {
 				IndexDomain: i_vessel;
 				Unit: $;
+				dex::ColumnName: Cost;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Vessel;
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_calc_totalTravelDaysPerVessel {
 				IndexDomain: i_vessel;
 				Unit: day;
+				dex::ColumnName: TravelDays;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Vessel;
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
@@ -165,35 +174,53 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_calc_vesselOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_vessels;
+				dex::ColumnName: Vessel;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			ElementParameter ep_calc_routeOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_calc_feasibleRoutes;
+				dex::ColumnName: Route;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_calc_totalCostPerCargo {
 				IndexDomain: i_act_cargo;
 				Unit: $;
+				dex::ColumnName: Cost;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 				webui::TooltipIdentifier: ui::sp_def_cargoIsSpotTooltip;
 			}
 			StringParameter sp_calc_loadingTimePerCargo {
 				IndexDomain: i_act_cargo;
+				dex::ColumnName: Loading;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			StringParameter sp_calc_deleveringTimePerCargo {
 				IndexDomain: i_act_cargo;
+				dex::ColumnName: Delivery;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_calc_cargoSpotCost {
 				IndexDomain: i_act_cargo;
 				Unit: $;
+				dex::ColumnName: SpotCost;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Cargo;
 			}
 		}
 		Procedure pr_post_cargoResults {
@@ -218,6 +245,44 @@ LibraryModule MathematicalModel {
 				:=  MomentToString("%d/%m/%y",[day], ep_startHorizonDate, p_def_deleveringTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
 				
 				p_calc_cargoSpotCost(i_act_cargo) := v_def_spotCost(i_act_cargo);
+			}
+		}
+		DeclarationSection Post_Routes {
+			ElementParameter ep_post_vesselActivityType {
+				IndexDomain: (i_used_route,i_leg);
+				Range: s_def_vesselActivities;
+				dex::ColumnName: Type;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route;
+			}
+			ElementParameter ep_post_vesselActivityLocation {
+				IndexDomain: (i_used_route,i_leg);
+				Range: s_locations;
+				dex::ColumnName: Location;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route;
+			}
+			ElementParameter ep_post_vesselActivityFirst {
+				IndexDomain: (i_used_route,i_leg);
+				Range: cal_days;
+				dex::ColumnName: FirstDay;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route;
+			}
+			ElementParameter ep_post_vesselActivityLast {
+				IndexDomain: (i_used_route,i_leg);
+				Range: cal_days;
+				dex::ColumnName: LastDay;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route;
+			}
+		}
+		Procedure pr_post_routeResults {
+			Body: {
+				ep_post_vesselActivityType(     i_used_route, i_leg ) := ep_calc_vesselActivityType(     i_used_route, i_leg ); 
+				ep_post_vesselActivityLocation( i_used_route, i_leg ) := ep_calc_vesselActivityLocation( i_used_route, i_leg ); 
+				ep_post_vesselActivityFirst(    i_used_route, i_leg ) := ep_calc_vesselActivityFirst(    i_used_route, i_leg ); 
+				ep_post_vesselActivityLast(     i_used_route, i_leg ) := ep_calc_vesselActivityLast(     i_used_route, i_leg );
 			}
 		}
 	}

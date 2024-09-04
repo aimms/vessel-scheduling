@@ -432,12 +432,12 @@ LibraryModule UserInterface {
 					data 
 					{ ( 1, displaytext ) : "Upload Excel"                   ,  
 					  ( 1, icon        ) : "aimms-upload4"                  ,
-					  ( 1, procedure   ) : "di::pr_importRequestFile"             ,  
+					  ( 1, procedure   ) : "di::pr_importRequestFile"       ,  
 					  ( 1, state       ) : "Active"                         ,
 					
 					  ( 2, displaytext ) : "Download Excel"                 ,  
 					  ( 2, icon        ) : "aimms-download4"                ,
-					  ( 2, procedure   ) : "pr_exportExcel"                  ,  
+					  ( 2, procedure   ) : "di::pr_exportExcelInputFile"    ,  
 					  ( 2, state       ) : "Active"                         ,
 					
 					  ( 3, displaytext ) : "Solve"                          ,  
@@ -445,10 +445,10 @@ LibraryModule UserInterface {
 					  ( 3, procedure   ) : "MainExecution"                  ,  
 					  ( 3, state       ) : "inactive"                       ,
 					
-					  ( 4, displaytext ) : "Empty Case"                    ,  
+					  ( 4, displaytext ) : "Empty Case"                     ,  
 					  ( 4, icon        ) : "aimms-bin2"                     ,
-					  ( 4, procedure   ) : "di::pr_emptyData"                  ,  
-					  ( 4, state       ) : "Active"                          }
+					  ( 4, procedure   ) : "di::pr_emptyData"               ,  
+					  ( 4, state       ) : "Active"                         }
 				}
 			}
 		}

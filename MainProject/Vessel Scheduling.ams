@@ -78,7 +78,7 @@ Model Main_Vessel_Schedule {
 				Range: cal_days;
 				Comment: "Start of modeling horizon.";
 				dex::ColumnName: StartDate;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: Horizon;
 			}
 			ElementParameter ep_def_finishHorizonDate {
@@ -118,9 +118,15 @@ Model Main_Vessel_Schedule {
 				Range: s_cargoes;
 				dex::ColumnName: Cargo;
 			}
+			Index i_act_cargo {
+				Range: s_def_activeCargoes;
+				dex::ColumnName: Cargo;
+			}
+			Index i_act_cargo_aux {
+				Range: s_def_activeCargoes;
+			}
 			Set s_def_activeCargoes {
 				SubsetOf: s_cargoes;
-				Index: i_act_cargo, i_act_cargo_aux;
 				Definition: {
 					{i_cargo | bp_activeCargoes(i_cargo)}
 				}
@@ -134,7 +140,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Unit: $;
 				dex::ColumnName: Spot Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -142,7 +148,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Range: cal_days;
 				dex::ColumnName: Minimum Loading Time;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -150,7 +156,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Range: cal_days;
 				dex::ColumnName: Maximum Loading Time;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -158,7 +164,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Range: s_locations;
 				dex::ColumnName: Loading Port;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -166,7 +172,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_cargo;
 				Range: s_locations;
 				dex::ColumnName: Delevering Port;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -184,7 +190,7 @@ Model Main_Vessel_Schedule {
 				Range: free;
 				Unit: $;
 				dex::ColumnName: Fixed Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
@@ -252,7 +258,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: i_vessel;
 				Range: s_locations;
 				dex::ColumnName: Port of Origin;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: VesselData;
 			}
 			Parameter p_sailingCost {
@@ -262,7 +268,7 @@ Model Main_Vessel_Schedule {
 					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
 				}
 				dex::ColumnName: Sailing Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: VesselData;
 			}
 			Parameter p_def_idleCostVesselNotUsed {
@@ -344,20 +350,20 @@ Model Main_Vessel_Schedule {
 			Parameter p_latitude {
 				IndexDomain: i_loc;
 				dex::ColumnName: Latitude;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 			}
 			Parameter p_longitude {
 				IndexDomain: i_loc;
 				dex::ColumnName: Longitude;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 			}
 			Parameter p_idleCostLocation {
 				IndexDomain: i_loc;
 				Unit: $/day;
 				dex::ColumnName: Idle Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
@@ -365,7 +371,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_loc);
 				Unit: $;
 				dex::ColumnName: Admin Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
@@ -373,7 +379,7 @@ Model Main_Vessel_Schedule {
 				IndexDomain: (i_loc);
 				Unit: $;
 				dex::ColumnName: Loading Cost;
-				dex::Dataset: Import;
+				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
@@ -408,17 +414,26 @@ Model Main_Vessel_Schedule {
 				Index: i_route;
 				Parameter: ep_route;
 			}
+			Index i_leg {
+				Range: s_calc_legs;
+				dex::ColumnName: Leg;
+			}
+			Index i_leg_aux {
+				Range: s_calc_legs;
+			}
 			Set s_calc_legs {
 				SubsetOf: Integers;
-				Index: i_leg, i_leg_aux;
 				Property: ElementsAreLabels;
 				Definition: {
 					{ 1 .. 20 }
 				}
 			}
+			Index i_used_route {
+				Range: s_calc_usedRoutes;
+				dex::ColumnName: Route;
+			}
 			Set s_calc_usedRoutes {
 				SubsetOf: s_calc_feasibleRoutes;
-				Index: i_used_route;
 				Comment: "The routes in the solution of the last solved mm::mp_vesselScheduling.";
 			}
 			Set s_calc_cargosHandled {
@@ -1042,6 +1057,13 @@ Model Main_Vessel_Schedule {
 		}
 	}
 	Section App_Testing {
+		Procedure pr_testService {
+			Body: {
+				modSolveService::pr_actuallySolveVesselScheduling(
+					sp_inp :  "data/DeftaultData - 20 cargos - 7 vessels.xlsx", 
+					sp_out :  "solutions/SolutionData - 20 cargos - 7 vessels.xlsx");
+			}
+		}
 		Procedure pr_test {
 			Body: {
 				pr_test_readInput();
@@ -1067,6 +1089,8 @@ Model Main_Vessel_Schedule {
 					display ep_calc_routeVessel ;
 					display p_calc_arcsPerRoute ;
 				endblock ;
+				
+				!block where single_column_display
 				putclose ;
 			}
 			File _f_outf {
@@ -1116,6 +1140,16 @@ Model Main_Vessel_Schedule {
 				mm::pr_post_cargoResults;
 			}
 		}
+		Procedure pr_playMappings {
+			Body: {
+				if not DirectoryExists( "Mappings/Generated" ) then
+					dex::GenerateDatasetMappings;
+				endif ;
+				block where single_column_display := 1 ;
+					display dex::Mappings ;
+				endblock ;
+			}
+		}
 	}
 	Section App_Start_Finish {
 		Procedure MainInitialization {
@@ -1131,6 +1165,26 @@ Model Main_Vessel_Schedule {
 				"Add initialization statements here that require that the libraries are already initialized properly,
 				or add statements that require the Data Management module to be initialized."
 			}
+		}
+		Procedure pr_startupProcedure {
+			Body: {
+				if not DirectoryExists( "Mappings/Generated" ) then
+					dex::GenerateDatasetMappings();
+				endif ;
+				
+				dex::ReadAllMappings();
+				
+				_sp_configFolder := "../Config/" ;
+				_sp_portNumber := FileRead( _sp_configFolder + "port.txt" );
+				modSolveService::p_portNumber := val(_sp_portNumber);
+				
+				
+				!block where single_column_display := 1 ;
+				!	display dex::Mappings ;
+				!endblock ;
+			}
+			StringParameter _sp_configFolder;
+			StringParameter _sp_portNumber;
 		}
 		Procedure PreMainTermination {
 			Body: {

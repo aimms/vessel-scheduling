@@ -2,5 +2,90 @@
 
 Module Module_SolveService {
 	Prefix: modSolveService;
-	Procedure pr_solve;
+	Procedure pr_solveVesselScheduling {
+		Body: {
+			_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
+			_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
+			
+			pr_actuallySolveVesselScheduling( _sp_inp, _sp_out );
+			
+			return 1 ;
+		}
+		dex::ServiceName: solveVesselScheduling;
+		StringParameter _sp_inp;
+		StringParameter _sp_out;
+	}
+	Procedure pr_actuallySolveVesselScheduling {
+		Arguments: (sp_inp,sp_out);
+		Body: {
+			display "pr_actuallySolveVesselScheduling", sp_inp, sp_out;
+			
+			di::pr_actuallyImportExcel(sp_inp);
+			
+			pr_calculateRoutesAndCost(bp_bulk: 1);
+			
+			solve mm::mp_vesselScheduling;
+			
+			!Post Execution
+			mm::pr_post_vesselResults();
+			mm::pr_post_cargoResults();
+			mm::pr_post_routeResults();
+			! Prep output parameters.
+			
+			di::pr_actuallyExportSolutionFile(sp_out);
+		}
+		DeclarationSection Argument_declarations {
+			StringParameter sp_inp {
+				Property: Input;
+			}
+			StringParameter sp_out {
+				Property: Input;
+			}
+		}
+	}
+	Section start_stop_the_service_in_AIMMS_Developer {
+		Parameter p_portNumber;
+		Procedure pr_startService {
+			Body: {
+				OptionGetString(
+					OptionName    :  "Project title", 
+					CurrentString :  _sp_projectTitle);
+				
+				if findString( _sp_projectTitle, "is running on port" ) then
+					raise warning formatString("Cannot start the service \"%s\" twice", _sp_projectTitle );
+				else
+					OptionSetString(
+						OptionName :  "Project title", 
+						NewString  :  formatString("%s is running on port %i", 
+									_sp_projectTitle, p_portNumber));
+					dex::api::ListenerPort := p_portNumber ;
+					dex::api::StartAPIService();
+				endif ;
+			}
+			StringParameter _sp_projectTitle;
+		}
+		Procedure pr_stopService {
+			Body: {
+				OptionGetString(
+					OptionName    :  "Project title", 
+					CurrentString :  _sp_projectTitle);
+				_p_pos := findString(_sp_projectTitle, " is running on port" );
+				if _p_pos then
+					if _p_pos <= 2 then
+						_sp_projectTitle := "" ;
+					else
+						_sp_projectTitle := substring( _sp_projectTitle, 1, _p_pos - 1 );
+						OptionSetString(
+							OptionName :  "Project title", 
+							NewString  :  _sp_projectTitle );
+					endif ;
+					dex::api::StopAPIService();
+				else
+					raise warning "Ignoring stop service" ;
+				endif ;
+			}
+			StringParameter _sp_projectTitle;
+			Parameter _p_pos;
+		}
+	}
 }

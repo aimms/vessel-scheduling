@@ -24,3 +24,4 @@ warning_not_initialized off
 * NETSOL
 * Environment
 Project_Title "Vessel Scheduling"
+Startup_Procedure "pr_startupProcedure"
