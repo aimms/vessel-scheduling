@@ -425,7 +425,7 @@ Model Main_Vessel_Schedule {
 				SubsetOf: Integers;
 				Property: ElementsAreLabels;
 				Definition: {
-					{ 1 .. 20 }
+					{ 1 .. 200 }
 				}
 			}
 			Index i_used_route {
@@ -863,6 +863,12 @@ Model Main_Vessel_Schedule {
 			}
 			Procedure pr_processRouteListEx {
 				Body: {
+						_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
+						_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
+						_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
+						_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
+					
+					
 					_s_inputList := s_temp_routeWorkingList ;
 					s_temp_routeWorkingList := {};
 					_s_processedRoutes := {};
@@ -912,10 +918,10 @@ Model Main_Vessel_Schedule {
 					
 						! First copy legs from working route to new route.
 						ep_calc_routeLastLeg(i_workRoute) := ep_calc_routeLastLeg(_ep_parent_route(i_workRoute));
-						_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
-						_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
-						_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
-						_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
+					!	_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
+					!	_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
+					!	_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
+					!	_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
 						ep_calc_vesselActivityType(     i_workRoute, i_leg ) := _ep_tmp_vesselActivityType(     _ep_parent_route(i_workRoute), i_leg);
 						ep_calc_vesselActivityLocation( i_workRoute, i_leg ) := _ep_tmp_vesselActivityLocation( _ep_parent_route(i_workRoute), i_leg);
 						ep_calc_vesselActivityFirst(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityFirst(    _ep_parent_route(i_workRoute), i_leg);
@@ -962,6 +968,12 @@ Model Main_Vessel_Schedule {
 						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_deliveringPortsCargo(_ep_last_cargo( i_workRoute ));
 						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) := _ep_loc_nextSailingDay(_ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute )); 
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_finishHorizonDate;
+					
+						_ep_tmp_vesselActivityType(     i_workRoute, i_leg ) := ep_calc_vesselActivityType(     i_workRoute, i_leg );
+						_ep_tmp_vesselActivityLocation( i_workRoute, i_leg ) := ep_calc_vesselActivityLocation( i_workRoute, i_leg );
+						_ep_tmp_vesselActivityFirst(    i_workRoute, i_leg ) := ep_calc_vesselActivityFirst(    i_workRoute, i_leg );
+						_ep_tmp_vesselActivityLast(     i_workRoute, i_leg ) := ep_calc_vesselActivityLast(     i_workRoute, i_leg );
+					
 					
 						! - Finishing up admin.
 						ep_calc_routeLastLeg(i_workRoute) := _ep_loc_lastLeg(i_workRoute);
@@ -1108,10 +1120,14 @@ Model Main_Vessel_Schedule {
 			Body: {
 				!di::pr_importExcel("data/DeftaultData - 2 cargos - 2 vessels.xlsx", 
 				!	_p_stat, _sp_desc );
-				! DeftaultData - 20 cargos - 7 vessels
+				
 				!di::pr_importExcel("data/DeftaultData.xlsx", 
 				!	_p_stat, _sp_desc );
-				di::pr_importExcel("data/DeftaultData - 20 cargos - 7 vessels.xlsx", 
+				
+				!di::pr_importExcel("data/DeftaultData - 20 cargos - 7 vessels.xlsx", 
+				!	_p_stat, _sp_desc );
+				
+				di::pr_importExcel("data/DeftaultData - 20 cargos - 7 vessels - wide.xlsx", 
 					_p_stat, _sp_desc );
 			}
 			Parameter _p_stat;
