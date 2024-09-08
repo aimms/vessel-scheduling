@@ -1118,16 +1118,16 @@ Model Main_Vessel_Schedule {
 		}
 		Procedure pr_test_readInput {
 			Body: {
-				!di::pr_importExcel("data/DeftaultData - 2 cargos - 2 vessels.xlsx", 
+				!di::pr_importExcel("data/DefaultData - 2 cargos - 2 vessels.xlsx", 
 				!	_p_stat, _sp_desc );
 				
-				!di::pr_importExcel("data/DeftaultData.xlsx", 
+				!di::pr_importExcel("data/DefaultData.xlsx", 
 				!	_p_stat, _sp_desc );
 				
-				!di::pr_importExcel("data/DeftaultData - 20 cargos - 7 vessels.xlsx", 
+				!di::pr_importExcel("data/DefaultData - 20 cargos - 7 vessels.xlsx", 
 				!	_p_stat, _sp_desc );
 				
-				di::pr_importExcel("data/DeftaultData - 20 cargos - 7 vessels - wide.xlsx", 
+				di::pr_importExcel("data/DefaultData - 20 cargos - 7 vessels - wide.xlsx", 
 					_p_stat, _sp_desc );
 			}
 			Parameter _p_stat;

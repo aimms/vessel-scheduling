@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<AimmsExcelMapping>
+	<ExcelSheetMapping name="Horizon">
+		<RowMapping>
+			<ColumnMapping name="StartDate" maps-to="ep_startHorizonDate" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="CargoData">
+		<RowMapping>
+			<ColumnMapping name="Cargo" binds-to="i_cargo" />
+			<ColumnMapping name="Spot Cost" maps-to="p_spotCostVessel(i_cargo)" />
+			<ColumnMapping name="Minimum Loading Time" maps-to="ep_minTimeWindow(i_cargo)" />
+			<ColumnMapping name="Maximum Loading Time" maps-to="ep_maxTimeWindow(i_cargo)" />
+			<ColumnMapping name="Loading Port" maps-to="ep_loadingPortsCargo(i_cargo)" />
+			<ColumnMapping name="Delevering Port" maps-to="ep_deliveringPortsCargo(i_cargo)" />
+			<ColumnMapping name="Fixed Cost" maps-to="p_cargoCost(i_cargo)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="VesselData">
+		<RowMapping>
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
+			<ColumnMapping name="Sailing Cost" maps-to="p_sailingCost(i_vessel)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="LocationData">
+		<RowMapping>
+			<ColumnMapping name="Location" binds-to="i_loc" />
+			<ColumnMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+			<ColumnMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+			<ColumnMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
+			<ColumnMapping name="Admin Cost" maps-to="p_adminCostAtLocation(i_loc)" />
+			<ColumnMapping name="Loading Cost" maps-to="p_loadingCostAtLocation(i_loc)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+</AimmsExcelMapping>

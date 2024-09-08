@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AimmsCSVMapping dense-children="1">
+	<RowMapping name="LocationData">
+		<ColumnMapping name="Location" binds-to="i_loc" />
+		<ColumnMapping name="Latitude" maps-to="p_latitude(i_loc)" />
+		<ColumnMapping name="Longitude" maps-to="p_longitude(i_loc)" />
+		<ColumnMapping name="Idle Cost" maps-to="p_idleCostLocation(i_loc)" />
+		<ColumnMapping name="Admin Cost" maps-to="p_adminCostAtLocation(i_loc)" />
+		<ColumnMapping name="Loading Cost" maps-to="p_loadingCostAtLocation(i_loc)" />
+	</RowMapping>
+</AimmsCSVMapping>

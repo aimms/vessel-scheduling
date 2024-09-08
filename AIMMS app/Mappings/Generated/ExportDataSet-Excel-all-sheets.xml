@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<AimmsExcelMapping dense-children="1">
+	<ExcelSheetMapping name="Vessel">
+		<RowMapping>
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Route" maps-to="mm::ep_calc_routeOfVessel(i_vessel)" />
+			<ColumnMapping name="Cost" maps-to="mm::p_calc_operationalCostPerVessel(i_vessel)" />
+			<ColumnMapping name="TravelDays" maps-to="mm::p_calc_totalTravelDaysPerVessel(i_vessel)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="Cargo">
+		<RowMapping>
+			<ColumnMapping name="Cargo" binds-to="i_act_cargo" />
+			<ColumnMapping name="Vessel" maps-to="mm::ep_calc_vesselOfCargo(i_act_cargo)" />
+			<ColumnMapping name="Route" maps-to="mm::ep_calc_routeOfCargo(i_act_cargo)" />
+			<ColumnMapping name="Cost" maps-to="mm::p_calc_totalCostPerCargo(i_act_cargo)" />
+			<ColumnMapping name="Loading" maps-to="mm::sp_calc_loadingTimePerCargo(i_act_cargo)" />
+			<ColumnMapping name="Delivery" maps-to="mm::sp_calc_deleveringTimePerCargo(i_act_cargo)" />
+			<ColumnMapping name="SpotCost" maps-to="mm::p_calc_cargoSpotCost(i_act_cargo)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+	<ExcelSheetMapping name="Route">
+		<RowMapping>
+			<ColumnMapping name="Route" binds-to="i_used_route" />
+			<ColumnMapping name="Leg" binds-to="i_leg" />
+			<ColumnMapping name="Type" maps-to="mm::ep_post_vesselActivityType(i_used_route,i_leg)" />
+			<ColumnMapping name="Location" maps-to="mm::ep_post_vesselActivityLocation(i_used_route,i_leg)" />
+			<ColumnMapping name="FirstDay" maps-to="mm::ep_post_vesselActivityFirst(i_used_route,i_leg)" />
+			<ColumnMapping name="LastDay" maps-to="mm::ep_post_vesselActivityLast(i_used_route,i_leg)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+</AimmsExcelMapping>

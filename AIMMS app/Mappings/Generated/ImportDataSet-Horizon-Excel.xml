@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AimmsExcelMapping dense-children="1">
+	<ExcelSheetMapping name="Horizon">
+		<RowMapping>
+			<ColumnMapping name="StartDate" maps-to="ep_startHorizonDate" />
+		</RowMapping>
+	</ExcelSheetMapping>
+</AimmsExcelMapping>
