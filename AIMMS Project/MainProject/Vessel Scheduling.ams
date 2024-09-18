@@ -1,6 +1,6 @@
 ## ams_version=1.0
 
-Model Main_Vessel_Schedule {
+Model Main_VesselScheduling {
 	Comment: {
 		"Vessel Scheduling Application structure:
 		
@@ -1097,6 +1097,7 @@ Model Main_Vessel_Schedule {
 					ep_calc_vesselActivityFirst, 
 					ep_calc_vesselActivityLast 
 				};
+				
 				block where single_column_display := 1 ;
 					display ep_calc_routeVessel ;
 					display p_calc_arcsPerRoute ;
@@ -1186,18 +1187,13 @@ Model Main_Vessel_Schedule {
 			Body: {
 				if not DirectoryExists( "Mappings/Generated" ) then
 					dex::GenerateDatasetMappings();
-				endif ;
+				endif;
 				
 				dex::ReadAllMappings();
 				
 				_sp_configFolder := "../Config/" ;
 				_sp_portNumber := FileRead( _sp_configFolder + "port.txt" );
 				modSolveService::p_portNumber := val(_sp_portNumber);
-				
-				
-				!block where single_column_display := 1 ;
-				!	display dex::Mappings ;
-				!endblock ;
 			}
 			StringParameter _sp_configFolder;
 			StringParameter _sp_portNumber;

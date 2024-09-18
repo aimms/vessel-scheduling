@@ -220,7 +220,7 @@ LibraryModule UserInterface {
 			Body: {
 				empty webui::IdentifierElementText;
 				
-				_s_presentableIds := Main_Vessel_Schedule + UserInterface ;
+				_s_presentableIds := Main_VesselScheduling + UserInterface ;
 				
 				! Clear identifier element text of all identifiers in the Main model.
 				webui::IdentifierElementText( _i_presentableId ) := "" ;
