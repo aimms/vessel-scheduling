@@ -795,6 +795,30 @@
         "run": "ui::pr_uponLoadPageGeneratedItineraries"
       }
     },
+    "secondarypageactions": {
+      "aimms": {
+        "contents": [
+          "ui::sp_systemSecondaryActions"
+        ],
+        "slices": [
+          {
+            "identifier": "ui::sp_systemSecondaryActions",
+            "slice": [
+              {
+                "index": "webui::indexPageExtension",
+                "type": "free",
+                "value": "webui::indexPageExtension"
+              },
+              {
+                "index": "webui::indexPageActionSpec",
+                "type": "free",
+                "value": "webui::indexPageActionSpec"
+              }
+            ]
+          }
+        ]
+      }
+    },
     "widgets": {
       "literal": [
         {

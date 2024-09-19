@@ -1068,104 +1068,27 @@ Model Main_VesselScheduling {
 			}
 		}
 	}
-	Section App_Testing {
-		Procedure pr_testService {
-			Body: {
-				modSolveService::pr_actuallySolveVesselScheduling(
-					sp_inp :  "data/DeftaultData - 20 cargos - 7 vessels.xlsx", 
-					sp_out :  "solutions/SolutionData - 20 cargos - 7 vessels.xlsx");
-			}
-		}
-		Procedure pr_test {
-			Body: {
-				pr_test_readInput();
-				pr_calculateRoutesAndCost(bp_bulk: 1);
-				pr_routeGenOutput();
-			}
-		}
-		Procedure pr_routeGenOutput {
-			Body: {
-				_f_outf.pagewidth := 32000;
-				put _f_outf ;
-				display { 
-					ep_calc_pickupDate,
-					ep_calc_deliveryDate
-				};
-				display { 
-					ep_calc_vesselActivityType, 
-					ep_calc_vesselActivityLocation, 
-					ep_calc_vesselActivityFirst, 
-					ep_calc_vesselActivityLast 
-				};
-				
-				block where single_column_display := 1 ;
-					display ep_calc_routeVessel ;
-					display p_calc_arcsPerRoute ;
-				endblock ;
-				
-				!block where single_column_display
-				putclose ;
-			}
-			File _f_outf {
-				Name: "oldgen.results";
-				Device: Disk;
-				Mode: replace;
-			}
-		}
-		Procedure pr_routeGenRead {
-			Body: {
-				read from file "oldgen.results" ;
-			}
-		}
-		Procedure pr_test_readInput {
-			Body: {
-				!di::pr_importExcel("data/DefaultData - 2 cargos - 2 vessels.xlsx", 
-				!	_p_stat, _sp_desc );
-				
-				!di::pr_importExcel("data/DefaultData.xlsx", 
-				!	_p_stat, _sp_desc );
-				
-				!di::pr_importExcel("data/DefaultData - 20 cargos - 7 vessels.xlsx", 
-				!	_p_stat, _sp_desc );
-				
-				di::pr_importExcel("data/DefaultData - 20 cargos - 7 vessels - wide.xlsx", 
-					_p_stat, _sp_desc );
-			}
-			Parameter _p_stat;
-			StringParameter _sp_desc;
-		}
-		Procedure MainExecution {
-			Body: {
-				pr_calculateRoutesAndCost(bp_bulk: 1);
-				
-				solve mm::mp_vesselScheduling;
-				
-				ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
-				ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
-				ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "active";
-				
-				!Changes statusbar
-				ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
-				ui::sp_systemStatusBar(2,'color') := "Green";
-				ui::sp_systemStatusBar(2,'tooltip') := "The model has been solved.";
-				
-				!Open Overview dataset
-				ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
-				
-				!Post Execution
-				mm::pr_post_vesselResults;
-				mm::pr_post_cargoResults;
-			}
-		}
-		Procedure pr_playMappings {
-			Body: {
-				if not DirectoryExists( "Mappings/Generated" ) then
-					dex::GenerateDatasetMappings;
-				endif ;
-				block where single_column_display := 1 ;
-					display dex::Mappings ;
-				endblock ;
-			}
+	Procedure MainExecution {
+		Body: {
+			pr_calculateRoutesAndCost(bp_bulk: 1);
+			
+			solve mm::mp_vesselScheduling;
+			
+			ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "active";
+			
+			!Changes statusbar
+			ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
+			ui::sp_systemStatusBar(2,'color') := "Green";
+			ui::sp_systemStatusBar(2,'tooltip') := "The model has been solved.";
+			
+			!Open Overview dataset
+			ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
+			
+			!Post Execution
+			mm::pr_post_vesselResults;
+			mm::pr_post_cargoResults;
 		}
 	}
 	Section App_Start_Finish {

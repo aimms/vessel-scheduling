@@ -61,11 +61,8 @@ print(f"URL submit task: {url_submit}")
 
 # Source
 # Specify input file.
-#vessel_input_filename = '..\data\DefaultData - 2 cargos - 2 vessels.xlsx'
-#vessel_input_filename = '..\data\DefaultData.xlsx'
-#vessel_input_filename = '..\data\DefaultData - 20 cargos - 7 vessels - narrow.xlsx'
-#vessel_input_filename = '..\data\DefaultData - 20 cargos - 7 vessels.xlsx'
-vessel_input_filename = '..\data\DefaultData - 20 cargos - 7 vessels - wide.xlsx'
+#vessel_input_filename = '..\data\VS_5Vessel_15Cargo.xlsx'
+vessel_input_filename = '..\data\VS_7Vessel_20Cargo.xlsx'
 
 # Open the file in binary mode.
 with open(vessel_input_filename, 'rb') as file:

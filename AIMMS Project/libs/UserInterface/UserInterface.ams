@@ -435,7 +435,7 @@ LibraryModule UserInterface {
 					  ( 1, procedure   ) : "di::pr_importRequestFile"       ,  
 					  ( 1, state       ) : "Active"                         ,
 					
-					  ( 2, displaytext ) : "Download Excel"                 ,  
+					  ( 2, displaytext ) : "Download Results"               ,  
 					  ( 2, icon        ) : "aimms-download4"                ,
 					  ( 2, procedure   ) : "di::pr_exportExcelInputFile"    ,  
 					  ( 2, state       ) : "Active"                         ,

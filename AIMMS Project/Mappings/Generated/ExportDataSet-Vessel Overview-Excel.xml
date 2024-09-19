@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <AimmsExcelMapping dense-children="1">
-	<ExcelSheetMapping name="Vessel">
+	<ExcelSheetMapping name="Vessel Overview">
 		<RowMapping>
 			<ColumnMapping name="Vessel" binds-to="i_vessel" />
 			<ColumnMapping name="Route" maps-to="mm::ep_calc_routeOfVessel(i_vessel)" />
-			<ColumnMapping name="Cost" maps-to="mm::p_calc_operationalCostPerVessel(i_vessel)" />
-			<ColumnMapping name="TravelDays" maps-to="mm::p_calc_totalTravelDaysPerVessel(i_vessel)" />
+			<ColumnMapping name="Route Cost" maps-to="mm::p_calc_operationalCostPerVessel(i_vessel)" />
+			<ColumnMapping name="Route Period" maps-to="mm::p_calc_totalTravelDaysPerVessel(i_vessel)" />
 		</RowMapping>
 	</ExcelSheetMapping>
 </AimmsExcelMapping>

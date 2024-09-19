@@ -14,9 +14,7 @@ LibraryModule DataIntegration {
 			Body: {
 				if not FileExists(webui::GetIOFilePath(fname)) then return; endif;
 				
-				
 				pr_actuallyImportExcel(fname);
-				
 				
 				!Changes to secondary actions
 				ui::sp_systemSecondaryActions(3,'state'):= 'active';
@@ -53,23 +51,17 @@ LibraryModule DataIntegration {
 		Procedure pr_actuallyImportExcel {
 			Arguments: (fname);
 			Body: {
-				!dex::GenerateDatasetMappings;
-				
 				!Delete old data
 				empty Cargoes, Vessels, Locations, Routes;
 				p_vesselVelocity := 37.04 [km/hour];
 				
-				!!Importeren van de data
-				!dex::AddMapping(
-				!	mappingName : "ImportData", 
-				!	mappingFile : "./Mappings/Generated/ImportDataSet-Excel.xml");
-				! 'Generated/ImportDataSet-Excel
-				!dex::ReadFromFile(
-				!	dataFile : fname, 
-				!	mappingName : "ImportData");
+				dex::AddMapping(
+				    mappingName : "ImportDataSet",
+				    mappingFile : "./Mappings/Generated/ImportDataSet-Excel.xml");
+				
 				dex::ReadFromFile(
 					dataFile : fname, 
-					mappingName : "Generated/ImportDataSet-Excel");
+					mappingName : "ImportDataSet");
 				
 				!Activate all master data
 				bp_activeCargoes(i_cargo):= 1;
@@ -83,12 +75,20 @@ LibraryModule DataIntegration {
 		Procedure pr_exportExcelInputFile {
 			Body: {
 				dex::AddMapping(
-				    mappingName : "ImportDataSet",
-				    mappingFile : "./Mappings/Generated/Import-Excel.xml");
+				    mappingName : "ExportDataSet",
+				    mappingFile : "./Mappings/Generated/ExportDataSet-Excel.xml");
+				
+				if FileExists("Results.xlsx") then
+				    FileDelete("Results.xlsx");
+				endif;
+				
+				FileCopy("data\\FormatDataScheduling.xlsx", "Results.xlsx");
 				
 				dex::WriteToFile(
-				    dataFile : "data\\FormatDataScheduling.xlsx",
-				    mappingName : "ImportDataSet");
+				    dataFile : "Results.xlsx",
+				    mappingName : "ExportDataSet");
+				
+				webui::RequestFileDownload(fname : "Results.xlsx");
 			}
 		}
 		Procedure pr_emptyData {
@@ -124,8 +124,6 @@ LibraryModule DataIntegration {
 		Procedure pr_actuallyExportSolutionFile {
 			Arguments: (fname);
 			Body: {
-				!display "pr_actuallyExportSolutionFile", fname ;
-				
 				if FileExists( fname ) then
 					FileDelete( fname );
 				endif ;

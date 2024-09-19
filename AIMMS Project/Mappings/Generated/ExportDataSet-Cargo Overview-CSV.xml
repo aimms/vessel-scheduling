@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsCSVMapping dense-children="1">
+	<RowMapping name="Cargo Overview">
+		<ColumnMapping name="Cargo" binds-to="i_act_cargo" />
+		<ColumnMapping name="Vessel Used" maps-to="mm::ep_calc_vesselOfCargo(i_act_cargo)" />
+		<ColumnMapping name="Cargo Cost" maps-to="mm::p_calc_totalCostPerCargo(i_act_cargo)" />
+		<ColumnMapping name="Loading Time" maps-to="mm::sp_calc_loadingTimePerCargo(i_act_cargo)" />
+		<ColumnMapping name="Delivery Time" maps-to="mm::sp_calc_deleveringTimePerCargo(i_act_cargo)" />
+	</RowMapping>
+</AimmsCSVMapping>
