@@ -245,18 +245,30 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_post_vesselActivityType {
 				IndexDomain: (i_used_route,i_leg);
 				Range: s_def_vesselActivities;
+				dex::ColumnName: ActionType;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route Overview;
 			}
 			ElementParameter ep_post_vesselActivityLocation {
 				IndexDomain: (i_used_route,i_leg);
 				Range: s_locations;
+				dex::ColumnName: Location;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route Overview;
 			}
 			ElementParameter ep_post_vesselActivityFirst {
 				IndexDomain: (i_used_route,i_leg);
 				Range: cal_days;
+				dex::ColumnName: First;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route Overview;
 			}
 			ElementParameter ep_post_vesselActivityLast {
 				IndexDomain: (i_used_route,i_leg);
 				Range: cal_days;
+				dex::ColumnName: Last;
+				dex::Dataset: ExportDataSet;
+				dex::TableName: Route Overview;
 			}
 		}
 		Procedure pr_post_routeResults {

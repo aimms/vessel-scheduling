@@ -17,4 +17,14 @@
 			<ColumnMapping name="Delivery Time" maps-to="mm::sp_calc_deleveringTimePerCargo(i_act_cargo)" />
 		</RowMapping>
 	</ExcelSheetMapping>
+	<ExcelSheetMapping name="Route Overview">
+		<RowMapping>
+			<ColumnMapping name="Route" binds-to="i_used_route" />
+			<ColumnMapping name="Leg" binds-to="i_leg" />
+			<ColumnMapping name="ActionType" maps-to="mm::ep_post_vesselActivityType(i_used_route,i_leg)" />
+			<ColumnMapping name="Location" maps-to="mm::ep_post_vesselActivityLocation(i_used_route,i_leg)" />
+			<ColumnMapping name="First" maps-to="mm::ep_post_vesselActivityFirst(i_used_route,i_leg)" />
+			<ColumnMapping name="Last" maps-to="mm::ep_post_vesselActivityLast(i_used_route,i_leg)" />
+		</RowMapping>
+	</ExcelSheetMapping>
 </AimmsExcelMapping>

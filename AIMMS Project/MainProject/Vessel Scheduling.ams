@@ -1089,6 +1089,7 @@ Model Main_VesselScheduling {
 			!Post Execution
 			mm::pr_post_vesselResults;
 			mm::pr_post_cargoResults;
+			mm::pr_post_routeResults();
 		}
 	}
 	Section App_Start_Finish {
@@ -1140,6 +1141,22 @@ Model Main_VesselScheduling {
 				Return 1 to allow the termination sequence to continue.
 				Return 0 if you want to cancel the termination sequence.
 				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+			}
+		}
+	}
+	Section Leverage_AimmsCmd {
+		StringParameter sp_theExcelInput;
+		StringParameter sp_theExcelOutput;
+		Procedure pr_readExcel {
+			Body: {
+				
+				di::pr_actuallyImportExcel(sp_theExcelInput);
+			}
+		}
+		Procedure pr_writeExcel {
+			Body: {
+				
+				di::pr_actuallyExportSolutionFile(sp_theExcelOutput);
 			}
 		}
 	}
