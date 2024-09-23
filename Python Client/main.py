@@ -61,8 +61,8 @@ print(f"URL submit task: {url_submit}")
 
 # Source
 # Specify input file.
-#vessel_input_filename = '..\data\VS_5Vessel_15Cargo.xlsx'
-vessel_input_filename = '..\data\VS_7Vessel_20Cargo.xlsx'
+#vessel_input_filename = '..\AIMMS Project\data\VS_5Vessel_15Cargo.xlsx'
+vessel_input_filename = '..\AIMMS Project\data\VS_7Vessel_20Cargo.xlsx'
 
 # Open the file in binary mode.
 with open(vessel_input_filename, 'rb') as file:
@@ -97,7 +97,7 @@ print(f"URL Task Response: {url_task_response}")
 task_response = requests.get(url_task_response, headers=Headers)
 print(f"task response code: {task_response.status_code}")
 # print(f"task response json: {task_response.json()}")
-vessel_result_filename = vessel_input_filename.replace('Data','Results')
+vessel_result_filename = vessel_input_filename.replace('Cargo','Cargo_Results')
 open(vessel_result_filename, 'wb').write(task_response.content)
 
 
