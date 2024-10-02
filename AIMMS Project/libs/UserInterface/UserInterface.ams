@@ -364,18 +364,21 @@ LibraryModule UserInterface {
 					  ( 1, 2, pageId            ) : "problem_statement",
 					  ( 1, 2, tooltip           ) : "Short statement about the problem",
 					  ( 1, 2, workflowPageState ) : "Active",
+					  ( 1, 2, redirectPageId    ) : "introduction_problem",
 					
 					  ( 1, 3, displayText       ) : "Master",
 					  ( 1, 3, icon              ) : "aimms-equalizer2",
 					  ( 1, 3, pageId            ) : "overview_costs",
 					  ( 1, 3, tooltip           ) : "Overview of all the sets",
 					  ( 1, 3, workflowPageState ) : "Active",
+					  ( 1, 3, redirectPageId    ) : "introduction_problem",
 					
 					  ( 1, 4, displayText       ) : "Overview Datasets",
 					  ( 1, 4, icon              ) : "aimms-equalizer2",
 					  ( 1, 4, pageId            ) : "overview_datasets",
 					  ( 1, 4, tooltip           ) : "Overview of all the data",
 					  ( 1, 4, workflowPageState ) : "Active",
+					  ( 1, 4, redirectPageId    ) : "overview_costs",
 					
 					  ( 1, 5, displayText       ) : "Locations",
 					  ( 1, 5, icon              ) : "aimms-location5",
@@ -383,6 +386,7 @@ LibraryModule UserInterface {
 					  ( 1, 5, tooltip           ) : "Location data",
 					  ( 1, 5, workflowPageState ) : "Active",
 					  ( 1, 5, parentPageId      ) : "overview_datasets",
+					  ( 1, 6, redirectPageId    ) : "overview_costs",
 					
 					  ( 1, 6, displayText       ) : "Cargoes",
 					  ( 1, 6, icon              ) : "aimms-package",
@@ -397,6 +401,7 @@ LibraryModule UserInterface {
 					  ( 1, 7, tooltip           ) : "Vessel data",
 					  ( 1, 7, workflowPageState ) : "Active",
 					  ( 1, 7, parentPageId      ) : "overview_datasets",
+					  ( 1, 7, redirectPageId    ) : "overview_costs",
 					
 					  ( 1, 8, displayText       ) : "Generated Itineraries",
 					  ( 1, 8, icon              ) : "aimms-film4",
@@ -404,18 +409,22 @@ LibraryModule UserInterface {
 					  ( 1, 8, tooltip           ) : "Vessel data",
 					  ( 1, 8, workflowPageState ) : "Inactive",
 					  ( 1, 8, parentPageId      ) : "",
+					  ( 1, 8, redirectPageId    ) : "overview_costs",
 					
 					  ( 1, 9, displayText       ) : "Detailed Costs",
 					  ( 1, 9, icon              ) : "aimms-stats-decline",
 					  ( 1, 9, pageId            ) : "optimized_results",
 					  ( 1, 9, tooltip           ) : "Results after solving the model",
 					  ( 1, 9, workflowPageState ) : "Inactive",
+					  ( 1, 9, redirectPageId    ) : "overview_costs",
+					
 					
 					  ( 1, 10, displayText       ) : "Visualizations",
 					  ( 1, 10, icon              ) : "aimms-pie-chart8",
 					  ( 1, 10, pageId            ) : "all_visualisations",
 					  ( 1, 10, tooltip           ) : "All visualizations explaining results",
-					  ( 1, 10, workflowPageState ) : "Inactive" }
+					  ( 1, 10, workflowPageState ) : "Inactive",
+					  ( 1, 10, redirectPageId    ) : "overview_costs" }
 				}
 			}
 			StringParameter sp_systemWorkflowFoldingStates {
@@ -429,26 +438,30 @@ LibraryModule UserInterface {
 				IndexDomain: (webui::indexPageExtension,webui::indexPageActionSpec);
 				Property: NoSave;
 				InitialData: {
-					data 
-					{ ( 1, displaytext ) : "Upload Excel"                   ,  
-					  ( 1, icon        ) : "aimms-upload4"                  ,
-					  ( 1, procedure   ) : "di::pr_importRequestFile"       ,  
-					  ( 1, state       ) : "Active"                         ,
+					data {  ( 1, displaytext ) : "Upload Input",  
+					        ( 1, icon ) : "aimms-file-excel",  
+					        ( 1, procedure ) : "di::pr_importRequestFile",  
+					        ( 1, state ) : "Active",  
 					
-					  ( 2, displaytext ) : "Download Results"               ,  
-					  ( 2, icon        ) : "aimms-download4"                ,
-					  ( 2, procedure   ) : "di::pr_exportExcelInputFile"    ,  
-					  ( 2, state       ) : "Active"                         ,
+					        ( 2, displaytext ) : "Download Input",  
+					        ( 2, icon ) : "aimms-insert-template",  
+					        ( 2, procedure ) : "di::pr_exportExcelInputFile",  
+					        ( 2, state ) : "Active",  
 					
-					  ( 3, displaytext ) : "Solve"                          ,  
-					  ( 3, icon        ) : "aimms-cog"                      ,
-					  ( 3, procedure   ) : "MainExecution"                  ,  
-					  ( 3, state       ) : "inactive"                       ,
+					        ( 4, displaytext ) : "Download Results",  
+					        ( 4, icon ) : "aimms-stats-bars2",  
+					        ( 4, procedure ) : "di::pr_actuallyExportSolutionFile",  
+					        ( 4, state ) : "inactive",  
 					
-					  ( 4, displaytext ) : "Empty Case"                     ,  
-					  ( 4, icon        ) : "aimms-bin2"                     ,
-					  ( 4, procedure   ) : "di::pr_emptyData"               ,  
-					  ( 4, state       ) : "Active"                         }
+					        ( 3, displaytext ) : "Solve",  
+					        ( 3, icon ) : "aimms-ship",  
+					        ( 3, procedure ) : "MainExecution",  
+					        ( 3, state ) : "inactive",  
+					
+					        ( 5, displaytext ) : "Empty Case",  
+					        ( 5, icon ) : "aimms-bin2",  
+					        ( 5, procedure ) : "di::pr_emptyData",  
+					        ( 5, state ) : "Active" }
 				}
 			}
 		}
@@ -499,18 +512,34 @@ LibraryModule UserInterface {
 						pr_initCalendar;
 						
 						block !locations
+						    dex::DeleteMapping("ImportDefaultCoordinates");
+						
 							dex::AddMapping(
 								mappingName : "ImportDefaultCoordinates", 
-								mappingFile : "./Mappings/Import-Coordinates.xml");
+								mappingFile : "Mappings/Import-Coordinates.xml");
 						
-							dex::ReadFromFile(
-								dataFile : "data\\CoordinatesData.xlsx", 
-								mappingName : "ImportDefaultCoordinates");
+							if dex::ReadFromFile(
+						            dataFile : "CoordinatesData.xlsx", 
+						            mappingName : "ImportDefaultCoordinates") then
 						
-							p_adminCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
-							p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
-							p_idleCostLocation(i_loc) := (round(uniform(200,800)))[$/day];  
-							p_vesselVelocity := 37.04[km/hour];
+						        p_adminCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+						        p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+						        p_idleCostLocation(i_loc) := (round(uniform(200,800)))[$/day];  
+						        p_vesselVelocity := 37.04[km/hour];
+						
+						        ! displaying the status message, and logging it in the WebUI messages
+						        sp_loc_message := "File was uploaded and read successfully.";
+						        webui::ShowMessage('info', sp_loc_message);
+						    endif;        
+						
+						onerror ep_err do
+						
+						    !displaying a custom error message
+						    sp_loc_message := "Error when reading file " + errh::Message(ep_err) + ".";
+						    webui::ShowMessage('error', sp_loc_message);
+						
+						    errh::MarkAsHandled(ep_err) ;
+						
 						endblock;
 						
 						block !cargoes
@@ -536,23 +565,21 @@ LibraryModule UserInterface {
 						
 						!Changes to secondary actions
 						sp_systemSecondaryActions(3,'state'):= 'active';
-						sp_systemSecondaryActions(4,'state') := 'inactive';
+						ui::sp_systemSecondaryActions(4,'state'):= 'inactive';
 						
 						!Changes to status bar
 						sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
 						sp_systemStatusBar(1,'color') := "Green";
 						sp_systemStatusBar(1,'tooltip') := "Data is succesfully generated.";
 						sp_systemStatusBar(1,'text') := "Data Generated";
-						sp_systemStatusBar(2,'color') := "Orange";
-						sp_systemStatusBar(2,'icon'):= "aimms-circle2";
-						sp_systemStatusBar(2,'tooltip') := "Application ready to generate routes.";
-						sp_systemStatusBar(2,'state') := "active";
-						sp_systemStatusBar(3,'color') := "red";
-						sp_systemStatusBar(3,'icon') := "aimms-cancel-circle2";
-						sp_systemStatusBar(3,'tooltip') := "Model not ready to be solved.";
-						sp_systemStatusBar(3,'state') := 'inactive';
-						ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
-						ui::sp_systemStatusBar(4,'text') := "Data Generated";
+						
+						ui::sp_systemStatusBar(2,'color') := "Orange";
+						ui::sp_systemStatusBar(2,'icon'):= "aimms-circle2";
+						ui::sp_systemStatusBar(2,'tooltip') := "Application ready to be solved.";
+						ui::sp_systemStatusBar(2,'state') := "active";
+						
+						ui::sp_systemStatusBar(3,'icon'):= "aimms-briefcase";
+						ui::sp_systemStatusBar(3,'text') := "Data Generated";
 						
 						!Changes to workflow
 						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
@@ -562,13 +589,11 @@ LibraryModule UserInterface {
 						!Open Overview dataset
 						sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
 					}
-					StringParameter sp_CharacterCargo {
-						InitialData: "a";
+					StringParameter sp_loc_IOFilePath;
+					StringParameter sp_loc_message;
+					ElementParameter ep_err {
+						Range: errh::PendingErrors;
 					}
-					StringParameter sp_Alphabet {
-						InitialData: "abcdefghijklmnopqrstuvwxyz";
-					}
-					Parameter p_NumCharacter;
 				}
 				Parameter p_cargoesQuantity {
 					Range: nonnegative;

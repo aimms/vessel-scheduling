@@ -15,6 +15,34 @@ LibraryModule MathematicalModel {
 			}
 		}
 	}
+	Procedure pr_runModel {
+		Body: {
+			pr_calculateRoutesAndCost(bp_bulk: 1);
+			
+			solve mm::mp_vesselScheduling;
+		}
+	}
+	Procedure pr_updatePagesAfterSolve {
+		Body: {
+			ui::sp_systemSecondaryActions(4,'state'):= 'active';
+			
+			ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
+			ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "active";
+			!Open Overview dataset
+			ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
+			
+			!Changes statusbar
+			ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
+			ui::sp_systemStatusBar(2,'color') := "Green";
+			ui::sp_systemStatusBar(2,'tooltip') := "The model has been solved.";
+			
+			!Post Execution
+			mm::pr_post_vesselResults;
+			mm::pr_post_cargoResults;
+			mm::pr_post_routeResults();
+		}
+	}
 	DeclarationSection VS_Constraints {
 		Constraint c_assignCargoToOneVessel {
 			IndexDomain: i_act_cargo;

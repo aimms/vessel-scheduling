@@ -1,40 +1,6 @@
 ## ams_version=1.0
 
 Model Main_VesselScheduling {
-	Comment: {
-		"Vessel Scheduling Application structure:
-		
-		The Main model focuses mostly on the data model, in section Data Model.
-		
-		Major steps:
-		- Reading input
-		  - pr_importExcel
-		    Notes:
-		    - Uses AimmsDEX to read Excel with annotations of identifiers.
-		    - At the end, settings of Workflow and Statusbar are adapted.
-		- Computations
-		  - Generating Routes
-		  - Costing of generated routes
-		  - Optimization
-		- Reporting
-		
-		MM: Mathematical modeling - Most computational stuff is in library MathematicalModel with prefix mm.
-		
-		
-		UI: Most UI stuff is in library UserInterface with prefix ui.
-		- status bar
-		- workflow
-		- pages
-		  - Welcome
-		    - Welcome
-		    - Problem statement
-		  - Data
-		    - Locations
-		    - Cargoes
-		    - Vessel
-		  - Computations
-		  - Reporting"
-	}
 	Section Data_Model {
 		Section Quantities_and_Units {
 			Comment: {
@@ -1070,26 +1036,21 @@ Model Main_VesselScheduling {
 	}
 	Procedure MainExecution {
 		Body: {
-			pr_calculateRoutesAndCost(bp_bulk: 1);
+			if pro::GetPROEndPoint() or not ProjectDeveloperMode() then
+			    if pro::DelegateToServer( 
+			        procedureName      :  'mm::pr_runModel',
+			        waitForCompletion  :  1,
+			        completionCallback :  'pro::session::LoadResultsCallBack' )
+			    then 
 			
-			solve mm::mp_vesselScheduling;
+			        mm::pr_updatePagesAfterSolve;
 			
-			ui::sp_systemWorkFlowSteps(1,8,'workflowPageState') := "active";
-			ui::sp_systemWorkFlowSteps(1,9,'workflowPageState') := "active";
-			ui::sp_systemWorkFlowSteps(1,10,'workflowPageState') := "active";
+			    endif;
+			else
+			    mm::pr_runModel;
+			    mm::pr_updatePagesAfterSolve;
 			
-			!Changes statusbar
-			ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
-			ui::sp_systemStatusBar(2,'color') := "Green";
-			ui::sp_systemStatusBar(2,'tooltip') := "The model has been solved.";
-			
-			!Open Overview dataset
-			ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
-			
-			!Post Execution
-			mm::pr_post_vesselResults;
-			mm::pr_post_cargoResults;
-			mm::pr_post_routeResults();
+			endif;
 		}
 	}
 	Section App_Start_Finish {
@@ -1156,7 +1117,7 @@ Model Main_VesselScheduling {
 		Procedure pr_writeExcel {
 			Body: {
 				
-				di::pr_actuallyExportSolutionFile(sp_theExcelOutput);
+				!di::pr_actuallyExportSolutionFile(sp_theExcelOutput);
 			}
 		}
 	}

@@ -32,7 +32,7 @@ Module Module_SolveService {
 			mm::pr_post_routeResults();
 			! Prep output parameters.
 			
-			di::pr_actuallyExportSolutionFile(sp_out);
+			!di::pr_actuallyExportSolutionFile(sp_out);
 		}
 		DeclarationSection Argument_declarations {
 			StringParameter sp_inp {

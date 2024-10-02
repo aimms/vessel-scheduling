@@ -2910,10 +2910,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 4.86616641980002
+      "literal": 4.5654735507102915
     },
     "center.longitude": {
-      "literal": -34.3070709700936
+      "literal": -80.49013762833403
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3052,7 +3052,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 3
+      "literal": 4
     }
   },
   "widgets/MappingCargoesWithCollors_1": {
@@ -3109,10 +3109,10 @@
       }
     },
     "center.latitude": {
-      "literal": 11.293352029175797
+      "literal": 2.1088986592431382
     },
     "center.longitude": {
-      "literal": 34.8062387239425
+      "literal": 27.064955404603275
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3228,7 +3228,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 3
+      "literal": 2
     }
   },
   "widgets/msl_selecRoutes": {
