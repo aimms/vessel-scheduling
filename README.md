@@ -15,10 +15,9 @@ all vessels head directly to the loading port.
 Upon loading, each vessel proceeds directly to the delivery location within its designated time window.
 
 Constraints include: 
-
-	*   cargo's are loaded inside the determined time window, 
-   *   each cargo being transported by only one vessel, and
-   *   charter vessels being assigned to only one route at a time.
+   * cargo's are loaded inside the determined time window, 
+   * each cargo being transported by only one vessel, and
+   * charter vessels being assigned to only one route at a time.
 
 The objective is to minimize costs associated to combinations of cargoes and routes.
 

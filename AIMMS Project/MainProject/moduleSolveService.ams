@@ -18,12 +18,11 @@ Module Module_SolveService {
 	Procedure pr_actuallySolveVesselScheduling {
 		Arguments: (sp_inp,sp_out);
 		Body: {
-			! display "pr_actuallySolveVesselScheduling", sp_inp, sp_out;
-			
-			! di::pr_actuallyImportExcel(sp_inp);
 			dex::AddMapping(
 			mappingName : "ImportDataSet",
 			mappingFile : "Mappings/Generated/ImportDataSet-Excel.xml");
+			
+			p_vesselVelocity := 37.04 [km/hour];
 			
 			if dex::ReadFromFile(
 			    dataFile    : sp_inp, 
@@ -43,9 +42,6 @@ Module Module_SolveService {
 			mm::pr_post_vesselResults();
 			mm::pr_post_cargoResults();
 			mm::pr_post_routeResults();
-			! Prep output parameters.
-			
-			!di::pr_actuallyExportSolutionFile(sp_out);
 			
 			dex::WriteToFile(
 				dataFile    :  sp_out, 
