@@ -19,14 +19,14 @@ Module Module_SolveService {
 		Arguments: (sp_inp,sp_out);
 		Body: {
 			dex::AddMapping(
-			mappingName : "ImportDataSet",
-			mappingFile : "Mappings/Generated/ImportDataSet-Excel.xml");
+				mappingName : "ImportDataSet",
+				mappingFile : "Mappings/Generated/ImportDataSet-Excel.xml");
 			
 			p_vesselVelocity := 37.04 [km/hour];
 			
 			if dex::ReadFromFile(
-			    dataFile    : sp_inp, 
-			    mappingName : "Generated/ImportDataSet-Excel") then
+				dataFile    : sp_inp, 
+				mappingName : "Generated/ImportDataSet-Excel") then
 			
 				!Activate all master data
 				bp_activeCargoes(i_cargo):= 1;

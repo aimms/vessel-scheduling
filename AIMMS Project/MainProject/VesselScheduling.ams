@@ -1114,10 +1114,11 @@ Model Main_VesselScheduling {
 				di::pr_actuallyImportExcel(sp_theExcelInput);
 			}
 		}
-		Procedure pr_writeExcel {
+		Procedure pr_solveTheModel {
 			Body: {
-				
-				!di::pr_actuallyExportSolutionFile(sp_theExcelOutput);
+				modSolveService::pr_actuallySolveVesselScheduling(
+					sp_inp :  sp_theExcelInput, 
+					sp_out :  sp_theExcelOutput);
 			}
 		}
 	}
