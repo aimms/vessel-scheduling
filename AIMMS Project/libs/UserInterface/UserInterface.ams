@@ -545,7 +545,11 @@ LibraryModule UserInterface {
 						block !cargoes
 							s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
 							::ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
-							::ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+							!::ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+							for i_cargo do
+								_s_optDests := { i_loc | i_loc <> ep_loadingPortsCargo(i_cargo) };
+								ep_deliveringPortsCargo(i_cargo) := nth(_i_optDest, round(uniform(1, card(_s_optDests))));
+							endfor ;
 							p_spotCostVessel(i_cargo) := (round(uniform(50000,90000)))[$];
 							p_cargoCost(i_cargo) := (round(uniform(50,200)))[$];
 							::ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,15));
@@ -593,6 +597,10 @@ LibraryModule UserInterface {
 					StringParameter sp_loc_message;
 					ElementParameter ep_err {
 						Range: errh::PendingErrors;
+					}
+					Set _s_optDests {
+						SubsetOf: s_locations;
+						Index: _i_optDest;
 					}
 				}
 				Parameter p_cargoesQuantity {
