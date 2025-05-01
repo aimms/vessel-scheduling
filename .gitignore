@@ -7,5 +7,7 @@ Mappings/Generated/
 *.results
 Schemas
 solutions
-/AIMMS Project/LoggerConfig.xml
+/AIMMSProject/LoggerConfig.xml
+/AIMMSProject/libs/stopwatch-library
+/AIMMSProject/libs/zip-library
 /aimms-eo
