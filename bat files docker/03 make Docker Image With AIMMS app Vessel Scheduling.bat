@@ -9,6 +9,10 @@ set VS_ROOT=C:\u\s\examples\application-examples\vessel-scheduling
 
 pushd %VS_ROOT%\aimms-eo
 
+Rem The dockerfile is non-standard - copy from source.
+copy "../changes aimms-eo/Dockerfile.WithLicenseAndModel" .
+
+Rem actually build:
 docker build -f Dockerfile.WithLicenseAndModel -t vesselscheduling:1.0.2.1 --build-arg AIMMS_VERSION_MAJOR=25.3 --build-arg AIMMS_VERSION_MINOR=1.0 .
 
 popd
