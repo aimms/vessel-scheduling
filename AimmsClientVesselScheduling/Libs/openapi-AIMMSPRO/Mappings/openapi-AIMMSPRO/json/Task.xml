@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="id" maps-to="AIMMSPRO::_Task::id(AIMMSPRO::i_instance)" />
+		<ValueMapping name="appName" maps-to="AIMMSPRO::_Task::appName(AIMMSPRO::i_instance)" />
+		<ValueMapping name="appVersion" maps-to="AIMMSPRO::_Task::appVersion(AIMMSPRO::i_instance)" />
+		<ValueMapping name="serviceName" maps-to="AIMMSPRO::_Task::serviceName(AIMMSPRO::i_instance)" />
+		<ValueMapping name="username" maps-to="AIMMSPRO::_Task::username(AIMMSPRO::i_instance)" />
+		<ValueMapping name="assignedAt" maps-to="AIMMSPRO::_Task::assignedAt(AIMMSPRO::i_instance)" />
+		<ValueMapping name="createdAt" maps-to="AIMMSPRO::_Task::createdAt(AIMMSPRO::i_instance)" />
+		<ValueMapping name="endedAt" maps-to="AIMMSPRO::_Task::endedAt(AIMMSPRO::i_instance)" />
+		<ValueMapping name="errorMessage" maps-to="AIMMSPRO::_Task::errorMessage(AIMMSPRO::i_instance)" />
+		<ValueMapping name="groupIndex" maps-to="AIMMSPRO::_Task::groupIndex(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="queueTime" maps-to="AIMMSPRO::_Task::queueTime(AIMMSPRO::i_instance)" />
+		<ValueMapping name="returnCode" maps-to="AIMMSPRO::_Task::returnCode(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="runningAt" maps-to="AIMMSPRO::_Task::runningAt(AIMMSPRO::i_instance)" />
+		<ValueMapping name="runTime" maps-to="AIMMSPRO::_Task::runTime(AIMMSPRO::i_instance)" />
+		<ValueMapping name="scheduleFor" maps-to="AIMMSPRO::_Task::scheduleFor(AIMMSPRO::i_instance)" />
+		<ValueMapping name="scheduleInterval" maps-to="AIMMSPRO::_Task::scheduleInterval(AIMMSPRO::i_instance)" />
+		<ValueMapping name="sessionId" maps-to="AIMMSPRO::_Task::sessionId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="state" maps-to="AIMMSPRO::_Task::state(AIMMSPRO::i_instance)" />
+		<ValueMapping name="userEnvironment" maps-to="AIMMSPRO::_Task::userEnvironment(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

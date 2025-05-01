@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ArrayMapping name="versions" iterative-reset="AIMMSPRO::_AimmsVersionList::_versions::i_versions">
+			<ObjectMapping iterative-binds-to="AIMMSPRO::_AimmsVersionList::_versions::i_versions">
+				<ArrayMapping name="authorizations" iterative-reset="AIMMSPRO::_AimmsVersionList::_versions::_authorizations::i_authorizations">
+					<ObjectMapping iterative-binds-to="AIMMSPRO::_AimmsVersionList::_versions::_authorizations::i_authorizations">
+						<ValueMapping name="authorization" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersionList::_versions::_authorizations::authorization(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersionList::_versions::i_versions,AIMMSPRO::_AimmsVersionList::_versions::_authorizations::i_authorizations)" number-type="integer" />
+						<ValueMapping name="deny" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersionList::_versions::_authorizations::deny(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersionList::_versions::i_versions,AIMMSPRO::_AimmsVersionList::_versions::_authorizations::i_authorizations)" number-type="boolean" />
+						<ValueMapping name="entity" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersionList::_versions::_authorizations::entity(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersionList::_versions::i_versions,AIMMSPRO::_AimmsVersionList::_versions::_authorizations::i_authorizations)" number-type="integer" />
+					</ObjectMapping>
+				</ArrayMapping>
+				<ValueMapping name="id" maps-to="AIMMSPRO::_AimmsVersionList::_versions::id(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersionList::_versions::i_versions)" />
+				<ValueMapping name="version" maps-to="AIMMSPRO::_AimmsVersionList::_versions::version(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersionList::_versions::i_versions)" />
+			</ObjectMapping>
+		</ArrayMapping>
+	</ObjectMapping>
+</AimmsJSONMapping>

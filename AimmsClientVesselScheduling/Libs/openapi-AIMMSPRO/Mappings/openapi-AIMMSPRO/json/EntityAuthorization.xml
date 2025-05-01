@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="authorization" write-defaults="1" maps-to="AIMMSPRO::_EntityAuthorization::authorization(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="deny" write-defaults="1" maps-to="AIMMSPRO::_EntityAuthorization::deny(AIMMSPRO::i_instance)" number-type="boolean" />
+		<ValueMapping name="entity" write-defaults="1" maps-to="AIMMSPRO::_EntityAuthorization::entity(AIMMSPRO::i_instance)" number-type="integer" />
+	</ObjectMapping>
+</AimmsJSONMapping>

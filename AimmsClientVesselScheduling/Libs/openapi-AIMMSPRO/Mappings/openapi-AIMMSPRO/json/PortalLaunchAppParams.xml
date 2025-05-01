@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="appName" maps-to="AIMMSPRO::_PortalLaunchAppParams::appName(AIMMSPRO::i_instance)" />
+		<ValueMapping name="appVersion" maps-to="AIMMSPRO::_PortalLaunchAppParams::appVersion(AIMMSPRO::i_instance)" />
+		<ValueMapping name="deviceId" maps-to="AIMMSPRO::_PortalLaunchAppParams::deviceId(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

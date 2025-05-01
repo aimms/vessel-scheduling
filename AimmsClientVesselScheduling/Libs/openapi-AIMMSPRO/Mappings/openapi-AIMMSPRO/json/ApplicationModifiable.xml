@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="modifiable" maps-to="AIMMSPRO::_ApplicationModifiable::modifiable(AIMMSPRO::i_instance)" number-type="boolean" />
+	</ObjectMapping>
+</AimmsJSONMapping>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="verificationToken" maps-to="AIMMSPRO::_PortalGetMfaQRCodeResponse::verificationToken(AIMMSPRO::i_instance)" />
+		<ValueMapping name="qrCodeUri" maps-to="AIMMSPRO::_PortalGetMfaQRCodeResponse::qrCodeUri(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

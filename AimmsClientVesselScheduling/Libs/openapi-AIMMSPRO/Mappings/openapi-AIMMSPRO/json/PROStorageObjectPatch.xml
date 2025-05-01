@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ArrayMapping name="authorizations" iterative-reset="AIMMSPRO::_PROStorageObjectPatch::_authorizations::i_authorizations">
+			<ObjectMapping iterative-binds-to="AIMMSPRO::_PROStorageObjectPatch::_authorizations::i_authorizations">
+				<ValueMapping name="authorization" write-defaults="1" maps-to="AIMMSPRO::_PROStorageObjectPatch::_authorizations::authorization(AIMMSPRO::i_instance,AIMMSPRO::_PROStorageObjectPatch::_authorizations::i_authorizations)" number-type="integer" />
+				<ValueMapping name="deny" write-defaults="1" maps-to="AIMMSPRO::_PROStorageObjectPatch::_authorizations::deny(AIMMSPRO::i_instance,AIMMSPRO::_PROStorageObjectPatch::_authorizations::i_authorizations)" number-type="boolean" />
+				<ValueMapping name="entity" write-defaults="1" maps-to="AIMMSPRO::_PROStorageObjectPatch::_authorizations::entity(AIMMSPRO::i_instance,AIMMSPRO::_PROStorageObjectPatch::_authorizations::i_authorizations)" number-type="integer" />
+			</ObjectMapping>
+		</ArrayMapping>
+		<ValueMapping name="label" maps-to="AIMMSPRO::_PROStorageObjectPatch::label(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

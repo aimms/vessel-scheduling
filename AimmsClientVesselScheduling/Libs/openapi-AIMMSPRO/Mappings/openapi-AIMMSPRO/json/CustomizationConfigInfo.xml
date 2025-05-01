@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ObjectMapping name="profile">
+			<ValueMapping name="canEditLoginImage" maps-to="AIMMSPRO::_CustomizationConfigInfo::_profile::canEditLoginImage(AIMMSPRO::i_instance)" number-type="boolean" />
+			<ValueMapping name="profileName" maps-to="AIMMSPRO::_CustomizationConfigInfo::_profile::profileName(AIMMSPRO::i_instance)" />
+		</ObjectMapping>
+		<ValueMapping name="contactDetails" maps-to="AIMMSPRO::_CustomizationConfigInfo::contactDetails(AIMMSPRO::i_instance)" />
+		<ValueMapping name="contactTitle" maps-to="AIMMSPRO::_CustomizationConfigInfo::contactTitle(AIMMSPRO::i_instance)" />
+		<ValueMapping name="jobRetentionTime" maps-to="AIMMSPRO::_CustomizationConfigInfo::jobRetentionTime(AIMMSPRO::i_instance)" />
+		<ValueMapping name="loginImage" maps-to="AIMMSPRO::_CustomizationConfigInfo::loginImage(AIMMSPRO::i_instance)" />
+		<ValueMapping name="loginImageId" maps-to="AIMMSPRO::_CustomizationConfigInfo::loginImageId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="rightLogo" maps-to="AIMMSPRO::_CustomizationConfigInfo::rightLogo(AIMMSPRO::i_instance)" />
+		<ValueMapping name="rightLogoId" maps-to="AIMMSPRO::_CustomizationConfigInfo::rightLogoId(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

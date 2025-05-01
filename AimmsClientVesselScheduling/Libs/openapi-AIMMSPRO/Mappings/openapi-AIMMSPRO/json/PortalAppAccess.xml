@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="app_id" maps-to="AIMMSPRO::_PortalAppAccess::app_id(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="app_name" maps-to="AIMMSPRO::_PortalAppAccess::app_name(AIMMSPRO::i_instance)" />
+		<ValueMapping name="app_version" maps-to="AIMMSPRO::_PortalAppAccess::app_version(AIMMSPRO::i_instance)" />
+		<ValueMapping name="applied" maps-to="AIMMSPRO::_PortalAppAccess::applied(AIMMSPRO::i_instance)" number-type="boolean" />
+		<ValueMapping name="deletable" maps-to="AIMMSPRO::_PortalAppAccess::deletable(AIMMSPRO::i_instance)" number-type="boolean" />
+		<ValueMapping name="entity_enc" maps-to="AIMMSPRO::_PortalAppAccess::entity_enc(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="entity_id" maps-to="AIMMSPRO::_PortalAppAccess::entity_id(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="entity_name" maps-to="AIMMSPRO::_PortalAppAccess::entity_name(AIMMSPRO::i_instance)" />
+		<ValueMapping name="env_id" maps-to="AIMMSPRO::_PortalAppAccess::env_id(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="env_name" maps-to="AIMMSPRO::_PortalAppAccess::env_name(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

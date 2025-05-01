@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ObjectMapping name="aimms">
+			<ValueMapping name="name" maps-to="AIMMSPRO::_PROAimmsEntry::_aimms::name_(AIMMSPRO::i_instance)" />
+			<ValueMapping name="serviceName" maps-to="AIMMSPRO::_PROAimmsEntry::_aimms::serviceName(AIMMSPRO::i_instance)" />
+		</ObjectMapping>
+		<ValueMapping name="description" maps-to="AIMMSPRO::_PROAimmsEntry::description(AIMMSPRO::i_instance)" />
+		<ValueMapping name="storedId" maps-to="AIMMSPRO::_PROAimmsEntry::storedId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="architecture" maps-to="AIMMSPRO::_PROAimmsEntry::architecture(AIMMSPRO::i_instance)" />
+		<ValueMapping name="clientStoredId" maps-to="AIMMSPRO::_PROAimmsEntry::clientStoredId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="publishedDate" maps-to="AIMMSPRO::_PROAimmsEntry::publishedDate(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

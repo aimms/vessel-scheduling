@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ObjectMapping name="attributes">
+			<ValueMapping name-binds-to="AIMMSPRO::i_attributes_patterns" name-regex=".*" maps-to="AIMMSPRO::_PROAppEntry::_attributes::attributes(AIMMSPRO::i_instance,AIMMSPRO::i_attributes_patterns)" />
+		</ObjectMapping>
+		<ObjectMapping name="aimms">
+			<ObjectMapping name="aimms">
+				<ValueMapping name="name" maps-to="AIMMSPRO::_PROAppEntry::_aimms::_aimms::name_(AIMMSPRO::i_instance)" />
+				<ValueMapping name="serviceName" maps-to="AIMMSPRO::_PROAppEntry::_aimms::_aimms::serviceName(AIMMSPRO::i_instance)" />
+			</ObjectMapping>
+			<ValueMapping name="description" maps-to="AIMMSPRO::_PROAppEntry::_aimms::description(AIMMSPRO::i_instance)" />
+			<ValueMapping name="storedId" maps-to="AIMMSPRO::_PROAppEntry::_aimms::storedId(AIMMSPRO::i_instance)" />
+			<ValueMapping name="architecture" maps-to="AIMMSPRO::_PROAppEntry::_aimms::architecture(AIMMSPRO::i_instance)" />
+			<ValueMapping name="clientStoredId" maps-to="AIMMSPRO::_PROAppEntry::_aimms::clientStoredId(AIMMSPRO::i_instance)" />
+			<ValueMapping name="publishedDate" maps-to="AIMMSPRO::_PROAppEntry::_aimms::publishedDate(AIMMSPRO::i_instance)" />
+		</ObjectMapping>
+		<ObjectMapping name="project">
+			<ValueMapping name="version" maps-to="AIMMSPRO::_PROAppEntry::_project::version(AIMMSPRO::i_instance)" />
+			<ValueMapping name="name" maps-to="AIMMSPRO::_PROAppEntry::_project::name_(AIMMSPRO::i_instance)" />
+			<ValueMapping name="serviceName" maps-to="AIMMSPRO::_PROAppEntry::_project::serviceName(AIMMSPRO::i_instance)" />
+		</ObjectMapping>
+		<ArrayMapping name="authorizations" iterative-reset="AIMMSPRO::_PROAppEntry::_authorizations::i_authorizations">
+			<ObjectMapping iterative-binds-to="AIMMSPRO::_PROAppEntry::_authorizations::i_authorizations">
+				<ValueMapping name="authorization" write-defaults="1" maps-to="AIMMSPRO::_PROAppEntry::_authorizations::authorization(AIMMSPRO::i_instance,AIMMSPRO::_PROAppEntry::_authorizations::i_authorizations)" number-type="integer" />
+				<ValueMapping name="deny" write-defaults="1" maps-to="AIMMSPRO::_PROAppEntry::_authorizations::deny(AIMMSPRO::i_instance,AIMMSPRO::_PROAppEntry::_authorizations::i_authorizations)" number-type="boolean" />
+				<ValueMapping name="entity" write-defaults="1" maps-to="AIMMSPRO::_PROAppEntry::_authorizations::entity(AIMMSPRO::i_instance,AIMMSPRO::_PROAppEntry::_authorizations::i_authorizations)" number-type="integer" />
+			</ObjectMapping>
+		</ArrayMapping>
+		<ValueMapping name="description" maps-to="AIMMSPRO::_PROAppEntry::description(AIMMSPRO::i_instance)" />
+		<ValueMapping name="isLatest" maps-to="AIMMSPRO::_PROAppEntry::isLatest(AIMMSPRO::i_instance)" number-type="boolean" />
+		<ValueMapping name="storedId" maps-to="AIMMSPRO::_PROAppEntry::storedId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="appIconSasUrl" maps-to="AIMMSPRO::_PROAppEntry::appIconSasUrl(AIMMSPRO::i_instance)" />
+		<ValueMapping name="existing" maps-to="AIMMSPRO::_PROAppEntry::existing(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="projectCategory" maps-to="AIMMSPRO::_PROAppEntry::projectCategory(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

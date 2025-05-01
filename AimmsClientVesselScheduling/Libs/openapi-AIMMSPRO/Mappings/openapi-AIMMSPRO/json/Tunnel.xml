@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="id" maps-to="AIMMSPRO::_Tunnel::id(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="context" maps-to="AIMMSPRO::_Tunnel::context(AIMMSPRO::i_instance)" />
+		<ValueMapping name="socketAddress" maps-to="AIMMSPRO::_Tunnel::socketAddress(AIMMSPRO::i_instance)" />
+		<ValueMapping name="userGroups" maps-to="AIMMSPRO::_Tunnel::userGroups(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

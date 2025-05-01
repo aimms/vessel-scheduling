@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ArrayMapping name="authorizations" iterative-reset="AIMMSPRO::_AimmsVersion::_authorizations::i_authorizations">
+			<ObjectMapping iterative-binds-to="AIMMSPRO::_AimmsVersion::_authorizations::i_authorizations">
+				<ValueMapping name="authorization" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersion::_authorizations::authorization(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersion::_authorizations::i_authorizations)" number-type="integer" />
+				<ValueMapping name="deny" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersion::_authorizations::deny(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersion::_authorizations::i_authorizations)" number-type="boolean" />
+				<ValueMapping name="entity" write-defaults="1" maps-to="AIMMSPRO::_AimmsVersion::_authorizations::entity(AIMMSPRO::i_instance,AIMMSPRO::_AimmsVersion::_authorizations::i_authorizations)" number-type="integer" />
+			</ObjectMapping>
+		</ArrayMapping>
+		<ValueMapping name="id" maps-to="AIMMSPRO::_AimmsVersion::id(AIMMSPRO::i_instance)" />
+		<ValueMapping name="version" maps-to="AIMMSPRO::_AimmsVersion::version(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

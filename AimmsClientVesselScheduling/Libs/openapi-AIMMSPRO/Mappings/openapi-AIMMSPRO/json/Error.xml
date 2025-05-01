@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="errorCode" maps-to="AIMMSPRO::_Error::errorCode(AIMMSPRO::i_instance)" number-type="integer" />
+		<ValueMapping name="errorId" maps-to="AIMMSPRO::_Error::errorId(AIMMSPRO::i_instance)" />
+		<ValueMapping name="message" maps-to="AIMMSPRO::_Error::message(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

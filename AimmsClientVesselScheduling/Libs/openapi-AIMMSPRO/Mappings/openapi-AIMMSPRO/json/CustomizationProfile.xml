@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="canEditLoginImage" maps-to="AIMMSPRO::_CustomizationProfile::canEditLoginImage(AIMMSPRO::i_instance)" number-type="boolean" />
+		<ValueMapping name="profileName" maps-to="AIMMSPRO::_CustomizationProfile::profileName(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

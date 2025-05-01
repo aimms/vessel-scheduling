@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ValueMapping name="email" maps-to="AIMMSPRO::_PROUser::email(AIMMSPRO::i_instance)" />
+		<ValueMapping name="fullname" maps-to="AIMMSPRO::_PROUser::fullname(AIMMSPRO::i_instance)" />
+		<ValueMapping name="password" maps-to="AIMMSPRO::_PROUser::password(AIMMSPRO::i_instance)" />
+		<ValueMapping name="username" write-defaults="1" maps-to="AIMMSPRO::_PROUser::username(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
+	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
+	<ObjectMapping>
+		<ObjectMapping name="metadata">
+			<ObjectMapping name="attributes">
+				<ValueMapping name-binds-to="AIMMSPRO::i_attributes_patterns" name-regex=".*" maps-to="AIMMSPRO::_PROApp::_metadata::_attributes::attributes(AIMMSPRO::i_instance,AIMMSPRO::i_attributes_patterns)" />
+			</ObjectMapping>
+			<ValueMapping name="name" maps-to="AIMMSPRO::_PROApp::_metadata::name_(AIMMSPRO::i_instance)" />
+			<ValueMapping name="description" maps-to="AIMMSPRO::_PROApp::_metadata::description(AIMMSPRO::i_instance)" />
+			<ValueMapping name="projectCategory" maps-to="AIMMSPRO::_PROApp::_metadata::projectCategory(AIMMSPRO::i_instance)" />
+			<ValueMapping name="aimmsVersionId" maps-to="AIMMSPRO::_PROApp::_metadata::aimmsVersionId(AIMMSPRO::i_instance)" />
+			<ValueMapping name="oldProjectName" maps-to="AIMMSPRO::_PROApp::_metadata::oldProjectName(AIMMSPRO::i_instance)" />
+			<ValueMapping name="oldProjectVersion" maps-to="AIMMSPRO::_PROApp::_metadata::oldProjectVersion(AIMMSPRO::i_instance)" />
+			<ValueMapping name="projectVersion" maps-to="AIMMSPRO::_PROApp::_metadata::projectVersion(AIMMSPRO::i_instance)" />
+			<ValueMapping name="publishBehavior" maps-to="AIMMSPRO::_PROApp::_metadata::publishBehavior(AIMMSPRO::i_instance)" number-type="integer" />
+			<ValueMapping name="resourceProfile" maps-to="AIMMSPRO::_PROApp::_metadata::resourceProfile(AIMMSPRO::i_instance)" />
+		</ObjectMapping>
+		<ValueMapping name="file" maps-to="AIMMSPRO::_PROApp::file_(AIMMSPRO::i_instance)" />
+		<ValueMapping name="icon" maps-to="AIMMSPRO::_PROApp::icon(AIMMSPRO::i_instance)" />
+	</ObjectMapping>
+</AimmsJSONMapping>
