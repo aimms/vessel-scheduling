@@ -1,0 +1,31 @@
+﻿* AIMMS
+Case_compatibility Aimms_4_80
+listing_page_width 32000
+major_messages 1
+rounding_compatibility Aimms_3_7
+solver_listing 3
+solver_listing_messages 4
+solver_window_messages 4
+time_messages 1
+use_UTC_forCaseAndStartEndDate 1
+warning_duplicate_column strict_warning_default
+warning_duplicate_row strict_warning_default
+* BARON 21
+* CBC 2.9
+* CONOPT 4.1
+* CPLEX 22.1
+"CPLEX 22.1".barrier_display 1
+"CPLEX 22.1".MIP_display 2
+* CPOptimizer 22.1
+* GUROBI 12.0
+* IPOPT 3.11
+* Knitro 14.0
+* MINOS
+* ODH-CPLEX 5.3
+* PATH 4.7
+* SNOPT 7.2
+* NETSOL
+* Environment
+Project_Title "Vessel Scheduling"
+Startup_Procedure "pr_startupProcedure"
+Open_WebUI_on_Startup 1

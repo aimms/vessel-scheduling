@@ -1,0 +1,13 @@
+* The timestamps in this namechange file are stored in Coordinated universal time (UTC).
+"pr_ImportDataExcel" "pr_importExcel" "2024-01-26 18:48:51"
+"pr_emptyData" "di::pr_emptyData" "2024-07-16 18:59:30"
+"pr_exportExcel" "di::pr_exportExcel" "2024-07-16 18:59:30"
+"pr_importExcel" "di::pr_importExcel" "2024-07-16 18:59:30"
+"di::PrivateSection" "di::Private_Section" "2024-07-16 19:01:17"
+"di::PublicSection" "di::Public_Declarations" "2024-07-16 19:01:23"
+"di::Private_Section" "di::Private_Declarations" "2024-07-16 19:01:30"
+"di::pr_exportExcel" "di::pr_exportExcelInputFile" "2024-09-02 09:20:54"
+"di::Copy_pr_importRequestFile" "di::pr_generateRequestFile" "2025-03-03 07:04:38"
+"di::sp_filename" "di::sp_generatedFilename" "2025-03-03 07:27:47"
+"di::p_minSpotCost" "di::p_minCargoSpotCost" "2025-03-03 09:48:39"
+"di::p_maxSpotCost" "di::p_maxCargoSpotCost" "2025-03-03 09:48:46"

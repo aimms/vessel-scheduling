@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<AimmsCSVMapping dense-children="1">
+	<RowMapping name="Vessel Overview">
+		<ColumnMapping name="Vessel" binds-to="i_vessel" />
+		<ColumnMapping name="Route" maps-to="mm::ep_calc_routeOfVessel(i_vessel)" />
+		<ColumnMapping name="Route Cost" maps-to="mm::p_calc_operationalCostPerVessel(i_vessel)" />
+		<ColumnMapping name="Route Period" maps-to="mm::p_calc_totalTravelDaysPerVessel(i_vessel)" />
+	</RowMapping>
+</AimmsCSVMapping>

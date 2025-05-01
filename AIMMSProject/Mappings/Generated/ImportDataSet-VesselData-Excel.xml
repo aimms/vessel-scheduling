@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<AimmsExcelMapping dense-children="1">
+	<ExcelSheetMapping name="VesselData">
+		<RowMapping>
+			<ColumnMapping name="Vessel" binds-to="i_vessel" />
+			<ColumnMapping name="Port of Origin" maps-to="ep_originPortOfVessel(i_vessel)" />
+			<ColumnMapping name="Sailing Cost" maps-to="p_sailingCost(i_vessel)" />
+		</RowMapping>
+	</ExcelSheetMapping>
+</AimmsExcelMapping>

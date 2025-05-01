@@ -1,0 +1,5 @@
+<AimmsJSONMapping>
+    <ObjectMapping>
+        <ValueMapping name="responseSummary" maps-to="modSolveService::sp_responseSummaryMessage"/>
+    </ObjectMapping>
+</AimmsJSONMapping>

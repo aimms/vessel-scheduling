@@ -1,0 +1,568 @@
+## ams_version=1.0
+
+Module Module_SolveService {
+	Prefix: modSolveService;
+	Parameter bp_cleanup {
+		Range: binary;
+		InitialData: 1;
+	}
+	Procedure pr_initTask {
+		Body: {
+			! Reset the Business model
+			empty s_cargoes, s_vessels, s_locations, s_calc_feasibleRoutes ;
+			!empty Business_model;
+			
+			! Clean the generated mathematical programs.
+			_ep_gmp := first( AllGeneratedMathematicalPrograms );
+			while _ep_gmp do
+				gmp::Instance::Delete( _ep_gmp );
+			endwhile ;
+			
+			!! Other cleanups
+			!GarbageCollectStrings();
+			!CleanDependents;
+			!
+		}
+		ElementParameter _ep_gmp {
+			Range: AllGeneratedMathematicalPrograms;
+		}
+	}
+	Section Service_solveVesselSchedulingExcel {
+		Procedure pr_solveVesselSchedulingExcel {
+			Body: {
+				block
+				
+					pr_initTask();
+				
+					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
+					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
+				
+					write _sp_inp, _sp_out to file "/outputs/reqattrs.txt" ;
+				
+					pr_actuallySolveVesselSchedulingExcel( _sp_inp, _sp_out );
+				
+				onerror _ep_err do
+				
+					_sp_msg := errh::Message( _ep_err );
+					display _sp_msg ;
+					if pro::GetPROEndPoint() then
+						pro::management::LocalLogInfo("Error message: " + _sp_msg );
+						errh::MarkAsHandled(_ep_err);
+					endif ;
+				
+				endblock ;
+				
+				return 1 ;
+			}
+			dex::ServiceName: solveVesselSchedulingExcel;
+			StringParameter _sp_inp;
+			StringParameter _sp_out;
+			ElementParameter _ep_err {
+				Range: errh::PendingErrors;
+			}
+			StringParameter _sp_msg;
+		}
+		Procedure pr_actuallySolveVesselSchedulingExcel {
+			Arguments: (sp_inp,sp_out);
+			Body: {
+				dex::AddMapping(
+					mappingName : "ImportDataSet",
+					mappingFile : "Mappings/Generated/ImportDataSet-Excel.xml");
+				
+				p_vesselVelocity := 37.04 [km/hour];
+				
+				if dex::ReadFromFile(
+					dataFile    : sp_inp, 
+					mappingName : "Generated/ImportDataSet-Excel") then
+				
+					!Activate all master data
+					bp_activeCargoes(i_cargo):= 1;
+					bp_activeVessels(i_vessel) := 1;
+					bp_activeLocations(i_loc) := 1;
+				endif ;
+				
+				pr_calculateRoutesAndCost(ep_routeCalculationImplementation: ep_selectedRouteCalculationImplementation );
+				
+				solve mm::mp_vesselScheduling;
+				
+				!Post Execution
+				mm::pr_post_vesselResults();
+				mm::pr_post_cargoResults();
+				mm::pr_post_routeResults();
+				
+				dex::WriteToFile(
+					dataFile    :  sp_out, 
+					mappingName :  "Generated/ExportDataSet-Excel", 
+					pretty      :  1);
+			}
+			DeclarationSection Argument_declarations {
+				StringParameter sp_inp {
+					Property: Input;
+				}
+				StringParameter sp_out {
+					Property: Input;
+				}
+			}
+		}
+	}
+	Section Service_solveVesselSchedulingCSV {
+		Procedure pr_solveVesselSchedulingCSV {
+			Body: {
+				block
+				
+					pr_initTask();
+				
+					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
+					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
+				
+					pr_actuallySolveVesselSchedulingCSV( _sp_inp, _sp_out );
+				
+				onerror _ep_err do
+				
+					_sp_msg := errh::Message( _ep_err );
+					display _sp_msg ;
+				
+				endblock ;
+				
+				return 1 ;
+			}
+			dex::ServiceName: solveVesselSchedulingCSV;
+			StringParameter _sp_inp;
+			StringParameter _sp_out;
+			ElementParameter _ep_err {
+				Range: errh::PendingErrors;
+			}
+			StringParameter _sp_msg;
+		}
+		Procedure pr_actuallySolveVesselSchedulingCSV {
+			Arguments: (sp_inp,sp_out);
+			Body: {
+				p_vesselVelocity := 37.04 [km/hour];
+				
+				block ! Get the request body in the AIMMS project folder, and unzip it.
+					if DirectoryExists( "csvinp" ) then
+						DirectoryDelete( "csvinp" );
+					endif ;
+					If FileExists( "csvinp.zip" ) then
+						FileDelete( "csvinp.zip" );
+					endif ;
+					FileCopy( sp_inp, "csvinp.zip");
+					zip::pr_unzipFileToFolder(
+						sp_fileName              :  "csvinp.zip", 
+						sp_destinationFolderName :  "csvinp");
+					_sp_folderName := "csvinp/csv/" ;
+				endblock ;
+				
+				
+				block ! Read in the data
+				
+					_p_ok := 1 ;
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "Horizon.csv", 
+						mappingName : "Generated/ImportDataSet-Horizon-CSV");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "VesselData.csv", 
+						mappingName : "Generated/ImportDataSet-VesselData-CSV");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "CargoData.csv", 
+						mappingName : "Generated/ImportDataSet-CargoData-CSV");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "LocationData.csv", 
+						mappingName : "Generated/ImportDataSet-LocationData-CSV");
+				
+				endblock ;
+				
+				block ! Cleanup intermediate folders and files after reading.
+					if DirectoryExists( "csvinp" ) then
+						DirectoryDelete( "csvinp" );
+					endif ;
+					If FileExists( "csvinp.zip" ) then
+						FileDelete( "csvinp.zip" );
+					endif ;
+				endblock ;
+				
+				! display s_vessels, s_cargoes ;
+				
+				if _p_ok then
+				
+					!Activate all master data
+					bp_activeCargoes(i_cargo):= 1;
+					bp_activeVessels(i_vessel) := 1;
+					bp_activeLocations(i_loc) := 1;
+				
+					pr_calculateRoutesAndCost(ep_routeCalculationImplementation: ep_selectedRouteCalculationImplementation);
+				
+					solve mm::mp_vesselScheduling;
+				
+					!Post Execution
+					mm::pr_post_vesselResults();
+					mm::pr_post_cargoResults();
+					mm::pr_post_routeResults();
+				
+				endif ;
+				
+				block ! put Output csv file in a separate folder and zip it.
+					_sp_folderName := "csvout" ;
+					if DirectoryExists( _sp_folderName ) then ! remove old contents, if any.
+						DirectoryDelete( _sp_folderName );
+					endif ;
+					DirectoryCreate( _sp_folderName );
+					_sp_folderNameSlash := _sp_folderName + "/" ;
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Cargo Overview.csv", 
+						mappingName :  "Generated/ExportDataSet-Cargo Overview-CSV", 
+						pretty      :  1);
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Route Overview.csv", 
+						mappingName :  "Generated/ExportDataSet-Route Overview-CSV", 
+						pretty      :  1);
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Vessel Overview.csv", 
+						mappingName :  "Generated/ExportDataSet-Vessel Overview-CSV", 
+						pretty      :  1);
+					_sp_filename := _sp_folderName + ".zip" ;
+					zip::pr_zipFolderToFile(
+						sp_folderName      :  _sp_folderName, 
+						sp_destinationFile :  _sp_filename );
+					FileCopy( _sp_filename, sp_out );
+					if bp_cleanup then
+						FileDelete( _sp_filename );
+						DirectoryDelete( _sp_folderName );
+					endif ;
+					if bp_cleanup then
+						FileDelete( _sp_filename );
+						DirectoryDelete( _sp_folderName );
+					endif ;
+				endblock ;
+			}
+			DeclarationSection Argument_declarations {
+				StringParameter sp_inp {
+					Property: Input;
+				}
+				StringParameter sp_out {
+					Property: Input;
+				}
+				StringParameter _sp_folderName;
+				StringParameter _sp_folderNameSlash;
+				Parameter _p_ok;
+				StringParameter _sp_filename;
+			}
+		}
+	}
+	Section Service_solveVesselSchedulingParquet {
+		Procedure pr_solveVesselSchedulingParquet {
+			Body: {
+				block
+				
+					pr_initTask();
+				
+					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
+					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
+				
+					pr_actuallySolveVesselSchedulingParquet( _sp_inp, _sp_out );
+				
+				onerror _ep_err do
+				
+					_sp_msg := errh::Message( _ep_err );
+					display _sp_msg ;
+				
+				endblock ;
+				
+				return 1 ;
+			}
+			dex::ServiceName: solveVesselSchedulingParquet;
+			StringParameter _sp_inp;
+			StringParameter _sp_out;
+			ElementParameter _ep_err {
+				Range: errh::PendingErrors;
+			}
+			StringParameter _sp_msg;
+		}
+		Procedure pr_actuallySolveVesselSchedulingParquet {
+			Arguments: (sp_inp,sp_out);
+			Body: {
+				p_vesselVelocity := 37.04 [km/hour];
+				
+				block ! Get the request body in the AIMMS project folder, and unzip it.
+					if DirectoryExists( "parquetinp" ) then
+						DirectoryDelete( "parquetinp" );
+					endif ;
+					If FileExists( "parquetinp.zip" ) then
+						FileDelete( "parquetinp.zip" );
+					endif ;
+					FileCopy( sp_inp, "parquetinp.zip");
+					zip::pr_unzipFileToFolder(
+						sp_fileName              :  "parquetinp.zip", 
+						sp_destinationFolderName :  "parquetinp");
+					_sp_folderName := "parquetinp/parquet/" ;
+					pr_logContentsCurrentFolder( "", 1);
+				
+					if AimmsStringConstants('Platform' ) = "Linux" then
+						pr_logContentsCurrentFolder( "/usr", 0);
+						pr_logContentsCurrentFolder( "/usr/bin", 0);
+						pr_logContentsCurrentFolder( "/usr/local/bin", 0);
+					endif;
+				
+				endblock ;
+				
+				
+				block ! Read in the data 
+				
+					_p_ok := 1 ;
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "Horizon.parquet", 
+						mappingName : "Generated/ImportDataSet-Horizon-Parquet");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "VesselData.parquet", 
+						mappingName : "Generated/ImportDataSet-VesselData-Parquet");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "CargoData.parquet", 
+						mappingName : "Generated/ImportDataSet-CargoData-Parquet");
+					_p_ok := _p_ok AND dex::ReadFromFile(
+						dataFile    : _sp_folderName + "LocationData.parquet", 
+						mappingName : "Generated/ImportDataSet-LocationData-Parquet");
+				
+				endblock ;
+				
+				block ! Cleanup intermediate folders and files after reading.
+					if DirectoryExists( "parquetinp" ) then
+						DirectoryDelete( "parquetinp" );
+					endif ;
+					If FileExists( "parquetinp.zip" ) then
+						FileDelete( "parquetinp.zip" );
+					endif ;
+				endblock ;
+				
+				! display s_vessels, s_cargoes ;
+				
+				if _p_ok then
+				
+					!Activate all master data
+					bp_activeCargoes(i_cargo):= 1;
+					bp_activeVessels(i_vessel) := 1;
+					bp_activeLocations(i_loc) := 1;
+				
+					pr_calculateRoutesAndCost(ep_routeCalculationImplementation: ep_selectedRouteCalculationImplementation);
+				
+					solve mm::mp_vesselScheduling;
+				
+					!Post Execution
+					mm::pr_post_vesselResults();
+					mm::pr_post_cargoResults();
+					mm::pr_post_routeResults();
+				
+				endif ;
+				
+				block ! put Output Parquet file in a separate folder and zip it.
+					_sp_folderName := "parquetout" ;
+					if DirectoryExists( _sp_folderName ) then ! remove old contents, if any.
+						DirectoryDelete( _sp_folderName );
+					endif ;
+					DirectoryCreate( _sp_folderName );
+					_sp_folderNameSlash := _sp_folderName + "/" ;
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Cargo Overview.parquet", 
+						mappingName :  "Generated/ExportDataSet-Cargo Overview-Parquet", 
+						pretty      :  1);
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Route Overview.parquet", 
+						mappingName :  "Generated/ExportDataSet-Route Overview-Parquet", 
+						pretty      :  1);
+					dex::WriteToFile(
+						dataFile    :  _sp_folderNameSlash + "Vessel Overview.parquet", 
+						mappingName :  "Generated/ExportDataSet-Vessel Overview-Parquet", 
+						pretty      :  1);
+					_sp_filename := _sp_folderName + ".zip" ;
+					zip::pr_zipFolderToFile(
+						sp_folderName      :  _sp_folderName, 
+						sp_destinationFile :  _sp_filename );
+					FileCopy( _sp_filename, sp_out );
+					if bp_cleanup then
+						FileDelete( _sp_filename );
+						DirectoryDelete( _sp_folderName );
+					endif ;
+				endblock ;
+			}
+			DeclarationSection Argument_declarations {
+				StringParameter sp_inp {
+					Property: Input;
+				}
+				StringParameter sp_out {
+					Property: Input;
+				}
+				StringParameter _sp_folderName;
+				StringParameter _sp_folderNameSlash;
+				Parameter _p_ok;
+				StringParameter _sp_filename;
+			}
+		}
+	}
+	Section Service_solveVesselSchedulingSharedFiles {
+		Comment: {
+			"Requires: there is a storage location to which both the client and server have access to.
+			
+			Request:
+			Multiple filenames passed for input, 
+			and multiple filenames passed for output.
+			
+			Important: the tab names should correspond to the table names 
+			in the dex::TableName attribute, and thereby with the generated mapping files.
+			
+			
+			Response:
+			Just the response code."
+		}
+		Set s_inputFileNumbers {
+			Index: i_ifn;
+		}
+		Set s_outputFileNumbers {
+			Index: i_ofn;
+		}
+		StringParameter sp_inputFileNames {
+			IndexDomain: i_ifn;
+		}
+		StringParameter sp_outputFileNames {
+			IndexDomain: i_ofn;
+		}
+		StringParameter sp_responseSummaryMessage;
+		Procedure pr_solveVesselSchedulingSharedFiles {
+			Body: {
+				block
+				
+					pr_initTask();
+				
+					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
+					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
+				
+					pr_actuallySolveVesselSchedulingSharedFiles( _sp_inp, _sp_out );
+				
+				onerror _ep_err do
+				
+					_sp_msg := errh::Message( _ep_err );
+					display _sp_msg ;
+				
+				endblock ;
+				
+				return 1 ;
+			}
+			dex::ServiceName: solveVesselSchedulingSharedFiles;
+			StringParameter _sp_inp;
+			StringParameter _sp_out;
+			ElementParameter _ep_err {
+				Range: errh::PendingErrors;
+			}
+			StringParameter _sp_msg;
+		}
+		Procedure pr_actuallySolveVesselSchedulingSharedFiles {
+			Arguments: (sp_inp,sp_out);
+			Body: {
+				p_vesselVelocity := 37.04 [km/hour];
+				
+				dex::ReadFromFile(
+					dataFile         :  sp_inp, 
+					mappingName      :  "serviceSharedFilesJSON", 
+					emptyIdentifiers :  0, 
+					emptySets        :  0, 
+					resetCounters    :  0);
+				
+				! Read each of the input files.
+				_p_ok := 1;
+				for i_ifn do
+				
+					_sp_mappingName := formatString("Generated/ImportDataSet-%e-CSV", i_ifn);
+				
+					block ! sanity checking
+						if not _sp_mappingName in dex::Mappings then
+							raise error formatString("A mapping for table %e was not generated", i_ifn );
+						endif ;
+						if not FileExists( sp_inputFileNames(i_ifn) ) then
+							raise error formatString("For table %e, the input file %s does not exist", 
+								i_ifn, sp_inputFileNames(i_ifn) );
+						endif ;
+					endblock ;
+				
+					_p_ok := _p_ok and dex::ReadFromFile(
+						dataFile         :  sp_inputFileNames(i_ifn), 
+						mappingName      :  _sp_mappingName, 
+						emptyIdentifiers :  0, 
+						emptySets        :  0, 
+						resetCounters    :  0);
+				
+				endfor ;
+				
+				! display s_vessels, s_cargoes ;
+				
+				if _p_ok then
+				
+					!Activate all master data
+					bp_activeCargoes(i_cargo):= 1;
+					bp_activeVessels(i_vessel) := 1;
+					bp_activeLocations(i_loc) := 1;
+				
+					pr_calculateRoutesAndCost(ep_routeCalculationImplementation: ep_selectedRouteCalculationImplementation);
+				
+					solve mm::mp_vesselScheduling;
+				
+					!Post Execution
+					mm::pr_post_vesselResults();
+					mm::pr_post_cargoResults();
+					mm::pr_post_routeResults();
+				
+				endif ;
+				
+				! Write all of the output tables.
+				for i_ofn do
+				
+					! Example: "Generated/ExportDataSet-Cargo Overview-CSV"
+					_sp_mappingName := formatString("Generated/ExportDataSet-%e-CSV", i_ofn);
+					block ! sanity checking
+						if not _sp_mappingName in dex::Mappings then
+							raise error formatString("A mapping for table %e was not generated", i_ofn );
+						endif ;
+					endblock ;
+				
+					if FileExists( sp_outputFileNames( i_ofn ) ) then
+						FileDelete( sp_outputFileNames( i_ofn ) );
+					endif ;
+				
+					dex::WriteToFile(
+						dataFile    :  sp_outputFileNames( i_ofn ), 
+						mappingName :  _sp_mappingName, 
+						pretty      :  0);
+				
+				endfor ;
+				
+				! Need to write some response body.
+				sp_responseSummaryMessage := "medium to well done" ;
+				dex::WriteToFile(
+					dataFile    :  sp_out, 
+					mappingName :  "servicesSharedFilesResponseJSON", 
+					pretty      :  0);
+			}
+			DeclarationSection Argument_declarations {
+				StringParameter sp_inp {
+					Property: Input;
+				}
+				StringParameter sp_out {
+					Property: Input;
+				}
+				StringParameter _sp_folderName;
+				StringParameter _sp_folderNameSlash;
+				Parameter _p_ok;
+				StringParameter _sp_filename;
+				StringParameter _sp_mappingName;
+			}
+		}
+	}
+	Section Service_stopSoon {
+		Procedure pr_stopsoon {
+			Body: {
+				dex::api::RESTServiceMaxRequests := 1 ;
+				dex::api::RESTServiceTimeout     := 1 ;
+				
+				return 1 ;
+			}
+			dex::ServiceName: stopsoon;
+		}
+	}
+}

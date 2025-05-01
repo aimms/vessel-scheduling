@@ -1,0 +1,1456 @@
+## ams_version=1.0
+
+Model Main_VesselScheduling {
+	Section Quantities_and_Units {
+		Comment: {
+			"This section contains all the units and quantities that are added automatically by AIMMS.
+			It is recommended to declare all your quantities here."
+		}
+		Quantity SI_Time_Duration {
+			BaseUnit: s;
+			Conversions: {
+				day->s : #-># * 86400,
+				minute->s : #-># * 60,
+				century->s : #-># * 3153600000,
+				year->s : #-># * 31536000,
+				month->s : #-># * 2628000,
+				week->s : #-># * 604800,
+				hour->s : #-># * 3600,
+				tick->s : #-># / 100,
+				second->s : #->#
+			}
+			Comment: "Expresses the value for the duration of periods.";
+		}
+		Quantity Q_Currency {
+			BaseUnit: $;
+		}
+		Quantity SI_Length {
+			BaseUnit: m;
+			Conversions: km->m : #->1000*#;
+			Comment: "Expresses the value of a distance.";
+		}
+	}
+	Section Tests_and_Debug {
+		Procedure pr_log {
+			Arguments: (sp_msg);
+			Body: {
+				if pro::GetPROEndPoint() and not ProjectDeveloperMode then
+					pro::management::LocalLogInfo("[VesselScheduling] "+sp_msg);
+				else
+					_sp_now := stopwatch::fnc_now();
+					_sp_out := _sp_now + " [VesselScheduling] " + sp_msg ;
+					put _sp_out, / ;
+				endif ;
+			}
+			StringParameter sp_msg {
+				Property: Input;
+			}
+			StringParameter _sp_now;
+			StringParameter _sp_out;
+		}
+		Procedure pr_testSharedFileList {
+			Body: {
+				dex::AddMapping(
+					mappingName :  "serviceSharedFilesJSON", 
+					mappingFile :  "Mappings/serviceSharedFilesJSON.xml");
+				dex::ReadFromFile(
+					dataFile         :  "C:\\u\\s\\examples\\application-examples\\vessel-scheduling\\Python Client\\VS_7Vessel_20Cargo-sharedFiles.json", 
+					mappingName      :  "serviceSharedFilesJSON", 
+					emptyIdentifiers :  0, 
+					emptySets        :  0, 
+					resetCounters    :  0);
+			}
+		}
+		Set _s_fns {
+			SubsetOf: Integers;
+			Index: _i_fns;
+			Property: ElementsAreLabels;
+		}
+		StringParameter _sp_fns {
+			IndexDomain: _i_fns;
+		}
+		Procedure pr_logContentsCurrentFolder {
+			Arguments: (sp_folder,bp_recursive);
+			Body: {
+				empty _s_fns ;
+				DirectoryGetFiles(
+					directory :  sp_folder, 
+					filter    :  "", 
+					filenames :  _sp_fns, 
+					recursive :  bp_recursive);
+				pr_log(formatString("No files in \"%s\" = %i", sp_folder, card(_sp_fns)));
+				for _i_fns do
+					pr_log(formatString("    %e: %s", 
+						_i_fns, _sp_fns(_i_fns)));
+				endfor ;
+			}
+			StringParameter sp_folder {
+				Property: Input;
+			}
+			Parameter bp_recursive {
+				Property: Input;
+			}
+		}
+		Procedure pr_testBeingService {
+			Body: {
+				dex::api::RESTServiceHandler();
+				_sp_now := CurrentToString("%c%y-%m-%d %H:%M:%S");
+				display _sp_now, "service stopped" ;
+			}
+			StringParameter _sp_now;
+		}
+		Section Section_1 {
+			Procedure pr_scanFileOnErrorMessages {
+				Arguments: (p_errorsEncountered,sp_fn,sp_msg);
+				Body: {
+					p_errorsEncountered := 0 ;
+					if FileExists( sp_fn ) then
+						_sp_content := fileread( sp_fn );
+						_p_len := StringLength( _sp_content );
+						if _p_len then
+							_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
+							if _p_noNewlines then
+								_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! Scan at most the first 100 lines.
+								_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
+								_sp_line(_i_pos) := substring( _sp_content, 
+									if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
+									_p_newlinePos(_i_pos) -1 );
+								for _i_pos do
+									if 	FindString(
+											SearchString  :  _sp_line( _i_pos ), 
+											Key           :  "ERROR", 
+											CaseSensitive :  0, 
+											WordOnly      :  1, 
+											IgnoreWhite   :  0) then
+										!outputMessage::pr_outputMessage( sp_msg + _sp_line( _i_pos ) );
+										pr_log("[ERROR] " + _sp_line( _i_pos ) );
+										p_errorsEncountered += 1 ;
+									endif ;
+					
+								endfor ;
+							else
+								if 	FindString(
+										SearchString  :  _sp_content, 
+										Key           :  "ERROR", 
+										CaseSensitive :  0, 
+										WordOnly      :  1, 
+										IgnoreWhite   :  0) then
+									!outputMessage::pr_outputMessage( sp_msg + _sp_content );
+									pr_log("[ERROR] " + _sp_content );
+									p_errorsEncountered += 1 ;
+								endif ;
+							endif ;
+						endif ;
+					endif ;
+					return p_errorsEncountered;
+				}
+				StringParameter sp_fn {
+					Property: Input;
+				}
+				StringParameter _sp_content;
+				Parameter _p_noNewLines;
+				Parameter _p_len;
+				Set _s_positions {
+					SubsetOf: Integers;
+					Index: _i_pos;
+					Property: ElementsAreNumerical;
+				}
+				Parameter _p_newlinePos {
+					IndexDomain: _i_pos;
+				}
+				StringParameter _sp_line {
+					IndexDomain: _i_pos;
+				}
+				StringParameter sp_msg {
+					Property: Optional;
+				}
+				Parameter p_errorsEncountered {
+					Property: Output;
+				}
+			}
+			Procedure pr_addFileToLogMessages {
+				Arguments: (sp_fn,sp_msg);
+				Body: {
+					if FileExists( sp_fn ) then
+						_sp_content := fileread( sp_fn );
+						_p_len := StringLength( _sp_content );
+						if _p_len then
+							pr_log(formatString("%sAdding \"%s\" of size %i to log with following contents:", 
+								sp_msg, sp_fn, StringLength(_sp_content)));
+							_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
+							if _p_noNewlines then
+								_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! At most the first 50 lines.
+								_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
+								_sp_line(_i_pos) := substring( _sp_content, 
+									if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
+									_p_newlinePos(_i_pos) -1 );
+								for _i_pos do
+									pr_log(formatString("    %s line %e: %s", 
+										sp_fn, _i_pos, _sp_line( _i_pos ) ) );
+								endfor ;
+							else
+								pr_log(_sp_content);
+							endif ;
+						else
+							pr_log(formatString("%sNot adding \"%s\" to the log because it is empty.", 
+								sp_msg, sp_fn ));
+						endif ;
+					else
+						pr_log(formatString("%sUnable to add \"%s\" to log messages because it does not exist.", 
+							sp_msg, sp_fn ));
+					endif ;
+				}
+				StringParameter sp_fn {
+					Property: Input;
+				}
+				StringParameter _sp_content;
+				Parameter _p_noNewLines;
+				Parameter _p_len;
+				Set _s_positions {
+					SubsetOf: Integers;
+					Index: _i_pos;
+					Property: ElementsAreNumerical;
+				}
+				Parameter _p_newlinePos {
+					IndexDomain: _i_pos;
+				}
+				StringParameter _sp_line {
+					IndexDomain: _i_pos;
+				}
+				StringParameter sp_msg {
+					Default: "";
+					Property: Optional;
+				}
+			}
+		}
+		Section Section_2 {
+			StringParameter sp_timeslotFormat {
+				InitialData: "%c%y-%m-%d";
+			}
+			Parameter p_vesselVelocity {
+				Unit: km/hour;
+				InitialData: 37.04;
+				Comment: "20 knots";
+			}
+			Parameter p_noFeasibleRoutes {
+				Definition: card( s_calc_feasibleRoutes );
+			}
+		}
+	}
+	Section Business_model {
+		Section Calendars {
+			StringParameter sp_today;
+			Calendar cal_days {
+				Index: i_day;
+				Unit: day;
+				BeginDate: sp_def_beginDate;
+				EndDate: sp_def_endDate;
+				TimeslotFormat: sp_timeslotFormat;
+			}
+			ElementParameter ep_startHorizonDate {
+				Range: cal_days;
+				Comment: "Start of modeling horizon.";
+				dex::ColumnName: StartDate;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: Horizon;
+			}
+			ElementParameter ep_def_finishHorizonDate {
+				Range: cal_days;
+				Definition: max( i_act_cargo, ep_maxTimeWindow( i_act_cargo ) + ( p_def_deliveryTimeCargo(i_act_cargo) / 1[day] ) );
+				Comment: "Last pickup time of cargos";
+			}
+			Parameter p_def_noDaysSchedule {
+				Unit: day;
+				Definition: {
+					if ep_def_finishHorizonDate and ep_startHorizonDate then
+						( ep_def_finishHorizonDate - ep_startHorizonDate ) + 1[day]
+					else
+						60[day]
+					endif ;
+				}
+			}
+			StringParameter sp_def_beginDate {
+				Definition: "2023-01-01";
+			}
+			StringParameter sp_def_endDate {
+				Definition: "2023-12-31";
+			}
+			Procedure pr_initCalendar {
+				Body: {
+					sp_today := CurrentToString("%c%y-%m-%d");
+					!ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
+					ep_startHorizonDate := first( cal_days );
+				}
+			}
+		}
+		Section Cargoes {
+			Set s_cargoes {
+				Index: i_cargo_aux;
+				Parameter: ep_cargo;
+			}
+			Index i_cargo {
+				Range: s_cargoes;
+				dex::ColumnName: Cargo;
+			}
+			Index i_act_cargo {
+				Range: s_def_activeCargoes;
+				dex::ColumnName: Cargo;
+			}
+			Index i_act_cargo_aux {
+				Range: s_def_activeCargoes;
+			}
+			Set s_def_activeCargoes {
+				SubsetOf: s_cargoes;
+				Definition: {
+					{i_cargo | bp_activeCargoes(i_cargo)}
+				}
+			}
+			Parameter bp_activeCargoes {
+				IndexDomain: i_cargo;
+				Range: binary;
+				InitialData: 1;
+			}
+			Parameter p_spotCostVessel {
+				IndexDomain: i_cargo;
+				Unit: $;
+				dex::ColumnName: Spot Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			ElementParameter ep_minTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				dex::ColumnName: Minimum Loading Time;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			ElementParameter ep_maxTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				dex::ColumnName: Maximum Loading Time;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			ElementParameter ep_loadingPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				dex::ColumnName: Loading Port;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			ElementParameter ep_deliveringPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				dex::ColumnName: Delevering Port;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			Parameter p_def_deliveryTimeCargo {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: {
+					p_def_distanceBetweenLocations(
+						ep_loadingPortsCargo(i_cargo), 
+						ep_deliveringPortsCargo(i_cargo))
+				}
+			}
+			Parameter p_cargoCost {
+				IndexDomain: (i_cargo);
+				Range: free;
+				Unit: $;
+				dex::ColumnName: Fixed Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: CargoData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			Set s_def_loadingPorts {
+				SubsetOf: s_locations;
+				Index: i_locLoad;
+				Definition: {
+					{i_loc | exists(i_cargo | i_loc = ep_loadingPortsCargo(i_cargo))}
+				}
+			}
+			Set s_def_deleveringPorts {
+				SubsetOf: s_locations;
+				Index: i_locDeliv;
+				Definition: {
+					{i_loc | exists(i_cargo | i_loc = ep_deliveringPortsCargo(i_cargo))}
+				}
+			}
+			Set s_def_vesselOriginPorts {
+				SubsetOf: s_locations;
+				Index: i_locVess;
+				Definition: {
+					{i_loc | exists(i_act_vessel | i_loc = ep_originPortOfVessel(i_act_vessel))}
+				}
+			}
+			Parameter p_def_minTimeWindow {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_minTimeWindow(i_cargo));
+			}
+			Parameter p_def_maxTimeWindow {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_maxTimeWindow(i_cargo));
+			}
+			Parameter p_def_maxDeliveryDate {
+				IndexDomain: i_cargo;
+				Unit: day;
+				Definition: {
+					p_def_maxTimeWindow(i_cargo) +
+					p_def_deliveryTimeCargo(i_cargo)
+				}
+			}
+		}
+		Section Vessels {
+			Set s_vessels {
+				Parameter: ep_vessel;
+			}
+			Index i_vessel {
+				Range: s_vessels;
+				dex::ColumnName: Vessel;
+			}
+			Set s_def_activeVessels {
+				SubsetOf: s_vessels;
+				Index: i_act_vessel;
+				Definition: {
+					{i_vessel | bp_activeVessels(i_vessel)}
+				}
+			}
+			Parameter bp_activeVessels {
+				IndexDomain: i_vessel;
+				Range: binary;
+				InitialData: 1;
+			}
+			ElementParameter ep_originPortOfVessel {
+				IndexDomain: i_vessel;
+				Range: s_locations;
+				dex::ColumnName: Port of Origin;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: VesselData;
+			}
+			Parameter p_sailingCost {
+				IndexDomain: (i_vessel);
+				Unit: $/day;
+				Comment: {
+					"! Fuel usage per day is 63000 gallons = 238000 liter -> 238000/100000 * €601 = 1433"
+				}
+				dex::ColumnName: Sailing Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: VesselData;
+			}
+			Parameter p_def_idleCostVesselNotUsed {
+				IndexDomain: i_vessel;
+				Unit: $;
+				Definition: {
+					p_def_noDaysSchedule * 
+					p_idleCostLocation( ep_originPortOfVessel( i_vessel ) )
+				}
+			}
+			Set s_def_vesselActivities {
+				Index: i_vesselActivities;
+				Definition: {
+					data { 
+						idleNothingToDo,  ! Waiting; no more cargos to be handled for this route.
+						idleWaitForCargo, ! Waiting in a port for a Cargo to become available.
+						sailingPickup,    ! Sailing towards a pickup point.
+						sailingDelivery   ! Sailing towards a delivery point.
+					}
+				}
+				webui::ElementTextIdentifier: sp_vesselActivityPresentation;
+			}
+			ElementParameter ep_def_vesselIdleWaitCargo {
+				Range: s_def_vesselActivities;
+				Definition: 'idleWaitForCargo';
+			}
+			ElementParameter ep_def_vesselIdleRetired {
+				Range: s_def_vesselActivities;
+				Definition: 'idleNothingToDo';
+			}
+			ElementParameter ep_def_vesselSailingPickup {
+				Range: s_def_vesselActivities;
+				Definition: 'sailingPickup';
+			}
+			ElementParameter ep_def_vesselSailingDelivery {
+				Range: s_def_vesselActivities;
+				Definition: 'sailingDelivery';
+			}
+			StringParameter sp_vesselActivityPresentation {
+				IndexDomain: i_vesselActivities;
+				Definition: {
+					data { 
+						idleNothingToDo  : "Idle - Waiting for end",  ! Waiting; no more cargos to be handled for this route.
+						idleWaitForCargo : "Idle - Waiting for cargo", ! Waiting in a port for a Cargo to become available.
+						sailingPickup    : "Sailing to pickup point",    ! Sailing towards a pickup point.
+						sailingDelivery  : "Sailing to delivery point"  ! Sailing towards a delivery point.
+					}
+				}
+			}
+		}
+		Section Locations {
+			Set s_locations {
+				Parameter: ep_location;
+			}
+			Parameter p_noLocations {
+				Definition: card(s_locations);
+			}
+			Index i_loc {
+				Range: s_locations;
+				dex::ColumnName: Location;
+			}
+			Index i_loc_from {
+				Range: s_locations;
+				dex::ColumnName: Location (From);
+			}
+			Index i_loc_to {
+				Range: s_locations;
+				dex::ColumnName: Location (To);
+			}
+			Set s_def_activeLocations {
+				SubsetOf: s_locations;
+				Index: i_act_loc;
+				Definition: {
+					{i_loc | bp_activeLocations(i_loc)}
+				}
+			}
+			Parameter bp_activeLocations {
+				IndexDomain: i_loc;
+				Range: binary;
+				InitialData: 1;
+			}
+			Parameter p_latitude {
+				IndexDomain: i_loc;
+				dex::ColumnName: Latitude;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: LocationData;
+			}
+			Parameter p_longitude {
+				IndexDomain: i_loc;
+				dex::ColumnName: Longitude;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: LocationData;
+			}
+			Parameter p_idleCostLocation {
+				IndexDomain: i_loc;
+				Unit: $/day;
+				dex::ColumnName: Idle Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: LocationData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
+			}
+			Parameter p_adminCostAtLocation {
+				IndexDomain: (i_loc);
+				Unit: $;
+				dex::ColumnName: Admin Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: LocationData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
+			}
+			Parameter p_loadingCostAtLocation {
+				IndexDomain: (i_loc);
+				Unit: $;
+				dex::ColumnName: Loading Cost;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: LocationData;
+				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
+			}
+			Parameter p_def_harvesineDistanceBetweenLocations {
+				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
+				Unit: day;
+				Definition: {
+					((6371.0[km])
+					    * arccos(
+					        cos(radians(90 - P_latitude(i_loc_from)))
+					        * cos(radians(90 - P_latitude(i_loc_to)))
+					        +
+					        sin(radians(90 - P_latitude(i_loc_from)))
+					        * sin(radians(90 - P_latitude(i_loc_to)))
+					        * cos(radians(p_longitude(i_loc_from) - p_longitude(i_loc_to)))))
+					/$ p_vesselVelocity
+				}
+			}
+			Parameter p_def_distanceBetweenLocations {
+				IndexDomain: (i_loc_from, i_loc_to);
+				Unit: day;
+				Definition: round(p_def_harvesineDistanceBetweenLocations(i_loc_from, i_loc_to),0);
+			}
+		}
+		Section Routes {
+			Set s_routeCalculationImplementations {
+				Definition: data { scalar, parallelized };
+			}
+			ElementParameter ep_selectedRouteCalculationImplementation {
+				Range: s_routeCalculationImplementations;
+				InitialData: 'parallelized';
+				dex::ColumnName: routeCalculationImplementation;
+				dex::Dataset: ImportDataSet;
+				dex::TableName: Horizon;
+			}
+			Set s_calc_feasibleRoutes {
+				Index: i_route;
+				Parameter: ep_route;
+			}
+			Index i_leg {
+				Range: s_calc_legs;
+				dex::ColumnName: Leg;
+			}
+			Index i_leg_aux {
+				Range: s_calc_legs;
+			}
+			Set s_calc_legs {
+				SubsetOf: Integers;
+				Property: ElementsAreLabels;
+				Definition: {
+					{ 1 .. 200 }
+				}
+			}
+			Index i_used_route {
+				Range: s_calc_usedRoutes;
+				dex::ColumnName: Route;
+			}
+			Set s_calc_usedRoutes {
+				SubsetOf: s_calc_feasibleRoutes;
+				Comment: "The routes in the solution of the last solved mm::mp_vesselScheduling.";
+			}
+			Set s_calc_cargosHandled {
+				IndexDomain: i_route;
+				SubsetOf: s_cargoes;
+				OrderBy: user;
+			}
+			Set s_temp_routeWorkingList {
+				SubsetOf: s_calc_feasibleRoutes;
+				Index: i_workRoute;
+				Parameter: ep_workRoute;
+				OrderBy: user;
+				Comment: {
+					"This set of route functions as a FIFO list;
+					new routes are appended to the end, and processed from the
+					beginning."
+				}
+			}
+			ElementParameter ep_temp_lastLocation {
+				IndexDomain: i_route;
+				Range: s_locations;
+			}
+			ElementParameter ep_temp_nextSailingDay {
+				IndexDomain: i_route;
+				Range: cal_days;
+			}
+			ElementParameter ep_calc_pickupDate {
+				IndexDomain: (i_route,i_cargo);
+				Range: cal_days;
+				Comment: "to be used for p_calc_loadingTimeCargoRoute.";
+			}
+			ElementParameter ep_calc_deliveryDate {
+				IndexDomain: (i_route,i_cargo);
+				Range: cal_days;
+			}
+			ElementParameter ep_calc_routeVessel {
+				IndexDomain: i_route;
+				Range: s_vessels;
+			}
+			ElementParameter ep_calc_routeLastLeg {
+				IndexDomain: i_route;
+				Range: s_calc_legs;
+			}
+			ElementParameter ep_calc_vesselActivityType {
+				IndexDomain: (i_route, i_leg);
+				Range: s_def_vesselActivities;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			ElementParameter ep_calc_vesselActivityLocation {
+				IndexDomain: (i_route,i_leg);
+				Range: s_locations;
+				Comment: {
+					"For activities ep_vesselIdleWaitCargo and ep_vesselIdleRetired
+					the location where the vessel is at.
+					For activities ep_vesselSailingPickup  and ep_vesselSailingDelivery  the
+					location where the vessel is sailing towards."
+				}
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			ElementParameter ep_calc_vesselActivityFirst {
+				IndexDomain: (i_route,i_leg);
+				Range: cal_days;
+				Comment: "First day of this vessel activity.";
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			ElementParameter ep_calc_vesselActivityLast {
+				IndexDomain: (i_route,i_leg);
+				Range: cal_days;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_calc_arcsPerRoute {
+				IndexDomain: (i_route,i_loc_from,i_loc_to);
+				Range: binary;
+			}
+			Parameter p_def_vesselActivityLength {
+				IndexDomain: (i_route,i_leg) | ep_calc_vesselActivityLast(i_route, i_leg);
+				Unit: day;
+				Definition: ((ep_calc_vesselActivityLast(i_route, i_leg) - ep_calc_vesselActivityFirst(i_route, i_leg)));
+			}
+			Parameter p_def_routeSailingDays {
+				IndexDomain: i_route;
+				Unit: day;
+				Definition: {
+					sum(i_leg | 
+					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup 
+					        or ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingDelivery,
+						p_def_vesselActivityLength(i_route, i_leg))
+				}
+			}
+			Parameter p_def_routeIdleDays {
+				IndexDomain: i_route;
+				Unit: day;
+				Definition: {
+					sum( i_leg | 
+						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo or
+						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleRetired ,
+						p_def_vesselActivityLength(i_route, i_leg) )
+				}
+			}
+			Parameter p_def_routeSailingCost {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					p_def_routeSailingDays(i_route) 
+					* p_sailingCost(ep_calc_routeVessel(i_route))
+				}
+			}
+			Parameter p_def_visitingLocationCost {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					sum(i_leg | 
+					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup  
+					        or ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingDelivery,
+						p_adminCostAtLocation(ep_calc_vesselActivityLocation(i_route, i_leg)))
+					+
+					
+					sum(i_leg | 
+						    ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup,
+						p_loadingCostAtLocation(ep_calc_vesselActivityLocation(i_route, i_leg)))
+				}
+				Comment: {
+					"The admin costs for visiting each location, and 
+					the loading costs for visiting pickup locations."
+				}
+			}
+			Parameter p_def_cargoCost {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					sum(i_cargo | 
+					        i_cargo in s_calc_cargosHandled(i_route),
+						p_cargoCost(i_cargo))
+				}
+			}
+			Parameter p_def_routeIdleCost {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					sum(i_leg | 
+					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo
+					        or ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleRetired,
+						p_def_vesselActivityLength(i_route, i_leg)
+						* p_idleCostLocation(ep_calc_vesselActivityLocation(i_route, i_leg)))
+				}
+			}
+			Parameter p_def_routeCosts {
+				IndexDomain: i_route;
+				Unit: $;
+				Definition: {
+					p_def_routeSailingCost(i_route) 
+					+ p_def_visitingLocationCost(i_route) 
+					+ p_def_cargoCost(i_route) 
+					+ p_def_routeIdleCost(i_route)
+				}
+			}
+			Parameter p_def_loadingTimeCargoRoute {
+				IndexDomain: (i_act_cargo,i_route) | ep_calc_pickupDate(i_route, i_act_cargo);
+				Unit: day;
+				Definition: ep_calc_pickupDate(i_route, i_act_cargo) - ep_startHorizonDate;
+				Comment: "the moment the cargo is loaded upon the vessel when it follows i_route.";
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter p_def_cargoesOnRoute {
+				IndexDomain: (i_route,i_cargo);
+				Range: nonnegative;
+				Definition: 1 $ (i_cargo in s_calc_cargosHandled(i_route));
+			}
+			Parameter bp_def_cargoesOnRoute {
+				IndexDomain: (i_route,i_act_cargo);
+				Range: binary;
+				Definition: 1 $ p_def_cargoesOnRoute(i_route,i_act_cargo);
+			}
+			Parameter p_def_deleveringTimeCargoRoute {
+				IndexDomain: (i_act_cargo,i_route) | p_def_cargoesOnRoute(i_route,i_act_cargo);
+				Unit: day;
+				Definition: {
+					(p_def_loadingTimeCargoRoute(i_act_cargo, i_route) 
+					+ p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
+				}
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			Parameter bp_def_deliveringLocationsOnRoute {
+				IndexDomain: (i_route,i_loc);
+				Range: binary;
+				Definition: {
+					exists(i_leg | 
+					    ep_calc_vesselActivityLocation(i_route, i_leg) = i_loc
+					    and ep_calc_vesselActivityType(i_route, i_leg) = 'sailingDelivery')
+				}
+			}
+			Parameter bp_def_loadingLocationsOnRoute {
+				IndexDomain: (i_used_route,i_loc);
+				Range: binary;
+				Definition: {
+					exists(i_leg | 
+					    (ep_calc_vesselActivityLocation(i_used_route, i_leg) = i_loc
+					    and ep_calc_vesselActivityType(i_used_route, i_leg) = 'sailingPickup'))
+					
+					or (ep_originPortOfVessel(ep_calc_routeVessel(i_used_route)) = i_loc
+					    and i_loc = ep_calc_vesselActivityLocation(i_used_route, '1'))
+				}
+			}
+			Procedure pr_calculateRoutesAndCost {
+				Arguments: (ep_routeCalculationImplementation);
+				Body: {
+					! Determine horizon start (is read in via Excel inp).
+					! Determine horizon length (is end - start) whereby
+					! horizon end is defined as the last day for delivery of any cargo.
+					
+					! Empty route sets, and dependent identifiers.
+					pr_initRoutes(); 
+					
+					! For each vessel, initialize to the empty route.
+					pr_initRouteSetWithVesselsOnly();
+					
+					if ep_routeCalculationImplementation = 'parallelized' then
+						pr_processRouteListEx();
+					else
+						pr_processRouteList();
+					endif ;
+					
+					block ! create arcs for map
+						empty p_calc_arcsPerRoute;
+						p_calc_arcsPerRoute(i_route, ep_originPortOfVessel(ep_calc_routeVessel(i_route)), ep_calc_vesselActivityLocation(i_route, '1')) |
+							(ep_originPortOfVessel(ep_calc_routeVessel(i_route)) <> ep_calc_vesselActivityLocation(i_route, '1'))
+						:=  1;
+						p_calc_arcsPerRoute(i_route, ep_calc_vesselActivityLocation(i_route, i_leg - 1), ep_calc_vesselActivityLocation(i_route, i_leg))|
+							ep_calc_vesselActivityLocation(i_route, i_leg - 1) <> ep_calc_vesselActivityLocation(i_route, i_leg)
+						:= 1;
+					endblock ;
+				}
+				ElementParameter ep_routeCalculationImplementation {
+					Range: s_routeCalculationImplementations;
+					Property: Input;
+				}
+			}
+			Procedure pr_initRoutes {
+				Body: {
+					empty s_calc_feasibleRoutes  ; ! Will also empty all identifiers declared over s_calc_routes.
+					cleandependents s_calc_feasibleRoutes ; ! Will also empty the element space for s_calc_feasibleRoutes.
+				}
+				Comment: "Empty the route set, and its element space.";
+			}
+			Procedure pr_initRouteSetWithVesselsOnly {
+				Body: {
+					ep_loc_leg := first(s_calc_legs);
+					
+					! For each Vessel, a feasible route is to leave it in its berth.
+					for i_act_vessel do
+					
+						! Create empty route for this vessel.
+						SetElementAdd(s_calc_feasibleRoutes, ep_loc_newRoute, FormatString("%e", i_act_vessel));
+					
+						! Append the new route to the working list.
+						s_temp_routeWorkingList += ep_loc_newRoute;
+					
+						! initialize globals for each new route.
+						s_calc_cargosHandled(ep_loc_newRoute) := {};
+					
+						ep_temp_nextSailingDay(ep_loc_newRoute) := ep_startHorizonDate;
+						ep_temp_lastLocation(ep_loc_newRoute) := ep_originPortOfVessel(i_act_vessel);
+					
+						ep_calc_routeVessel(ep_loc_newRoute) := i_act_vessel;
+						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_loc_leg;
+						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_leg) := ep_def_vesselIdleRetired;
+						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_leg) := ep_originPortOfVessel(i_act_vessel);
+						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_leg) := ep_startHorizonDate;
+						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_leg) := ep_def_finishHorizonDate;
+					endfor;
+				}
+				ElementParameter ep_loc_newRoute {
+					Range: s_calc_feasibleRoutes;
+				}
+				ElementParameter ep_loc_leg {
+					Range: s_calc_legs;
+				}
+			}
+			Procedure pr_processRouteList {
+				Body: {
+					while card(s_temp_routeWorkingList) do
+						ep_loc_workingRoute := first(s_temp_routeWorkingList);
+						s_temp_routeWorkingList -= ep_loc_workingRoute ;
+						pr_processSingleRoute(ep_loc_workingRoute);
+					endwhile;
+				}
+				ElementParameter ep_loc_workingRoute {
+					Range: s_calc_feasibleRoutes;
+				}
+			}
+			Procedure pr_processSingleRoute {
+				Arguments: (ep_in_workingRoute);
+				Body: {
+					! Earliest possible arrival:
+					ep_loc_arrivalDay(i_act_cargo) 
+					:=  ep_temp_nextSailingDay(ep_in_workingRoute) 
+					    + p_def_distanceBetweenLocations(ep_temp_lastLocation(ep_in_workingRoute), ep_loadingPortsCargo(i_act_cargo))/1[day];
+					
+					! Earliest possible pickup - both vessel and cargo need to be present.
+					ep_loc_pickupDay(i_act_cargo) := max(ep_loc_arrivalDay(i_act_cargo), ep_minTimeWindow(i_act_cargo));
+					
+					! Next sailing day - after pickup the sailing to the delivery:
+					ep_loc_nextSailingDay(i_act_cargo) 
+					:=  ep_loc_pickupDay(i_act_cargo) 
+					    + p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo))/1[day];
+					
+					for i_act_cargo | 
+					        (not (i_act_cargo in s_calc_cargosHandled(ep_in_workingRoute))) 
+					        and (ep_loc_pickupDay(i_act_cargo) <= ep_maxTimeWindow(i_act_cargo)) 
+					        and (ep_loc_nextSailingDay(i_act_cargo) <= ep_def_finishHorizonDate) do 
+					
+						! The name of the new route is the same as the old route, with the name of the cargo appended.
+						sp_loc_newRoute := FormatString("%e_%e", ep_in_workingRoute, i_act_cargo);
+					
+						! Append this route to the collection of all routes, and to the working list.
+						SetElementAdd(s_calc_feasibleRoutes, ep_loc_newRoute, sp_loc_newRoute);
+						s_temp_routeWorkingList += ep_loc_newRoute;
+					
+						! Work the globals for this new route; also copy a lot of data from the parent route.
+						s_calc_cargosHandled(ep_loc_newRoute) := s_calc_cargosHandled(ep_in_workingRoute);
+						s_calc_cargosHandled(ep_loc_newRoute) += i_act_cargo;
+						ep_temp_nextSailingDay(ep_loc_newRoute) := ep_loc_nextSailingDay(i_act_cargo);
+						ep_temp_lastLocation(ep_loc_newRoute) := ep_deliveringPortsCargo(i_act_cargo);
+						ep_calc_routeVessel(ep_loc_newRoute) := ep_calc_routeVessel(ep_in_workingRoute);
+						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo_aux) := ep_calc_pickupDate(ep_in_workingRoute, i_act_cargo_aux);
+						ep_calc_pickupDate(ep_loc_newRoute, i_act_cargo) := ep_loc_pickupDay(i_act_cargo);
+					
+						! First copy legs from working route to new route.
+						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_calc_routeLastLeg(ep_in_workingRoute);
+						ep_calc_vesselActivityType(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityType(ep_in_workingRoute, i_leg);
+						ep_calc_vesselActivityLocation(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityLocation(ep_in_workingRoute, i_leg);
+						ep_calc_vesselActivityFirst(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityFirst(ep_in_workingRoute, i_leg);
+						ep_calc_vesselActivityLast(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityLast(ep_in_workingRoute, i_leg);
+					
+						! Second, append the legs for handling i_act_cargo:
+						! - sailing towards pickup location, 
+						! - perhaps waiting for the cargo to become available, 
+						! - sailing towards delivery location.
+						ep_loc_lastLeg := ep_calc_routeLastLeg(ep_loc_newRoute);
+						if ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_lastLeg) <> ep_def_vesselIdleRetired then
+							raise warning 
+								FormatString("internal error, each route should have a last leg for awaiting the end of the horizon. ep_loc_newRoute = %e, ep_loc_lastLeg = %e", 
+									ep_loc_newRoute, ep_loc_lastLeg) ;
+						endif;
+					
+						! last leg (idle-retired) will be replaced by sailing to pickup for i_act_cargo.
+						!display ep_in_workingRoute, ep_temp_lastLocation(ep_in_workingRoute), ep_loadingPortsCargo(i_act_cargo);
+						if ep_temp_lastLocation(ep_in_workingRoute) <> ep_loadingPortsCargo(i_act_cargo)  then
+							if ep_calc_vesselActivityType( ep_loc_newRoute, ep_loc_lastLeg ) <> ep_def_vesselIdleRetired then
+								 ep_loc_lastLeg += 1;
+							endif ;
+							ep_loc_legSailingPickup := ep_loc_lastLeg ;
+							ep_calc_vesselActivityType(     ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_def_vesselSailingPickup ;
+							ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loadingPortsCargo(i_act_cargo) ;
+							ep_calc_vesselActivityFirst(    ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_calc_vesselActivityFirst( ep_loc_newRoute, ep_loc_legSailingPickup ) ; ! so no change.
+							ep_calc_vesselActivityLast(     ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loc_arrivalDay( i_act_cargo ) ;
+						endif ;
+					
+						! - perhaps waiting for the cargo to become available, 
+						if ep_loc_arrivalDay(i_act_cargo) < ep_minTimeWindow(i_act_cargo) then
+							! need to wait for the cargo to become available in the pickup port.
+							if ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_lastLeg) <> ep_def_vesselIdleRetired then
+								ep_loc_lastLeg += 1;
+							endif;
+							ep_loc_legWaitingCargo := ep_loc_lastLeg;
+							ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_def_vesselIdleWaitCargo;
+							ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_loadingPortsCargo(i_act_cargo);
+							ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_loc_arrivalDay(i_act_cargo); 
+							ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_minTimeWindow(i_act_cargo);
+						endif ;
+					
+						! - sailing towards delivery location.
+						ep_loc_lastLeg += 1;
+						ep_loc_legSailingDelivery := ep_loc_lastLeg;
+						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_def_vesselSailingDelivery;
+						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_deliveringPortsCargo(i_act_cargo);
+						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_loc_pickupDay(i_act_cargo); 
+						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_loc_nextSailingDay(i_act_cargo);
+					
+						! - Always reserving a leg to wait till end of horizon.
+						ep_loc_lastLeg += 1;
+						ep_loc_legIdleRetire := ep_loc_lastLeg;
+						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_vesselIdleRetired;
+						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_deliveringPortsCargo(i_act_cargo);
+						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_loc_nextSailingDay(i_act_cargo); 
+						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_finishHorizonDate;
+					
+						! - Finishing up admin.
+						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_loc_lastLeg;
+					
+					endfor;
+				}
+				ElementParameter ep_in_workingRoute {
+					Range: s_calc_feasibleRoutes;
+					Property: Input;
+				}
+				ElementParameter ep_loc_arrivalDay {
+					IndexDomain: i_cargo;
+					Range: cal_days;
+				}
+				ElementParameter ep_loc_pickupDay {
+					IndexDomain: i_cargo;
+					Range: cal_days;
+				}
+				ElementParameter ep_loc_nextSailingDay {
+					IndexDomain: i_cargo;
+					Range: cal_days;
+				}
+				StringParameter sp_loc_newRoute;
+				ElementParameter ep_loc_newRoute {
+					Range: s_calc_feasibleRoutes;
+				}
+				ElementParameter ep_loc_lastLeg {
+					Range: s_calc_legs;
+				}
+				ElementParameter ep_loc_legSailingPickup {
+					Range: s_calc_legs;
+				}
+				ElementParameter ep_loc_legWaitingCargo {
+					Range: s_calc_legs;
+				}
+				ElementParameter ep_loc_legSailingDelivery {
+					Range: s_calc_legs;
+				}
+				ElementParameter ep_loc_legIdleRetire {
+					Range: s_calc_legs;
+				}
+			}
+			Procedure pr_processRouteListEx {
+				Body: {
+						_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
+						_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
+						_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
+						_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
+					
+					
+					_s_inputList := s_temp_routeWorkingList ;
+					s_temp_routeWorkingList := {};
+					_s_processedRoutes := {};
+					while card( _s_inputList ) do
+					
+						! Earliest possible arrival:
+						_ep_loc_arrivalDay( _i_inputRoute, i_act_cargo ) := 
+							ep_temp_nextSailingDay(_i_inputRoute) + 
+					    		+p_def_distanceBetweenLocations(ep_temp_lastLocation(_i_inputRoute), 
+					    			ep_loadingPortsCargo(i_act_cargo))/1[day];
+					
+						! Earliest possible pickup - both vessel and cargo need to be present.
+						_ep_loc_pickupDay(_i_inputRoute, i_act_cargo) := 
+							max(_ep_loc_arrivalDay(_i_inputRoute,i_act_cargo), 
+								ep_minTimeWindow(i_act_cargo));
+					
+						! Next sailing day - after pickup the sailing to the delivery:
+						_ep_loc_nextSailingDay(_i_inputRoute, i_act_cargo) := 
+							_ep_loc_pickupDay(_i_inputRoute, i_act_cargo) 
+							+ p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), 
+								ep_deliveringPortsCargo(i_act_cargo))/1[day];
+					
+						! Determine, for each (input) route, the collection of potential next locations.
+						_s_next_potential_cargos( _i_inputRoute ) := { i_act_cargo |
+							( not ( i_act_cargo in s_calc_cargosHandled( _i_inputRoute ) )                     ) and     ! Do not visit the same location twice.
+							( _ep_loc_pickupDay( _i_inputRoute, i_act_cargo ) <= ep_maxTimeWindow(i_act_cargo) ) and     ! Be on time
+							( _ep_loc_nextSailingDay(_i_inputRoute, i_act_cargo) <= ep_def_finishHorizonDate   )     } ; ! Don't deliver outside horizon.
+					
+						! Create the new routes.
+						_ep_next_route( _i_inputRoute, _i_next_cargo ) | _i_next_cargo in _s_next_potential_cargos( _i_inputRoute ) :=
+							StringToElement( s_calc_feasibleRoutes, formatString( "%e_%e", _i_inputRoute, _i_next_cargo ), create: 1);
+						_ep_parent_route( _ep_next_route( _i_inputRoute, _i_next_cargo ) ) := _i_inputRoute ;
+						_ep_last_cargo(   _ep_next_route( _i_inputRoute, _i_next_cargo ) ) := _i_next_cargo ;
+					
+						! Determine the collection of routes, for which route data need to be computed next.
+						_s_processedRoutes += _s_inputList ;
+						s_temp_routeWorkingList := s_calc_feasibleRoutes - _s_processedRoutes ;
+					
+						! Work the globals for this new route; also copy a lot of data from the parent route.
+						s_calc_cargosHandled(i_workRoute) := s_calc_cargosHandled(_ep_parent_route(i_workRoute)) + _ep_last_cargo( i_workRoute );
+						ep_temp_nextSailingDay( i_workRoute ) := _ep_loc_nextSailingDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) );
+						ep_temp_lastLocation( i_workRoute ) := ep_deliveringPortsCargo( _ep_last_cargo( i_workRoute ) );
+						ep_calc_routeVessel(i_workRoute) := ep_calc_routeVessel(_ep_parent_route(i_workRoute));
+						_ep_tmp_pickupDate( i_route, i_act_cargo_aux ) := ep_calc_pickupDate(i_route, i_act_cargo_aux);
+						ep_calc_pickupDate(i_workRoute, i_act_cargo_aux) := _ep_tmp_pickupDate(_ep_parent_route(i_workRoute), i_act_cargo_aux);
+						ep_calc_pickupDate(i_workRoute, _ep_last_cargo( i_workRoute )) := _ep_loc_pickupDay(_ep_parent_route(i_workRoute),  _ep_last_cargo( i_workRoute ));
+					
+						! First copy legs from working route to new route.
+						ep_calc_routeLastLeg(i_workRoute) := ep_calc_routeLastLeg(_ep_parent_route(i_workRoute));
+					!	_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
+					!	_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
+					!	_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
+					!	_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
+						ep_calc_vesselActivityType(     i_workRoute, i_leg ) := _ep_tmp_vesselActivityType(     _ep_parent_route(i_workRoute), i_leg);
+						ep_calc_vesselActivityLocation( i_workRoute, i_leg ) := _ep_tmp_vesselActivityLocation( _ep_parent_route(i_workRoute), i_leg);
+						ep_calc_vesselActivityFirst(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityFirst(    _ep_parent_route(i_workRoute), i_leg);
+						ep_calc_vesselActivityLast(     i_workRoute, i_leg ) := _ep_tmp_vesselActivityLast(     _ep_parent_route(i_workRoute), i_leg);
+					
+						! Second, append the legs for handling i_act_cargo:
+						! - sailing towards pickup location, 
+						! - perhaps waiting for the cargo to become available, 
+						! - sailing towards delivery location.
+						!DebuggerBreakpoint();
+						_ep_loc_lastLeg(i_workRoute) := ep_calc_routeLastLeg(_ep_parent_route(i_workRoute));
+						_ep_debug_loadingPortsCargo(i_workRoute) := ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ));
+						_bp_tmp_SailToPickup(i_workRoute) := 
+							 ep_temp_lastLocation( _ep_parent_route(i_workRoute) ) <> ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ));
+						!display { ep_temp_lastLocation(i_workRoute), _ep_last_cargo( i_workRoute ), _ep_debug_loadingPortsCargo( i_workRoute ), _bp_tmp_SailToPickup( i_workRoute ) } ;
+						_ep_loc_lastLeg(i_workRoute) $ ( _bp_tmp_SailToPickup(i_workRoute) and 
+							( ep_calc_vesselActivityType( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) <> ep_def_vesselIdleRetired ) )
+							+= 1 ;
+						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_def_vesselSailingPickup ;
+						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_loadingPortsCargo(_ep_last_cargo( i_workRoute )) ;
+						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) ; ! so no change.
+						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := _ep_loc_arrivalDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) );
+					
+						! - perhaps waiting for the cargo to become available, 
+						_bp_tmp_WaitingForCargoAvailability(i_workRoute) := _ep_loc_arrivalDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute )) < ep_minTimeWindow(_ep_last_cargo( i_workRoute )) ;
+						_ep_loc_lastLeg(i_workRoute) $ ( _bp_tmp_WaitingForCargoAvailability(i_workRoute) and 
+							( ep_calc_vesselActivityType( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) <> ep_def_vesselIdleRetired ) )
+							+= 1 ;
+						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_def_vesselIdleWaitCargo;
+						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ) );
+						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := _ep_loc_arrivalDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) ); 
+						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_minTimeWindow(_ep_last_cargo( i_workRoute ));
+					
+						! - sailing towards delivery location.
+						_ep_loc_lastLeg(i_workRoute) += 1;
+						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := ep_def_vesselSailingDelivery;
+						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := ep_deliveringPortsCargo(                               _ep_last_cargo( i_workRoute ) );
+						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := _ep_loc_pickupDay(      _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) ); 
+						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := _ep_loc_nextSailingDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) );
+					
+						! - Always reserving a leg to wait till end of horizon.
+						_ep_loc_lastLeg(i_workRoute) += 1;
+						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_vesselIdleRetired;
+						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_deliveringPortsCargo(_ep_last_cargo( i_workRoute ));
+						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) := _ep_loc_nextSailingDay(_ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute )); 
+						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_finishHorizonDate;
+					
+						_ep_tmp_vesselActivityType(     i_workRoute, i_leg ) := ep_calc_vesselActivityType(     i_workRoute, i_leg );
+						_ep_tmp_vesselActivityLocation( i_workRoute, i_leg ) := ep_calc_vesselActivityLocation( i_workRoute, i_leg );
+						_ep_tmp_vesselActivityFirst(    i_workRoute, i_leg ) := ep_calc_vesselActivityFirst(    i_workRoute, i_leg );
+						_ep_tmp_vesselActivityLast(     i_workRoute, i_leg ) := ep_calc_vesselActivityLast(     i_workRoute, i_leg );
+					
+					
+						! - Finishing up admin.
+						ep_calc_routeLastLeg(i_workRoute) := _ep_loc_lastLeg(i_workRoute);
+					
+						! Move the working list again to the input list.
+						_s_inputList := s_temp_routeWorkingList ;
+						s_temp_routeWorkingList := {};
+					
+					endwhile;
+				}
+				Set _s_inputList {
+					SubsetOf: s_calc_feasibleRoutes;
+					Index: _i_inputRoute;
+				}
+				Set _s_processedRoutes {
+					SubsetOf: s_calc_feasibleRoutes;
+				}
+				ElementParameter _ep_loc_arrivalDay {
+					IndexDomain: (_i_inputRoute, i_cargo);
+					Range: cal_days;
+				}
+				ElementParameter _ep_loc_pickupDay {
+					IndexDomain: (_i_inputRoute,i_cargo);
+					Range: cal_days;
+				}
+				ElementParameter _ep_loc_nextSailingDay {
+					IndexDomain: (_i_inputRoute,i_cargo);
+					Range: cal_days;
+				}
+				Set _s_next_potential_cargos {
+					IndexDomain: _i_inputRoute;
+					SubsetOf: s_cargoes;
+				}
+				Index _i_next_cargo {
+					Range: s_cargoes;
+				}
+				ElementParameter _ep_next_route {
+					IndexDomain: (_i_inputRoute,_i_next_cargo);
+					Range: s_calc_feasibleRoutes;
+				}
+				ElementParameter _ep_parent_route {
+					IndexDomain: i_route;
+					Range: s_calc_feasibleRoutes;
+				}
+				ElementParameter _ep_last_cargo {
+					IndexDomain: i_route;
+					Range: s_cargoes;
+				}
+				ElementParameter _ep_loc_lastLeg {
+					IndexDomain: i_route;
+					Range: s_calc_legs;
+				}
+				Parameter _bp_tmp_SailToPickup {
+					IndexDomain: i_route;
+					Range: binary;
+				}
+				Parameter _bp_tmp_WaitingForCargoAvailability {
+					IndexDomain: i_route;
+					Range: binary;
+				}
+				ElementParameter _ep_debug_loadingPortsCargo {
+					IndexDomain: i_workRoute;
+					Range: s_locations;
+				}
+				ElementParameter _ep_tmp_pickupDate {
+					IndexDomain: (i_route,i_cargo);
+					Range: cal_days;
+				}
+				ElementParameter _ep_tmp_vesselActivityType {
+					IndexDomain: (i_route, i_leg);
+					Range: s_def_vesselActivities;
+				}
+				ElementParameter _ep_tmp_vesselActivityLocation {
+					IndexDomain: (i_route,i_leg);
+					Range: s_locations;
+					Comment: {
+						"For activities ep_vesselIdleWaitCargo and ep_vesselIdleRetired
+						the location where the vessel is at.
+						For activities ep_vesselSailingPickup  and ep_vesselSailingDelivery  the
+						location where the vessel is sailing towards."
+					}
+				}
+				ElementParameter _ep_tmp_vesselActivityFirst {
+					IndexDomain: (i_route,i_leg);
+					Range: cal_days;
+					Comment: "First day of this vessel activity.";
+				}
+				ElementParameter _ep_tmp_vesselActivityLast {
+					IndexDomain: (i_route,i_leg);
+					Range: cal_days;
+				}
+			}
+		}
+	}
+	Procedure MainExecution {
+		Body: {
+			if pro::GetPROEndPoint() or not ProjectDeveloperMode() then
+			    if pro::DelegateToServer( 
+			        procedureName      :  'mm::pr_runModel',
+			        waitForCompletion  :  1,
+			        completionCallback :  'pro::session::LoadResultsCallBack' )
+			    then 
+			
+			        mm::pr_updatePagesAfterSolve;
+			
+			    endif;
+			else
+			    mm::pr_runModel;
+			    mm::pr_updatePagesAfterSolve;
+			
+			endif;
+			
+			display {p_latitude,p_longitude};
+			display dex::api::RESTServiceMaxRequests ;
+		}
+	}
+	Section App_Start_Finish {
+		Procedure MainInitialization {
+			Body: {
+				ProfilerStart();
+				
+				pr_initCalendar;
+			}
+			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
+		}
+		Procedure PostMainInitialization {
+			Comment: {
+				"Add initialization statements here that require that the libraries are already initialized properly,
+				or add statements that require the Data Management module to be initialized."
+			}
+		}
+		Procedure pr_startupProcedure {
+			Body: {
+				if not DirectoryExists( "Mappings/Generated" ) then
+					dex::GenerateDatasetMappings();
+				endif;
+				
+				dex::ReadAllMappings();
+				
+				!dex::api::RESTServiceMaxRequests := 1 ;
+				!dex::api::RestServiceMinTimeout := 10000; ! In milliseconds.
+				!dex::api::RestServiceMinTimeout := 1
+				!dex::api::RESTServiceMinTimeout  := 1 ;
+			}
+		}
+		Procedure pr_goodbye {
+			Body: {
+				exitaimms();
+			}
+		}
+		Procedure PreMainTermination {
+			Body: {
+				return 1;!DataManagementExit();
+			}
+			Comment: {
+				"Add termination statements here that require all libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
+			}
+		}
+		Procedure MainTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that do not require all libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+			}
+		}
+	}
+	Section Leverage_AimmsCmd {
+		StringParameter sp_theExcelInput {
+			InitialData: "/inputs/input.xlsx";
+		}
+		StringParameter sp_theExcelOutput {
+			InitialData: "/outputs/output.xlsx";
+		}
+		Procedure pr_readExcel {
+			Body: {
+				
+				di::pr_actuallyImportExcel(sp_theExcelInput);
+			}
+		}
+		Procedure pr_solveTheModel {
+			Body: {
+				!display sp_theExcelInput, sp_theExcelOutput ;
+				
+				modSolveService::pr_actuallySolveVesselSchedulingExcel(
+					sp_inp :  sp_theExcelInput, 
+					sp_out :  sp_theExcelOutput);
+			}
+		}
+		Procedure pr_solveModelSessionArguments {
+			Body: {
+				SessionArgument(
+					argno    :  1, 
+					argument :  sp_theExcelInput);
+				
+				SessionArgument(
+					argno    :  2, 
+					argument :  sp_theExcelOutput);
+				
+				modSolveService::pr_actuallySolveVesselSchedulingExcel(
+					sp_inp :  sp_theExcelInput, 
+					sp_out :  sp_theExcelOutput);
+			}
+		}
+	}
+	Section Convert_format {
+		Procedure pr_convAll {
+			Body: {
+				pr_conv("VS_5Vessel_15Cargo");
+				pr_conv("VS_7Vessel_20Cargo");
+			}
+		}
+		Procedure pr_conv {
+			Arguments: (sp_main);
+			Body: {
+				dex::ReadFromFile(
+				            dataFile : "data/" + sp_main + ".xlsx", 
+				            mappingName : "Generated/ImportDataSet-Excel");
+				
+				
+				if not DirectoryExists( "data/" + sp_main ) then
+					DirectoryCreate( "data/" + sp_main );
+				endif ;
+				if not DirectoryExists( "data/" + sp_main + "/csv" ) then
+					DirectoryCreate( "data/" + sp_main  + "/csv" );
+				endif ;
+				if not DirectoryExists( "data/" + sp_main + "/parquet" ) then
+					DirectoryCreate( "data/" + sp_main  + "/parquet" );
+				endif ;
+				
+				_bp_pretty := 0 ;
+				_sp_folderName := "data/" + sp_main + "/csv/" ;
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "Horizon" + ".csv", 
+					mappingName :  "Generated/ImportDataSet-Horizon-CSV", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "VesselData" + ".csv", 
+					mappingName :  "Generated/ImportDataSet-VesselData-CSV", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "CargoData" + ".csv", 
+					mappingName :  "Generated/ImportDataSet-CargoData-CSV", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "LocationData" + ".csv", 
+					mappingName :  "Generated/ImportDataSet-LocationData-CSV", 
+					pretty      :  _bp_pretty);
+				zip::pr_zipFolderToFile(
+					sp_folderName      :  _sp_folderName, 
+					sp_destinationFile :  "data/" + sp_main+"-csv.zip");
+				
+				_sp_folderName := "data/" + sp_main + "/parquet/" ;
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "Horizon" + ".parquet", 
+					mappingName :  "Generated/ImportDataSet-Horizon-Parquet", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "VesselData" + ".parquet", 
+					mappingName :  "Generated/ImportDataSet-VesselData-Parquet", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "CargoData" + ".parquet", 
+					mappingName :  "Generated/ImportDataSet-CargoData-Parquet", 
+					pretty      :  _bp_pretty);
+				
+				dex::WriteToFile(
+					dataFile    :  _sp_folderName + "LocationData" + ".parquet", 
+					mappingName :  "Generated/ImportDataSet-LocationData-Parquet", 
+					pretty      :  _bp_pretty);
+				zip::pr_zipFolderToFile(
+					sp_folderName      :  _sp_folderName, 
+					sp_destinationFile :  "data/" + sp_main+"-parquet.zip");
+			}
+			StringParameter sp_main {
+				Property: Input;
+			}
+			StringParameter _sp_folderName;
+			Parameter _bp_pretty {
+				Range: binary;
+			}
+		}
+	}
+	Module Module_SolveService {
+		SourceFile: "moduleSolveService.ams";
+	}
+}

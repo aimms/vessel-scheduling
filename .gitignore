@@ -11,3 +11,9 @@ solutions
 /AIMMSProject/libs/stopwatch-library
 /AIMMSProject/libs/zip-library
 /aimms-eo
+/AimmsClientVesselScheduling/Libs/stopwatch-library
+/AimmsClientVesselScheduling/RequestResponseFiles/*
+/AimmsClientVesselScheduling/data/*
+/AimmsProject/data/*
+ 
+/AimmsClientVesselScheduling/oapitasks f_logfile.put

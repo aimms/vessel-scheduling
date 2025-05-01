@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ModelBookmarks TimeStamp="2025-03-03 07:27:49">
+	<Category Name="new route generation">
+		<Bookmark Node="pr_processRouteListEx" Attribute="body" LineNumber="1">
+			<TextLine>_s_inputList := s_temp_routeWorkingList ;</TextLine>
+		</Bookmark>
+	</Category>
+	<Category Name="service">
+		<Bookmark Node="modSolveService::pr_actuallySolveVesselSchedulingExcel" Attribute="body" LineNumber="4" />
+	</Category>
+	<Category Name="generate random">
+		<Bookmark Node="ui::pr_generateRandomData" Attribute="body" LineNumber="1">
+			<TextLine>empty s_vessels, s_cargoes, s_locations; </TextLine>
+		</Bookmark>
+	</Category>
+</ModelBookmarks>

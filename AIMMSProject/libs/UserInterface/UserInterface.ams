@@ -1,0 +1,1265 @@
+## ams_version=1.0
+
+LibraryModule UserInterface {
+	Prefix: ui;
+	Interface: UserInterface;
+	StringParameter sp_def_empty;
+	StringParameter sp_def_readOnly {
+		Definition: "readonly";
+	}
+	StringParameter sp_def_logo {
+		Definition: "aimms_logo.png";
+	}
+	Section CRUD {
+		Procedure pr_empty;
+		StringParameter sp_addEditElement;
+		Section CRUD_Vessel {
+			Procedure pr_openAddVessel {
+				Body: {
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Vessel", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_AddVessel');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addVessel {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_Vessel := StringToElement(s_vessels, sp_AddEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditVessel {
+				Body: {
+					sp_addEditElement := ep_vessel;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Vessel", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_EditVessel');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editVessel {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_vessels , ep_vessel , sp_addEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteVessel {
+				Body: {
+					s_vessels -= ep_vessel;
+					
+					ep_vessel := first(i_vessel);
+				}
+			}
+		}
+		Section CRUD_Location {
+			Procedure pr_openAddLocation {
+				Body: {
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Location", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_addLocation');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addLocation {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_location := StringToElement(s_locations, sp_addEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditLocation {
+				Body: {
+					sp_addEditElement := ep_location;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Location", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_editLocation');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editLocation {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_locations , ep_location , sp_addEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteLocation {
+				Body: {
+					s_locations -= ep_location;
+					
+					ep_location := first(i_loc);
+				}
+			}
+		}
+		Section CRUD_Cargo {
+			Procedure pr_openAddCargo {
+				Body: {
+					empty sp_addEditElement;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'CRUD', 
+						title   :  "Add Cargoes", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_AddCargo');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_addCargo {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    ep_cargo := StringToElement(s_cargoes, sp_addEditElement, 1);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_openEditCargo {
+				Body: {
+					sp_addEditElement := ep_cargo;
+					
+					s_loc_actions:= {'Cancel','OK'};
+					
+					webui::OpenDialogPage(
+						pageId  :  'crud', 
+						title   :  "Edit Cargoes", 
+						actions :  s_loc_actions, 
+						onDone  :  'ui::pr_EditCargo');
+				}
+				Set s_loc_actions {
+					InitialData: {
+						{'Cancel', 'OK'}
+					}
+				}
+			}
+			Procedure pr_editCargo {
+				Arguments: sp_arg_action;
+				Body: {
+					if sp_arg_action = 'OK' then
+					    SetElementRename(s_cargoes, ep_cargo , sp_addEditElement);
+					endif;
+				}
+				StringParameter sp_arg_action {
+					Property: Input;
+				}
+			}
+			Procedure pr_deleteCargo {
+				Body: {
+					s_cargoes -= ep_cargo;
+					
+					ep_cargo := first(i_cargo);
+				}
+			}
+		}
+	}
+	Section System {
+		Procedure pr_adaptNamesForPresentationInWebUI {
+			Body: {
+				empty webui::IdentifierElementText;
+				
+				_s_presentableIds := Main_VesselScheduling + UserInterface ;
+				
+				! Clear identifier element text of all identifiers in the Main model.
+				webui::IdentifierElementText( _i_presentableId ) := "" ;
+				
+				! And set the identifier element text of the following ones:
+				webui::IdentifierElementText(IndexIdentifiers) 
+				+=  data {
+				
+				    ! Master Page
+					's_cargoes' : "Cargoes",
+					'i_cargo'   : "Cargoes",
+					's_def_activeCargoes' : "Active Cargoes",
+					'i_act_cargo' : "Active Cargoes",
+					's_locations' : "Locations",
+					'i_loc' : "Locations",
+					'i_loc_from' : "Location From" ,
+					'i_loc_to' : "Location To" ,
+					's_def_activeLocations' : "Active Locations",
+					'i_act_loc' : "Active Locations",
+					's_vessels' : "Vessels",
+					'i_vessel' : "Vessels",
+					's_def_activeVessels' : "Active Vessels",
+					'i_act_vessel' : "Active Vessels",
+					'bp_ActiveCargoes' : "Active?",
+					'bp_ActiveVessels' : "Active?",
+					'bp_ActiveLocations' : "Active?",
+					'p_Latitude' : "Latitude",
+					'p_Longitude' : "Longitude",
+					'ui::p_deleteLocations' : " ",
+					'ui::p_editLocations' : " ",
+					'ui::p_deleteCargoes' : " ",
+					'ui::p_editCargoes' : " ",
+					'ui::p_deleteVessels' : " ",
+					'ui::p_editVessels' : " ",
+					'ep_startHorizonDate' : " ",
+				
+				    ! Random Data
+					'ui::p_cargoesQuantity' : "# Cargoes",
+					'ui::p_vesselsQuantity' : "# Vessels",
+				
+				    ! Locations
+				    'p_idleCostLocation' : "Idle Cost",
+				    'p_adminCostAtLocation' : "Admin Cost",
+				    'p_loadingCostAtLocation' : "Loading Cost",
+				    'p_def_harvesineDistanceBetweenLocations' : "Distance",
+				    'p_vesselVelocity' : "Vessel Velocity",
+				
+				    ! Cargoes
+				    'ep_LoadingPortsCargo' : "Loading Port",
+				    'ep_DeliveringPortsCargo' : "Delivering Port",
+				    'ep_MinTimeWindow' : "Minimum Loading Time",
+				    'ep_MaxTimeWindow' : "Maximum Loading Time",
+					'p_spotCostVessel' : "Spot Cost" ,
+					'p_cargoCost' : "Fixed Cost" ,
+				
+				    ! Vessels
+					'ep_originPortOfVessel' : "Origin Port",
+					'p_sailingCost' : "Sailing Cost",
+				
+				    ! Routes
+				
+				    ! Generated Itineraries
+					'ui::ep_selectedRoute' : "Selected Route" ,
+					'ui::ep_def_selectedVessel' : "Vessel" ,
+					'ui::ep_berthVesselSelectedRoute' : "Berth" ,
+					'ui::p_def_noDaysSailing' : "Days Sailing",
+					'ui::p_def_noDaysIdle' : "Days Idle",
+					'ep_calc_vesselActivityType' : "Activity Description" ,
+					'ep_calc_vesselActivityLocation' : "Location" ,
+					'ep_calc_vesselActivityFirst' : "Start" ,
+					'ep_calc_vesselActivityLast' : "Finish" ,
+					'p_def_vesselActivityLength' : "Total Duration",
+					'ui::i_cargoOfSelectedRoute' : "Cargoes",
+					'ui::ep_def_minTimeWindow' : "Minimum Loading Time",
+					'ui::ep_def_maxTimeWindow' : "Maximum Loading Time",
+					'ui::ep_def_loadingPortsCargo' : "Loading Port",
+					'ui::ep_def_deliveringPortsCargo' : "Delivering Port",
+					'i_leg' : "#",
+					'ui::i_leg' : "#",
+					'ui::p_def_totalSailingCostPerRoute' : "Total Sailing Cost",
+					'ui::p_def_totalVisitingLocationCostPerRoute' : "Total Visiting Cost",
+					'ui::p_def_totalIdleCostPerRoute' : "Total Idle Cost",
+					'ui::p_def_totalCargoCostPerRoute' : "Total Cargo Cost",
+					'ui::p_def_totalRouteCostPerRoute' : "Total Route Cost",
+				
+				    ! Optimized Results
+					'mm::ep_calc_routeOfVessel' : "Route",
+					'mm::p_calc_operationalCostPerVessel' : "Route Cost",
+					'mm::p_calc_totalTravelDaysPerVessel' : "Route Period",
+					'mm::ep_calc_vesselOfCargo' : "Vessel Used",
+					'mm::p_calc_totalCostPerCargo' : "Cargo Cost",
+					'mm::sp_calc_loadingTimePerCargo' : "Loading Time",
+					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+					'ui::p_def_totalCargoCost' : "Cargo Cost",
+					'ui::p_def_totalSailingCost' : "Sailing Cost",
+					'ui::p_def_totalVisitingLocationCost' : "Visiting Location Cost",
+					'ui::p_def_totalIdleCost' : "Idle Cost",
+					'ui::p_def_totalSpotCost' : "Spot Cost",
+				
+				    ! Generate Input
+				
+				    	'di::p_noCargos'           : "# Cargos",
+				    	'di::p_noVessels'          : "# Vessels",
+				    	'di::p_noMinDaysSailing'   : "Min days Sailing",
+				    	'di::p_noMaxDaysSailing'   : "Max days Sailing",
+				    	'di::p_noMinDaysWaiting'   : "Min days Waiting",
+				    	'di::p_noMaxDaysWaiting'   : "Max days Waiting",
+				    	'di::p_minCargoCost'       : "Min Cargo Cost",
+				    	'di::p_maxCargoCost'       : "Max Cargo Cost",
+				    	'di::p_noHorizonDays'      : "No Horizon days",
+				    	'di::sp_horizonEnd'        : "Last Sailing day",
+				    	'di::sp_generatedFilename' : "generated Filename",
+				
+				    ! Visualizations
+				
+					! Auxiliar
+					'ui::sp_addEditElement' : " " 
+				
+				    };
+			}
+			Set _s_presentableIds {
+				SubsetOf: AllIdentifiers;
+				Index: _i_presentableId;
+			}
+		}
+		Procedure pr_goodbye {
+			Body: {
+				if ProjectDeveloperMode() then
+					ExitAimms();
+				else
+					pro::sessionmanager::FinishSession();
+				endif ;
+			}
+		}
+		DeclarationSection System_Workflow {
+			StringParameter sp_systemWorkflow {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexWorkflowSpec);
+				Definition: data { ( 1, title ) : "" };
+			}
+			StringParameter sp_systemWorkflowSteps {
+				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
+				Property: NoSave;
+				InitialData: {
+					data 
+					{ ( 1, 1, displayText       ) : "Welcome",
+					  ( 1, 1, icon              ) : "aimms-home2",
+					  ( 1, 1, pageId            ) : "introduction_problem",
+					  ( 1, 1, tooltip           ) : "Welcome ",
+					  ( 1, 1, workflowPageState ) : "Active",
+					
+					  ( 1, 2, displayText       ) : "Story",
+					  ( 1, 2, icon              ) : "aimms-book",
+					  ( 1, 2, pageId            ) : "problem_statement",
+					  ( 1, 2, tooltip           ) : "Short statement about the problem",
+					  ( 1, 2, workflowPageState ) : "Active",
+					  ( 1, 2, redirectPageId    ) : "introduction_problem",
+					
+					  ( 1, 3, displayText       ) : "Master",
+					  ( 1, 3, icon              ) : "aimms-equalizer2",
+					  ( 1, 3, pageId            ) : "overview_costs",
+					  ( 1, 3, tooltip           ) : "Overview of all the sets",
+					  ( 1, 3, workflowPageState ) : "Active",
+					  ( 1, 3, redirectPageId    ) : "introduction_problem",
+					
+					  ( 1, 4, displayText       ) : "Overview Datasets",
+					  ( 1, 4, icon              ) : "aimms-equalizer2",
+					  ( 1, 4, pageId            ) : "overview_datasets",
+					  ( 1, 4, tooltip           ) : "Overview of all the data",
+					  ( 1, 4, workflowPageState ) : "Active",
+					  ( 1, 4, redirectPageId    ) : "overview_costs",
+					
+					  ( 1, 5, displayText       ) : "Locations",
+					  ( 1, 5, icon              ) : "aimms-location5",
+					  ( 1, 5, pageId            ) : "locations_overview",
+					  ( 1, 5, tooltip           ) : "Location data",
+					  ( 1, 5, workflowPageState ) : "Active",
+					  ( 1, 5, parentPageId      ) : "overview_datasets",
+					  ( 1, 6, redirectPageId    ) : "overview_costs",
+					
+					  ( 1, 6, displayText       ) : "Cargoes",
+					  ( 1, 6, icon              ) : "aimms-package",
+					  ( 1, 6, pageId            ) : "cargoes_overview",
+					  ( 1, 6, tooltip           ) : "Cargoes data",
+					  ( 1, 6, workflowPageState ) : "Active",
+					  ( 1, 6, parentPageId      ) : "overview_datasets",
+					
+					  ( 1, 7, displayText       ) : "Vessel",
+					  ( 1, 7, icon              ) : "aimms-ship",
+					  ( 1, 7, pageId            ) : "vessel_overview",
+					  ( 1, 7, tooltip           ) : "Vessel data",
+					  ( 1, 7, workflowPageState ) : "Active",
+					  ( 1, 7, parentPageId      ) : "overview_datasets",
+					  ( 1, 7, redirectPageId    ) : "overview_costs",
+					
+					  ( 1, 8, displayText       ) : "Generated Itineraries",
+					  ( 1, 8, icon              ) : "aimms-film4",
+					  ( 1, 8, pageId            ) : "generated_itineraries",
+					  ( 1, 8, tooltip           ) : "Vessel data",
+					  ( 1, 8, workflowPageState ) : "Inactive",
+					  ( 1, 8, parentPageId      ) : "",
+					  ( 1, 8, redirectPageId    ) : "overview_costs",
+					
+					  ( 1, 9, displayText       ) : "Detailed Costs",
+					  ( 1, 9, icon              ) : "aimms-stats-decline",
+					  ( 1, 9, pageId            ) : "optimized_results",
+					  ( 1, 9, tooltip           ) : "Results after solving the model",
+					  ( 1, 9, workflowPageState ) : "Inactive",
+					  ( 1, 9, redirectPageId    ) : "overview_costs",
+					
+					
+					  ( 1, 10, displayText       ) : "Visualizations",
+					  ( 1, 10, icon              ) : "aimms-pie-chart8",
+					  ( 1, 10, pageId            ) : "all_visualisations",
+					  ( 1, 10, tooltip           ) : "All visualizations explaining results",
+					  ( 1, 10, workflowPageState ) : "Inactive",
+					  ( 1, 10, redirectPageId    ) : "overview_costs" }
+				}
+			}
+			StringParameter sp_systemWorkflowFoldingStates {
+				IndexDomain: (webui::indexWorkflowOrder,webui::indexNoOfPages,webui::indexOpenCloseProps);
+				Property: NoSave;
+				InitialData: data { ( 1, 3, openClose ) : "open",  ( 1, 7, openClose ) : "close" };
+			}
+		}
+		DeclarationSection System_Page_Action {
+			StringParameter sp_systemSecondaryActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexPageActionSpec);
+				Property: NoSave;
+				InitialData: {
+					data {  
+					        ( '1', 'displaytext' ) : "Upload Input",  
+					        ( '1', 'icon' ) : "aimms-file-excel",  
+					        ( '1', 'procedure' ) : "di::pr_importRequestFile",  
+					        ( '1', 'state' ) : "Active",  
+					
+					        ( '2', 'displaytext' ) : "Download Input",  
+					        ( '2', 'icon' ) : "aimms-insert-template",  
+					        ( '2', 'procedure' ) : "di::pr_exportExcelInputFile",  
+					        ( '2', 'state' ) : "Active",  
+					
+					        ( '3', 'displaytext' ) : "Solve",  
+					        ( '3', 'icon' ) : "aimms-ship",  
+					        ( '3', 'procedure' ) : "MainExecution",  
+					        ( '3', 'state' ) : "inactive",  
+					
+					        ( '4', 'displaytext' ) : "Download Results",  
+					        ( '4', 'icon' ) : "aimms-stats-bars2",  
+					        ( '4', 'procedure' ) : "di::pr_actuallyExportSolutionFile",  
+					        ( '4', 'state' ) : "inactive",  
+					
+					        ( '5', 'displaytext' ) : "Empty Case",  
+					        ( '5', 'icon' ) : "aimms-bin2",  
+					        ( '5', 'procedure' ) : "di::pr_emptyData",  
+					        ( '5', 'state' ) : "Active" 
+					
+					}
+				}
+			}
+		}
+		DeclarationSection System_Status_Bar {
+			StringParameter sp_systemStatusBar {
+				IndexDomain: (webui::indexApplicationExtension,webui::indexStatusBarSpec);
+				Property: NoSave;
+				InitialData: {
+					data
+					{ 
+					  ( '1', 'icon'      ) : "aimms-circle2",
+					  ( '1', 'color'     ) : "Orange",
+					  ( '1', 'text'      ) : "Import Excel",
+					  ( '1', 'tooltip'   ) : "Click to import Excel file.",
+					  ( '1', 'procedure' ) : "di::pr_importRequestFile",
+					  ( '1', 'state'     ) : "Active",
+					
+					  ( '2', 'icon'      ) : "aimms-cancel-circle2",
+					  ( '2', 'color'     ) : "red",
+					  ( '2', 'text'      ) : "Solve Model",
+					  ( '2', 'tooltip'   ) : "Model not ready to be solved.",
+					  ( '2', 'procedure' ) : "MainExecution",
+					  ( '2', 'state'     ) : "inactive",
+					
+					  ( '3', 'header'    ) : "Excel:",
+					  ( '3', 'icon'      ) : "aimms-warning2",
+					  ( '3', 'text'      ) : "Nothing Imported",
+					  ( '3', 'state'     ) : "Inactive",
+					
+					  ( '4', 'icon'      ) : "aimms-exit",
+					  ( '4', 'color'     ) : "green",
+					  ( '4', 'text'      ) : "Logoff",
+					  ( '4', 'tooltip'   ) : "Stopping AIMMS session",
+					  ( '4', 'procedure' ) : "ui::pr_goodbye",
+					  ( '4', 'state'     ) : "Active"         
+					
+					}
+				}
+			}
+		}
+	}
+	Section Pages {
+		Section Master_Page {
+			Section Random_Data {
+				Procedure pr_generateRandomData {
+					Body: {
+						empty s_vessels, s_cargoes, s_locations; 
+						
+						pr_initCalendar;
+						
+						block !locations
+						    !dex::DeleteMapping("ImportDefaultCoordinates");
+						
+						!	dex::AddMapping(
+						!		mappingName : "ImportDefaultCoordinates", 
+						!		mappingFile : "Mappings/Import-Coordinates.xml");
+						
+							if dex::ReadFromFile(
+						            dataFile : "data/CoordinatesData.xlsx", 
+						            mappingName : "Import-Coordinates") then
+						
+						        p_adminCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+						        p_loadingCostAtLocation(i_loc) := (round(uniform(400,4000)))[$];  
+						        p_idleCostLocation(i_loc) := (round(uniform(200,800)))[$/day];  
+						        p_vesselVelocity := 37.04[km/hour];
+						
+						        ! displaying the status message, and logging it in the WebUI messages
+						        sp_loc_message := "File was uploaded and read successfully.";
+						        webui::ShowMessage('info', sp_loc_message);
+						    endif;        
+						
+						onerror ep_err do
+						
+						    !displaying a custom error message
+						    sp_loc_message := "Error when reading file " + errh::Message(ep_err) + ".";
+						    webui::ShowMessage('error', sp_loc_message);
+						
+						    errh::MarkAsHandled(ep_err) ;
+						
+						endblock;
+						
+						block !cargoes
+							s_cargoes := ElementRange(1, p_cargoesQuantity, prefix: "C");
+							::ep_loadingPortsCargo(i_cargo) := nth(i_loc, round(uniform(1, card(s_locations))));
+							for i_cargo do
+								_s_nearLocations := { i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo) and 
+									p_def_distanceBetweenLocations( ::ep_loadingPortsCargo(i_cargo), i_loc ) >= di::p_noMinDaysSailing and
+									p_def_distanceBetweenLocations( ::ep_loadingPortsCargo(i_cargo), i_loc ) <= di::p_noMaxDaysSailing } ;
+								if card( _s_nearLocations ) = 0 then
+									_s_nearLocations := s_locations - ::ep_loadingPortsCargo(i_cargo) ;
+								endif ;
+								!::ep_deliveringPortsCargo(i_cargo) := nth(i_loc | i_loc <> ::ep_loadingPortsCargo(i_cargo), round(uniform(1, card(s_locations))));
+								::ep_deliveringPortsCargo(i_cargo) := Element( _s_nearLocations, round(uniform(1, card(_s_nearLocations) ) ) );
+							endfor ;
+							p_spotCostVessel(i_cargo) := (round(uniform(di::p_minCargoSpotCost,di::p_maxCargoSpotCost)))[$];
+							p_cargoCost(i_cargo) := (round(uniform(di::p_minCargoCost,di::p_maxCargoCost)))[$];
+							::ep_minTimeWindow(i_cargo) := ep_startHorizonDate + round(uniform(0,15));
+							::ep_maxTimeWindow(i_cargo) := ::ep_minTimeWindow(i_cargo) + round(uniform(di::p_noMinDaysWaiting,di::p_noMaxDaysWaiting));
+						endblock;
+						
+						block !vessels
+							s_vessels := ElementRange(1, p_vesselsQuantity, prefix: "Vessel");
+							_s_remainingLocations := s_locations ;
+							for i_vessel do
+								ep_originPortOfVessel(i_vessel):= element(_s_remainingLocations, round(uniform(1, card(_s_remainingLocations))));
+								_s_remainingLocations -= ep_originPortOfVessel(i_vessel) ;
+							endfor ;
+							p_sailingCost(i_vessel) := (round(uniform(50,200)))[$/day];
+						endblock;
+						
+						!Activate all master data
+						bp_activeCargoes(i_cargo):= 1;
+						bp_activeVessels(i_vessel) := 1;
+						bp_activeLocations(i_loc) := 1;
+						
+						di::pr_doWriteExcelInputFile(di::sp_generatedFilename);
+						
+						
+						!Changes to secondary actions
+						sp_systemSecondaryActions(3,'state'):= 'active';
+						ui::sp_systemSecondaryActions(4,'state'):= 'inactive';
+						
+						!Changes to status bar
+						sp_systemStatusBar(1,'icon') := "aimms-checkmark-circle";
+						sp_systemStatusBar(1,'color') := "Green";
+						sp_systemStatusBar(1,'tooltip') := "Data is succesfully generated.";
+						sp_systemStatusBar(1,'text') := "Data Generated";
+						
+						ui::sp_systemStatusBar(2,'color') := "Orange";
+						ui::sp_systemStatusBar(2,'icon'):= "aimms-circle2";
+						ui::sp_systemStatusBar(2,'tooltip') := "Application ready to be solved.";
+						ui::sp_systemStatusBar(2,'state') := "active";
+						
+						ui::sp_systemStatusBar(3,'icon'):= "aimms-briefcase";
+						ui::sp_systemStatusBar(3,'text') := "Data Generated";
+						
+						!Changes to workflow
+						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
+						ui::sp_systemWorkflowSteps(1,9,'workflowPageState'):= "inactive";
+						ui::sp_systemWorkflowSteps(1,10,'workflowPageState'):= "inactive";
+						
+						!Open Overview dataset
+						sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "open";
+					}
+					StringParameter sp_loc_IOFilePath;
+					StringParameter sp_loc_message;
+					ElementParameter ep_err {
+						Range: errh::PendingErrors;
+					}
+					Set _s_nearLocations {
+						SubsetOf: s_locations;
+					}
+					Set _s_remainingLocations {
+						SubsetOf: s_locations;
+					}
+				}
+				Parameter p_cargoesQuantity {
+					Range: nonnegative;
+					InitialData: 10;
+				}
+				Parameter p_vesselsQuantity {
+					Range: nonnegative;
+					InitialData: 5;
+				}
+			}
+			Parameter p_deleteLocations {
+				IndexDomain: i_loc;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
+				webui::TooltipIdentifier: sp_def_deleteTooltip;
+				webui::UponChangeProcedure: pr_deleteLocation;
+			}
+			Parameter p_editLocations {
+				IndexDomain: i_loc;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_editAnnotation;
+				webui::TooltipIdentifier: sp_def_editTooltip;
+				webui::UponChangeProcedure: pr_openEditLocation;
+			}
+			Parameter p_deleteCargoes {
+				IndexDomain: i_cargo;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
+				webui::TooltipIdentifier: sp_def_deleteTooltip;
+				webui::UponChangeProcedure: pr_deleteCargo;
+			}
+			Parameter p_editCargoes {
+				IndexDomain: i_cargo;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_editAnnotation;
+				webui::TooltipIdentifier: sp_def_editTooltip;
+				webui::UponChangeProcedure: pr_openEditCargo;
+			}
+			Parameter p_deleteVessels {
+				IndexDomain: i_vessel;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
+				webui::TooltipIdentifier: sp_def_deleteTooltip;
+				webui::UponChangeProcedure: pr_deleteVessel;
+			}
+			Parameter p_editVessels {
+				IndexDomain: i_vessel;
+				Range: binary;
+				webui::AnnotationsIdentifier: sp_def_editAnnotation;
+				webui::TooltipIdentifier: sp_def_editTooltip;
+				webui::UponChangeProcedure: pr_openEditVessel;
+			}
+			StringParameter sp_def_deleteAnnotation {
+				Definition: "delete-element";
+			}
+			StringParameter sp_def_editAnnotation {
+				Definition: "edit-element";
+			}
+			StringParameter sp_def_deleteTooltip {
+				Definition: "Delete this element.";
+			}
+			StringParameter sp_def_editTooltip {
+				Definition: "Edit this element.";
+			}
+			StringParameter sp_masterSidePanel {
+				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "Random Data"          ,  ( 1, pageId      ) : "side_panel_randomdata",
+					  ( 1, icon        ) : "aimms-shuffle"        ,  ( 1, state       ) : "Active"                }
+				}
+			}
+			StringParameter sp_cargoesItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  (bp_activeCargoes      , 2, displaytext ) : "Edit",
+					  (bp_activeCargoes      , 2, icon        ) : "aimms-pencil2",
+					  (bp_activeCargoes      , 2, procedure   ) : "ui::pr_openEditCargo",
+					  (bp_activeCargoes      , 2, state       ) : "active",
+					  (bp_activeCargoes      , 3, displaytext ) : "Delete",
+					  (bp_activeCargoes      , 3, icon        ) : "aimms-eraser2",
+					  (bp_activeCargoes      , 3, procedure   ) : "ui::pr_deleteCargo",
+					  (bp_activeCargoes      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_vesselItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  ( bp_activeVessels     , 2, displaytext ) : "Edit",
+					  ( bp_activeVessels      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeVessels      , 2, procedure   ) : "ui::pr_openEditVessel",
+					  ( bp_activeVessels      , 2, state       ) : "active",
+					  ( bp_activeVessels      , 3, displaytext ) : "Delete",
+					  ( bp_activeVessels      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeVessels      , 3, procedure   ) : "ui::pr_deleteVessel",
+					  ( bp_activeVessels      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_typeOfCostItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{
+					  ( bp_activeCostsForCargoes      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForCargoes      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForCargoes      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForCargoes      , 2, state       ) : "active",
+					  ( bp_activeCostsForCargoes      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForCargoes      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForCargoes      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForCargoes      , 3, state       ) : "active",
+					  ( bp_activeCostsForLocations      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForLocations      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForLocations      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForLocations      , 2, state       ) : "active",
+					  ( bp_activeCostsForLocations      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForLocations      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForLocations      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForLocations      , 3, state       ) : "active" ,
+					  ( bp_activeCostsForVessels      , 2, displaytext ) : "Edit",
+					  ( bp_activeCostsForVessels      , 2, icon        ) : "aimms-pencil2",
+					  ( bp_activeCostsForVessels      , 2, procedure   ) : "ui::pr_openEditCostType",
+					  ( bp_activeCostsForVessels      , 2, state       ) : "active",
+					  ( bp_activeCostsForVessels      , 3, displaytext ) : "Delete",
+					  ( bp_activeCostsForVessels      , 3, icon        ) : "aimms-eraser2",
+					  ( bp_activeCostsForVessels      , 3, procedure   ) : "ui::pr_deleteCostType",
+					  ( bp_activeCostsForVessels      , 3, state       ) : "active"  }
+				}
+			}
+			StringParameter sp_locationsItemActions {
+				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{  (bp_ActiveLocations      , 2, displaytext ) : "Edit",
+					  (bp_ActiveLocations      , 2, icon        ) : "aimms-pencil2",
+					  (bp_ActiveLocations      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (bp_ActiveLocations      , 2, state       ) : "active",
+					  (bp_ActiveLocations      , 3, displaytext ) : "Delete",
+					  (bp_ActiveLocations      , 3, icon        ) : "aimms-eraser2",
+					  (bp_ActiveLocations      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (bp_ActiveLocations      , 3, state       ) : "active" ,
+					  (p_latitude      , 2, displaytext ) : "Edit",
+					  (p_latitude      , 2, icon        ) : "aimms-pencil2",
+					  (p_latitude      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (p_latitude      , 2, state       ) : "active",
+					  (p_latitude      , 3, displaytext ) : "Delete",
+					  (p_latitude      , 3, icon        ) : "aimms-eraser2",
+					  (p_latitude      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (p_latitude      , 3, state       ) : "active" ,
+					  (p_longitude      , 2, displaytext ) : "Edit",
+					  (p_longitude      , 2, icon        ) : "aimms-pencil2",
+					  (p_longitude      , 2, procedure   ) : "ui::pr_openEditLocation",
+					  (p_longitude      , 2, state       ) : "active",
+					  (p_longitude      , 3, displaytext ) : "Delete",
+					  (p_longitude      , 3, icon        ) : "aimms-eraser2",
+					  (p_longitude      , 3, procedure   ) : "ui::pr_deleteLocation",
+					  (p_longitude      , 3, state       ) : "active" }
+				}
+			}
+			StringParameter sp_cargoesWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddCargo",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_vesselWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"         ,
+					  ( 1, procedure   ) : "ui::pr_openAddvessel",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_typeOfCostWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddCostType",  ( 1, state       ) : "active"               }
+				}
+			}
+			StringParameter sp_locationWidgetActions {
+				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Definition: {
+					data 
+					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
+					  ( 1, procedure   ) : "ui::pr_openAddLocation",  ( 1, state       ) : "active"               }
+				}
+			}
+		}
+		Section Overview_Datasets_Page {
+			Procedure pr_onPageOpenOverviewDatasets {
+				Body: {
+					webui::OpenPage(pageId :  'locations_overview');
+				}
+			}
+		}
+		Section Locations_Page {
+			Set s_def_locationsNotInUsage {
+				SubsetOf: s_locations;
+				Index: i_loc_not_usag;
+				Definition: s_locations - s_def_locationsInUsage;
+				webui::AnnotationsIdentifier: sp_locationNotInUsageAnnotation(ui::i_loc_not_usag);
+			}
+			StringParameter sp_locationNotInUsageIcon {
+				IndexDomain: i_loc_not_usag;
+				Definition: "aimms-cross3";
+			}
+			Parameter p_locationNotInUsageSize {
+				IndexDomain: i_loc_not_usag;
+				Definition: 3;
+				webui::TooltipIdentifier: sp_locationNotInUsageTooltip(i_loc_not_usag);
+			}
+			StringParameter sp_locationNotInUsageTooltip {
+				IndexDomain: i_loc_not_usag;
+				Definition: {
+					formatString("No cargo or vessel need to go to this Location (%e).",
+						i_loc_not_usag )
+				}
+			}
+			StringParameter sp_locationNotInUsageAnnotation {
+				IndexDomain: i_loc_not_usag;
+				Definition: "NotInUse";
+			}
+			Set s_def_locationsInUsage {
+				SubsetOf: s_locations;
+				Index: i_loc_usag, i_loc_usag2;
+				Parameter: ep_locationInUsage;
+				Definition: {
+					{i_act_loc | 
+					        exists(i_act_cargo | i_act_loc = ep_def_loadingPortsCargo(i_act_cargo))
+					        or exists(i_act_cargo | i_act_loc = ep_def_deliveringPortsCargo(i_act_cargo))
+					        or exists(i_act_vessel | i_act_loc = ep_originPortOfVessel(i_act_vessel))}
+				}
+				webui::AnnotationsIdentifier: sp_locationInUsageAnnotation(ui::i_loc_usag);
+			}
+			StringParameter sp_locationInUsageIcon {
+				IndexDomain: i_loc_usag;
+				Definition: "aimms-cube4";
+			}
+			Parameter p_locationInUsageSize {
+				IndexDomain: i_loc_usag;
+				Definition: 12;
+				webui::TooltipIdentifier: ui::sp_def_locationInUsageTooltip(ui::i_loc_usag);
+			}
+			StringParameter sp_def_locationInUsageTooltip {
+				IndexDomain: i_loc_usag;
+				Definition: "There is at least one cargo or vessel that needs to come to this Location.";
+			}
+			StringParameter sp_locationInUsageAnnotation {
+				IndexDomain: i_loc_usag;
+				Definition: "InUse";
+			}
+			StringParameter sp_def_distanceTitle {
+				Definition: "Distance from \"" + ep_location + "\"";
+			}
+			StringParameter sp_def_focusedLocationFrom {
+				IndexDomain: (i_loc);
+				Definition: {
+					if ep_location = i_loc then
+					    "highlight-cell"
+					else 
+					    ""
+					endif;
+				}
+			}
+			Procedure pr_uponLoadLocationsPage {
+				Body: {
+					if not ep_location then
+					    ep_location := first(i_loc);
+					endif;
+				}
+			}
+		}
+		Section Cargoes_Page {
+			Set s_def_visibleCargoLocations {
+				SubsetOf: s_locations;
+				Index: i_loc_visiblecargo;
+				Definition: {
+					{i_loc |  
+					    ep_loadingPortsCargo(ep_cargo) = i_loc 
+					    or ep_deliveringPortsCargo(ep_cargo) = i_loc}
+				}
+			}
+			StringParameter sp_def_cargoesMapIcon {
+				IndexDomain: i_loc;
+				Definition: {
+					if (i_loc in s_def_loadingPorts)  then
+					    "aimms-esc"    
+					
+					elseif (i_loc in s_def_deleveringPorts) then
+					    "aimms-enter6"
+					
+					endif;
+				}
+			}
+			Parameter p_def_cargoesMapSize {
+				IndexDomain: i_Loc;
+				Definition: 12;
+				webui::AnnotationsIdentifier: ui::sp_def_cargoesMapAnnotation(i_Loc);
+			}
+			StringParameter sp_def_cargoesMapAnnotation {
+				IndexDomain: i_loc;
+				Definition: {
+					if (ep_loadingPortsCargo(ep_cargo) = i_loc)  then
+					    "LoadingPort"    
+					
+					elseif (ep_deliveringPortsCargo(ep_cargo) = i_loc) then
+					    "DeliveringPort"
+					
+					endif;
+				}
+			}
+			Parameter p_def_deliveringToLoadingPorts {
+				IndexDomain: (i_loc_from,i_loc_to);
+				Unit: day;
+				Definition: {
+					p_def_distanceBetweenLocations(i_loc_from, i_loc_to) $
+					        (i_loc_from = ep_def_loadingPortsCargo(ep_cargo)
+					        and i_loc_to = ep_def_deliveringPortsCargo(ep_cargo))
+				}
+				webui::TooltipIdentifier: sp_def_deliveringToLoadingPortsTooltip(i_loc_from,i_loc_to);
+			}
+			StringParameter sp_def_deliveringToLoadingPortsTooltip {
+				IndexDomain: (i_loc_from,i_loc_to);
+				Definition: {
+					FormatString("From: %e<br>To: %e.", i_loc_from, i_loc_to);
+				}
+			}
+			StringParameter sp_def_focusedCargo {
+				IndexDomain: i_cargo;
+				Definition: {
+					if ep_cargo = i_cargo then
+					    "highlight-cell"
+					else 
+					    ""
+					endif;
+				}
+			}
+			Procedure pr_onPageOpenCargoes {
+				Body: {
+					ep_cargo := first(i_cargo);
+				}
+			}
+		}
+		Section Vessel_Page {
+			StringParameter sp_def_vesselOriginPortIcon {
+				IndexDomain: i_locVess;
+				Definition: "aimms-ship";
+			}
+			Parameter p_def_vesselOriginPortSize {
+				IndexDomain: i_locVess;
+				Definition: 12;
+				webui::AnnotationsIdentifier: sp_vesselOriginPortAnnotation(i_locVess);
+				webui::TooltipIdentifier: sp_vesselOriginPortTooltip(i_locVess);
+			}
+			StringParameter sp_vesselOriginPortTooltip {
+				IndexDomain: i_locVess;
+				Definition: first(i_vessel | ep_originPortOfVessel(i_vessel) = i_locVess);
+			}
+			StringParameter sp_vesselOriginPortAnnotation {
+				IndexDomain: i_locVess;
+				Definition: "InUse";
+			}
+		}
+		Section Itineraries_Page {
+			Comment: "AKA the route details.";
+			Procedure pr_uponLoadPageGeneratedItineraries {
+				Body: {
+					if not ep_selectedRoute then
+						ep_selectedRoute := first(s_calc_usedRoutes);
+					endif ;
+				}
+			}
+			DeclarationSection Scalar_Details {
+				StringParameter sp_def_titleScalarSelectRoute {
+					Definition: "Select Route for Details";
+				}
+				ElementParameter ep_selectedRoute {
+					Range: s_calc_usedRoutes;
+					InitialData: '';
+				}
+				ElementParameter ep_def_selectedVessel {
+					Range: s_vessels;
+					Definition: ep_calc_routeVessel(ep_selectedRoute);
+				}
+				ElementParameter ep_berthVesselSelectedRoute {
+					Range: s_locations;
+					Definition: ep_originPortOfVessel( ep_def_selectedVessel );
+				}
+				Parameter p_def_noDaysSailing {
+					Unit: day;
+					Definition: p_def_routeSailingDays( ep_selectedRoute );
+				}
+				Parameter p_def_noDaysIdle {
+					Unit: day;
+					Definition: p_def_routeIdleDays( ep_selectedRoute );
+				}
+				Parameter p_def_totalSailingCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeSailingCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalIdleCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeIdleCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalVisitingLocationCostPerRoute {
+					Unit: $;
+					Definition: p_def_visitingLocationCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalCargoCostPerRoute {
+					Unit: $;
+					Definition: p_def_cargoCost(ep_selectedRoute);
+				}
+				Parameter p_def_totalRouteCostPerRoute {
+					Unit: $;
+					Definition: p_def_routeCosts(ep_selectedRoute);
+				}
+			}
+			StringParameter sp_def_titleTableHandledCargos {
+				Definition: {
+					FormatString("Cargos handled by route \"%e\"", ep_selectedRoute);
+				}
+			}
+			Set s_def_legs {
+				SubsetOf: s_calc_legs;
+				Index: i_leg;
+				Definition: {
+					{::i_leg | p_def_vesselActivityLength(ep_selectedRoute, ::i_leg)}
+				}
+			}
+			Set s_def_cargosOfSelectedRoute {
+				SubsetOf: s_cargoes;
+				Index: i_cargoOfSelectedRoute;
+				OrderBy: user;
+				Definition: s_calc_cargosHandled(ep_selectedRoute);
+			}
+			ElementParameter ep_def_minTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				Definition: ::ep_minTimeWindow(i_cargo);
+			}
+			ElementParameter ep_def_maxTimeWindow {
+				IndexDomain: i_cargo;
+				Range: cal_days;
+				Definition: ::ep_maxTimeWindow(i_cargo);
+			}
+			ElementParameter ep_def_loadingPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				Definition: ::ep_loadingPortsCargo(i_cargo);
+			}
+			ElementParameter ep_def_deliveringPortsCargo {
+				IndexDomain: i_cargo;
+				Range: s_locations;
+				Definition: ::ep_deliveringPortsCargo(i_cargo);
+			}
+		}
+		Section Detailed_Costs_Page {
+			StringParameter sp_def_cargoIsSpotTooltip {
+				IndexDomain: i_act_cargo;
+				Definition: {
+					if mm::bv_cargoOnCharteredVessel(i_act_cargo) then
+					    "This is a spot cost."
+					endif;
+				}
+			}
+			Parameter p_def_totalCargoCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_cargoCost(i_route));
+			}
+			Parameter p_def_totalSailingCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_routeSailingCost(i_route));
+			}
+			Parameter p_def_totalVisitingLocationCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_visitingLocationCost(i_route));
+			}
+			Parameter p_def_totalIdleCost {
+				Unit: $;
+				Definition: sum(i_route, p_def_routeIdleCost(i_route));
+			}
+			Parameter p_def_totalSpotCost {
+				Unit: $;
+				Definition: sum(i_act_cargo, mm::p_calc_cargoSpotCost(i_act_cargo));
+			}
+			StringParameter sp_def_cargoNotDeliveredAnnotation {
+				IndexDomain: i_act_cargo;
+				Definition: {
+					if not mm::ep_calc_vesselOfCargo(i_act_cargo) then
+					    "not-fulfilled"
+					endif;
+				}
+			}
+			StringParameter sp_def_vesselNotUsedAnnotation {
+				IndexDomain: i_vessel;
+				Definition: {
+					if not mm::ep_calc_routeOfVessel(i_vessel) then
+					    "not-fulfilled"
+					endif;
+				}
+			}
+		}
+		Section Visualizations_Page {
+			DeclarationSection Gantt_Details {
+				StringParameter sp_def_ganttChartStartTime {
+					Definition: FormatString("%e", ep_startHorizonDate);
+				}
+				Parameter p_def_durationCargoOnRoute {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
+					webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
+					webui::TooltipIdentifier: sp_def_empty;
+				}
+				Parameter p_def_loadingTimeCargoRouteInHours {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
+				}
+				StringParameter sp_def_cargoName {
+					IndexDomain: i_cargo;
+					Definition: i_cargo;
+				}
+			}
+			DeclarationSection Map_Details {
+				Set s_def_visibleLocations {
+					SubsetOf: s_locations;
+					Index: i_vis_loc, i_vis_locFrom, i_vis_locTo;
+					Definition: {
+						s_def_visibleDeliveringPorts 
+						+ s_def_visibleLoadingPorts
+						+ {i_loc | 
+						        exists(i_used_route, 
+						                bp_selectInUsedRoutes(i_used_route) 
+						                and ep_originPortOfVessel(ep_calc_routeVessel(i_used_route)) = i_loc)}
+					}
+					webui::AnnotationsIdentifier: sp_def_visibleLocationAnnotation(ui::i_vis_loc);
+				}
+				Set s_def_visibleDeliveringPorts {
+					SubsetOf: s_def_deleveringPorts;
+					Index: i_vis_locDeliv;
+					Definition: {
+						{ i_loc | 
+						    exists(i_used_route | 
+						        bp_def_deliveringLocationsOnRoute(i_used_route, i_loc)
+						        and bp_selectInUsedRoutes(i_used_route))}
+					}
+				}
+				Set s_def_visibleLoadingPorts {
+					SubsetOf: ::s_def_loadingPorts;
+					Index: i_vis_locLoad;
+					Definition: {
+						{ i_loc | 
+						    exists(i_used_route | 
+						        bp_def_loadingLocationsOnRoute(i_used_route, i_loc)
+						        and bp_selectInUsedRoutes(i_used_route))}
+					}
+				}
+				Parameter bp_selectInUsedRoutes {
+					IndexDomain: i_used_route;
+				}
+				Parameter p_def_visibleArc {
+					IndexDomain: (i_loc_from,i_loc_to);
+					Definition: {
+						sum(i_used_route | 
+						        bp_selectInUsedRoutes(i_used_route)
+						        and p_calc_arcsPerRoute(i_used_route,i_loc_from,i_loc_to), 1)
+					}
+				}
+				StringParameter sp_def_visibleLocationAnnotation {
+					IndexDomain: i_vis_loc;
+					Definition: "VisibleLocations";
+				}
+				Parameter p_def_locationNodeSize {
+					IndexDomain: i_vis_loc;
+					Definition: 3;
+				}
+			}
+			StringParameter sp_tabbedWidgetContentsItineraryPage {
+				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
+				Definition: {
+					data 
+					{ ( 1, displayText ) : "View Map"      ,  ( 1, pageId      ) : "visualize_map" ,  ( 1, state       ) : "active"        ,
+					  ( 2, displayText ) : "View Gantt"    ,  ( 2, pageId      ) : "planned_routes",  ( 2, state       ) : "active"         }
+				}
+			}
+		}
+	}
+	Section Library_Start_and_Finish {
+		Procedure LibraryInitialization {
+			Comment: "Add initialization statements here that do not require any other library being initialized already.";
+		}
+		Procedure PostLibraryInitialization {
+			Body: {
+				pr_adaptNamesForPresentationInWebUI();
+			}
+			Comment: {
+				"Add initialization statements here that require another library to be initialized already,
+				or add statements that require the Data Management module to be initialized."
+			}
+		}
+		Procedure PreLibraryTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that require all other libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
+			}
+		}
+		Procedure LibraryTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that do not require other libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+			}
+		}
+	}
+}
