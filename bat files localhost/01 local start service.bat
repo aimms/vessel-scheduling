@@ -2,17 +2,23 @@ echo on
 
 rem Use AimmsCMD to start Vessel Scheduling as a service.
 
-set AIMMS_VERSION=25.3.2.6-x64-VS2022
+set AIMMS_VERSION=25.3.4.2-x64-VS2022
 set AIMMS_EXECUTABLE=%localappdata%\AIMMS\IFA\Aimms\%AIMMS_VERSION%\Bin\AimmsCMD.exe
 
-set VS_ROOT=C:\u\s\examples\application-examples\vessel-scheduling
+cd /d "~/dp0"
+set VS_BAT=%CD%
+cd ..
+set VS_ROOT=%CD%
 set VS_PROJECT=%VS_ROOT%\AIMMSProject
+echo Start time: %time%
 
-pushd %VS_PROJECT%
+cd AIMMSProject
 
-%AIMMS_EXECUTABLE% --run-only dex::api::RESTServiceHandler "VesselScheduling.aimms"  --dex::serviceTimeOut 30000
+%AIMMS_EXECUTABLE% --run-only dex::api::RESTServiceHandler "VesselScheduling.aimms"  
 
-popd
+rem --dex::serviceTimeOut 30000
+
+cd %VS_BAT%
 
 echo Current time: %time%
 

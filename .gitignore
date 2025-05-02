@@ -14,8 +14,9 @@ solutions
 /AimmsClientVesselScheduling/Libs/stopwatch-library
 /AimmsClientVesselScheduling/RequestResponseFiles/*
 /AimmsClientVesselScheduling/data/*
-/AimmsProject/data/*
  
 /AimmsClientVesselScheduling/oapitasks f_logfile.put
 /Config/apikey.txt
 /VesselScheduling.aimmspack
+/AIMMSProject/data/VS_40Vessel_50Cargo_Results.xlsx
+/AIMMSProject/data/VS_7Vessel_20Cargo_Results.xlsx

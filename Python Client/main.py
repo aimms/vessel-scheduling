@@ -75,21 +75,10 @@ else:
     url_submit = url_prefix + service
 print(f"URL submit task: {url_submit}")
 
-
 if service == 'solveVesselSchedulingExcel':
-
-    # Source
-    # Specify input file.
     
-    #vessel_input_filename = '..\AIMMS Project\data\VS_5Vessel_15Cargo.xlsx'
-    #vessel_input_filename = '..\AIMMS Project\data\VS_7Vessel_20Cargo.xlsx'
+    vessel_input_filename = '..\\AIMMSProject\\data\\VS_40Vessel_50Cargo.xlsx'
 
-    #vessel_input_filename = 'VS_15Vessel_30Cargo.xlsx'
-    #vessel_input_filename = 'VS_40Vessel_50Cargo.xlsx'
-    #vessel_input_filename = 'VS_70Vessel_100Cargo.xlsx'
-    vessel_input_filename = 'VS_120Vessel_150Cargo.xlsx'
-    #vessel_input_filename = 'VS_150Vessel_200Cargo 10 day wait.xlsx'
-    
     # Open the file in binary mode.
     with open(vessel_input_filename, 'rb') as file:
         vessel_schedule_files = {'file': (vessel_input_filename, file, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
