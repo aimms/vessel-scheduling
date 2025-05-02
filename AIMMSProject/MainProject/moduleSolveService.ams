@@ -37,8 +37,6 @@ Module Module_SolveService {
 					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
 					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
 				
-					write _sp_inp, _sp_out to file "/outputs/reqattrs.txt" ;
-				
 					pr_actuallySolveVesselSchedulingExcel( _sp_inp, _sp_out );
 				
 				onerror _ep_err do

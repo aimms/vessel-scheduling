@@ -17,3 +17,5 @@ solutions
 /AimmsProject/data/*
  
 /AimmsClientVesselScheduling/oapitasks f_logfile.put
+/Config/apikey.txt
+/VesselScheduling.aimmspack

@@ -68,6 +68,7 @@ LibraryModule AimmsOpenAPIRunTasks {
 						if sp_taskState = "completed" then
 							! When the task is finished, the result is available finally as its response and it is time to request that very response.
 							pr_requestResponse();
+							pr_awaitCallbackCall();
 							_bp_over := 1 ;
 						elseif sp_taskState = "failed" then
 							raise warning formatString( "Task finished with errors: %s", sp_taskStatusErrorMessage );
@@ -85,12 +86,6 @@ LibraryModule AimmsOpenAPIRunTasks {
 						endif ;
 				
 					endwhile ;
-				
-				endblock ; 
-				
-				block ! Response
-					pr_requestResponse();
-					pr_awaitCallbackCall();
 				
 				endblock ;
 			}
