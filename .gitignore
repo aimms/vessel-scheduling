@@ -14,9 +14,14 @@ solutions
 /AimmsClientVesselScheduling/Libs/stopwatch-library
 /AimmsClientVesselScheduling/RequestResponseFiles/*
 /AimmsClientVesselScheduling/data/*
- 
 /AimmsClientVesselScheduling/oapitasks f_logfile.put
 /Config/apikey.txt
 /VesselScheduling.aimmspack
 /AIMMSProject/data/VS_40Vessel_50Cargo_Results.xlsx
 /AIMMSProject/data/VS_7Vessel_20Cargo_Results.xlsx
+/bat files docker/02 fill licensing with keyless license.bat
+/bat files docker/02 fill licensing with aimms network license.bat
+/bat files docker/04 run bash container.bat
+/bat files docker/04 run bash.bat
+/licenses/keyless license
+/licenses/aimms network license/licenses.cfg
