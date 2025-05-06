@@ -102,6 +102,9 @@ Module Module_SolveService {
 				}
 			}
 		}
+		Procedure pr_taskSolveVesselSchedulingExcel {
+			dex::TaskName: taskSolveVesselSchedulingExcel;
+		}
 	}
 	Section Service_solveVesselSchedulingCSV {
 		Procedure pr_solveVesselSchedulingCSV {

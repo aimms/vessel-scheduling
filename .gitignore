@@ -25,3 +25,5 @@ solutions
 /bat files docker/04 run bash.bat
 /licenses/keyless license
 /licenses/aimms network license/licenses.cfg
+/inputs
+/outputs
