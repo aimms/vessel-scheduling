@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<LibraryProject AimmsVersion="24.6.8.7 unicode x64" ProjectUUID="C85DB264-0103-4330-8BFF-7C0884BF49D6">
+	<ModelFileName>ziplib.ams</ModelFileName>
+	<Prefix>zip</Prefix>
+	<DisplayName>Library ZipLibrary</DisplayName>
+</LibraryProject>

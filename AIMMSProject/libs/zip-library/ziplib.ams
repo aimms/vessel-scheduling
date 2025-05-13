@@ -1,0 +1,100 @@
+## ams_version=1.0
+
+LibraryModule Library_ZipLibrary {
+	Prefix: zip;
+	Interface: PublicSection;
+	Section PublicSection {
+		Procedure pr_zipFolderToFile {
+			Arguments: (sp_folderName,sp_destinationFile);
+			Body: {
+				CurrentErrorMessage := "" ;
+				if sp_destinationFile then
+					if FileExists( sp_destinationFile ) then
+						FileDelete( sp_destinationFile );
+					endif ;
+				endif ;
+				if AimmsStringConstants('Platform') = "Linux" then
+					Execute( "zip", "-r " + sp_destinationFile + " " + sp_folderName , wait:1) ;
+				else
+					Execute( "powershell \"Compress-Archive -Path "+ sp_folderName+" -DestinationPath "+sp_destinationFile+"\"", wait:1);
+				endif ;
+				if not FileExists( sp_destinationFile ) then
+					raise error "Unable to create " + sp_destinationFile + ": " + CurrentErrorMessage ;
+				endif ;
+			}
+			StringParameter sp_folderName {
+				Property: Input;
+			}
+			StringParameter sp_destinationFile {
+				Property: Input;
+			}
+		}
+		Procedure pr_unzipFileToFolder {
+			Arguments: (sp_fileName,sp_destinationFolderName);
+			Body: {
+				CurrentErrorMessage := "" ;
+				if sp_destinationFolderName and ( sp_destinationFolderName <> "." ) then
+					if DirectoryExists( sp_destinationFolderName ) then
+						DirectoryDelete( sp_destinationFolderName );
+					endif ;
+				endif ;
+				if AimmsStringConstants('Platform') = "Linux" then
+					if sp_destinationFolderName = "" or sp_destinationFolderName = "." then
+						_sp_commandLine := formatString(" -qq %s", sp_fileName );
+					else
+						_sp_commandLine := formatString(" -qq %s -d %s", 
+							sp_fileName, sp_destinationFolderName );
+					endif ;
+					Execute( "unzip", _sp_commandLine, wait:1) ;
+				else
+					if sp_destinationFolderName = "" or sp_destinationFolderName = "." then
+						Execute( "powershell \"Expand-Archive -Path " + sp_fileName, wait:1);
+					else
+						Execute( "powershell \"Expand-Archive -Path " + sp_fileName + " -DestinationPath "+sp_destinationFolderName+"\"", wait:1);
+					endif ;
+				endif ;
+			}
+			StringParameter sp_fileName {
+				Property: Input;
+			}
+			StringParameter sp_destinationFolderName {
+				Property: Input;
+			}
+			StringParameter _sp_commandLine;
+		}
+	}
+	Section PrivateSection {
+		Section StartStopLib {
+			Procedure LibraryInitialization {
+				Comment: "Add initialization statements here that do not require any other library being initialized already.";
+			}
+			Procedure PostLibraryInitialization {
+				Comment: {
+					"Add initialization statements here that require another library to be initialized already,
+					or add statements that require the Data Management module to be initialized."
+				}
+			}
+			Procedure PreLibraryTermination {
+				Body: {
+					return 1;
+				}
+				Comment: {
+					"Add termination statements here that require all other libraries to be still alive.
+					Return 1 if you allow the termination sequence to continue.
+					Return 0 if you want to cancel the termination sequence."
+				}
+			}
+			Procedure LibraryTermination {
+				Body: {
+					return 1;
+				}
+				Comment: {
+					"Add termination statements here that do not require other libraries to be still alive.
+					Return 1 to allow the termination sequence to continue.
+					Return 0 if you want to cancel the termination sequence.
+					It is recommended to only use the procedure PreLibraryTermination to cancel the termination sequence and let this procedure always return 1."
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,5 @@
+* The timestamps in this namechange file are stored in Coordinated universal time (UTC).
+"zb" "zip" "2025-01-29 10:10:42"
+"pr_unzipFileToFolder" "zip::pr_unzipFileToFolder" "2025-01-29 10:12:12"
+"pr_zipFolderToFile" "zip::pr_zipFolderToFile" "2025-01-29 10:12:12"
+"ziplib" "Library_ZipLibrary" "2025-01-29 10:14:10"
