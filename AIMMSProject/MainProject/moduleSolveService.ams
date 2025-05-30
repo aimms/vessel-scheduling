@@ -413,19 +413,71 @@ Module Module_SolveService {
 			Response:
 			Just the response code."
 		}
-		Set s_inputFileNumbers {
-			Index: i_ifn;
+		Set s_inputFileTables {
+			SubsetOf: dex::Tables;
+			Index: i_ift;
+			Definition: {
+				{ dex::tbl | dex::DatasetTableMapping('ImportDataSet',dex::tbl) }
+			}
 		}
-		Set s_outputFileNumbers {
-			Index: i_ofn;
+		Set s_outputFileTables {
+			SubsetOf: dex::Tables;
+			Index: i_oft;
+			Definition: {
+				{ dex::tbl | dex::DatasetTableMapping('ExportDataSet',dex::tbl) }
+		}
 		}
 		StringParameter sp_inputFileNames {
-			IndexDomain: i_ifn;
+			IndexDomain: i_ift;
 		}
 		StringParameter sp_outputFileNames {
-			IndexDomain: i_ofn;
+			IndexDomain: i_oft;
 		}
 		StringParameter sp_responseSummaryMessage;
+		Procedure pr_testAllSolveSchedulingSharedFiles {
+			Body: {
+				for i_test do ! | i_test = last( s_testSamples ) do
+					DialogProgress(
+						message    :  formatSTring("Testing %e - %i/%i", i_test, ord(i_test), card(i_test) ), 
+						percentage :  (100*ord(i_test))/card(s_testSamples));
+					pr_testSolveSchedulingSharedFiles(formatString("%e",i_test));
+				endfor ;
+			}
+		}
+		Procedure pr_testSolveSchedulingSharedFiles {
+			Arguments: sp_main;
+			Body: {
+				! Selecting test
+				!sp_main := "VS_70Vessel_100Cargo" ;
+				sp_fileSfx := "csv" ;
+				
+				! Using the data folder of this AIMMS Project.
+				_sp_folderName := "data/" + sp_main + "/" + sp_fileSfx + "/" ;
+				
+				! Setting the input/output files accordingly.
+				sp_inputFileNames(i_ift) := formatString("%s%e.%s", 
+					_sp_folderName, i_ift, sp_fileSfx);
+				sp_outputFileNames(i_oft) := formatString("%s%e.%s", 
+					_sp_folderName, i_oft, sp_fileSfx);
+				
+				! Passing all this info to a JSON file.
+				dex::WriteToFile(
+					dataFile    :  "RequestsResponses/sharedFilesTest.json", 
+					mappingName :  "serviceSharedFilesJSON", 
+					pretty      :  1);
+				
+				! And let the workhorse play with it.
+				pr_initTask();
+				pr_actuallySolveVesselSchedulingSharedFiles(
+					sp_inp :  "RequestsResponses/sharedFilesTest.json", 
+					sp_out :  "RequestsResponses/sharedFilesResponse.json");
+			}
+			StringParameter _sp_folderName;
+			StringParameter sp_fileSfx;
+			StringParameter sp_main {
+				Property: Input;
+			}
+		}
 		Procedure pr_solveVesselSchedulingSharedFiles {
 			Body: {
 				block
@@ -468,22 +520,23 @@ Module Module_SolveService {
 				
 				! Read each of the input files.
 				_p_ok := 1;
-				for i_ifn do
+				for i_ift do
 				
-					_sp_mappingName := formatString("Generated/ImportDataSet-%e-CSV", i_ifn);
+					!if endsin 
+					_sp_mappingName := formatString("Generated/ImportDataSet-%e-CSV", i_ift);
 				
 					block ! sanity checking
 						if not _sp_mappingName in dex::Mappings then
-							raise error formatString("A mapping for table %e was not generated", i_ifn );
+							raise error formatString("A mapping for table %e was not generated", i_ift );
 						endif ;
-						if not FileExists( sp_inputFileNames(i_ifn) ) then
+						if not FileExists( sp_inputFileNames(i_ift) ) then
 							raise error formatString("For table %e, the input file %s does not exist", 
-								i_ifn, sp_inputFileNames(i_ifn) );
+								i_ift, sp_inputFileNames(i_ift) );
 						endif ;
 					endblock ;
 				
 					_p_ok := _p_ok and dex::ReadFromFile(
-						dataFile         :  sp_inputFileNames(i_ifn), 
+						dataFile         :  sp_inputFileNames(i_ift), 
 						mappingName      :  _sp_mappingName, 
 						emptyIdentifiers :  0, 
 						emptySets        :  0, 
@@ -512,22 +565,23 @@ Module Module_SolveService {
 				endif ;
 				
 				! Write all of the output tables.
-				for i_ofn do
+				!DebuggerBreakpoint();
+				for i_oft do
 				
 					! Example: "Generated/ExportDataSet-Cargo Overview-CSV"
-					_sp_mappingName := formatString("Generated/ExportDataSet-%e-CSV", i_ofn);
+					_sp_mappingName := formatString("Generated/ExportDataSet-%e-CSV", i_oft);
 					block ! sanity checking
 						if not _sp_mappingName in dex::Mappings then
-							raise error formatString("A mapping for table %e was not generated", i_ofn );
+							raise error formatString("A mapping for table %e was not generated", i_oft );
 						endif ;
 					endblock ;
 				
-					if FileExists( sp_outputFileNames( i_ofn ) ) then
-						FileDelete( sp_outputFileNames( i_ofn ) );
+					if FileExists( sp_outputFileNames( i_oft ) ) then
+						FileDelete( sp_outputFileNames( i_oft ) );
 					endif ;
 				
 					dex::WriteToFile(
-						dataFile    :  sp_outputFileNames( i_ofn ), 
+						dataFile    :  sp_outputFileNames( i_oft ), 
 						mappingName :  _sp_mappingName, 
 						pretty      :  0);
 				

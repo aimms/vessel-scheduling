@@ -84,6 +84,14 @@ Model Main_VesselScheduling {
 						_i_fns, _sp_fns(_i_fns)));
 				endfor ;
 			}
+			Set _s_fns {
+				SubsetOf: Integers;
+				Index: _i_fns;
+				Property: ElementsAreLabels;
+			}
+			StringParameter _sp_fns {
+				IndexDomain: _i_fns;
+			}
 			StringParameter sp_folder {
 				Property: Input;
 			}
@@ -91,15 +99,6 @@ Model Main_VesselScheduling {
 				Property: Input;
 			}
 		}
-		Procedure pr_testBeingService {
-			Body: {
-				dex::api::RESTServiceHandler();
-				_sp_now := CurrentToString("%c%y-%m-%d %H:%M:%S");
-				display _sp_now, "service stopped" ;
-			}
-			StringParameter _sp_now;
-		}
-		Section Section_1 {
 			Procedure pr_scanFileOnErrorMessages {
 				Arguments: (p_errorsEncountered,sp_fn,sp_msg);
 				Body: {
@@ -223,22 +222,11 @@ Model Main_VesselScheduling {
 				}
 			}
 		}
-		Section Section_2 {
-			StringParameter sp_timeslotFormat {
-				InitialData: "%c%y-%m-%d";
-			}
-			Parameter p_vesselVelocity {
-				Unit: km/hour;
-				InitialData: 37.04;
-				Comment: "20 knots";
-			}
-			Parameter p_noFeasibleRoutes {
-				Definition: card( s_calc_feasibleRoutes );
-			}
-		}
-	}
 	Section Business_model {
 		Section Calendars {
+			StringParameter sp_timeslotFormat {
+				Definition: "%c%y-%m-%d";
+			}
 			StringParameter sp_today;
 			Calendar cal_days {
 				Index: i_day;
@@ -409,6 +397,11 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section Vessels {
+			Parameter p_vesselVelocity {
+				Unit: km/hour;
+				InitialData: 37.04;
+				Comment: "20 knots";
+			}
 			Set s_vessels {
 				Parameter: ep_vessel;
 			}
@@ -595,6 +588,9 @@ Model Main_VesselScheduling {
 			Set s_calc_feasibleRoutes {
 				Index: i_route;
 				Parameter: ep_route;
+			}
+			Parameter p_noFeasibleRoutes {
+				Definition: card( s_calc_feasibleRoutes );
 			}
 			Index i_leg {
 				Range: s_calc_legs;
@@ -1269,8 +1265,9 @@ Model Main_VesselScheduling {
 			
 			endif;
 			
-			display {p_latitude,p_longitude};
-			display dex::api::RESTServiceMaxRequests ;
+			!display {p_latitude,p_longitude};
+			!display dex::api::RESTServiceMaxRequests ;
+			!
 		}
 	}
 	Section App_Start_Finish {
@@ -1290,16 +1287,27 @@ Model Main_VesselScheduling {
 		}
 		Procedure pr_startupProcedure {
 			Body: {
-				if not DirectoryExists( "Mappings/Generated" ) then
+				if DirectoryExists( "Mappings/Generated" ) then
+					dex::HandleDatasetAnnotations(); ! Needed for dex::DatasetTableMapping
+				else
 					dex::GenerateDatasetMappings();
 				endif;
 				
 				dex::ReadAllMappings();
 				
-				!dex::api::RESTServiceMaxRequests := 1 ;
-				!dex::api::RestServiceMinTimeout := 10000; ! In milliseconds.
-				!dex::api::RestServiceMinTimeout := 1
-				!dex::api::RESTServiceMinTimeout  := 1 ;
+				!block where single_column_display := 1;
+				!	display dex::DatasetTableMapping ;
+				!endblock ;
+				!
+				!    dex::DatasetTableMapping(dex::ds,dex::tbl) := data 
+				!    { ( ImportDataSet, Horizon           ) : 1,
+				!      ( ImportDataSet, CargoData         ) : 1,
+				!      ( ImportDataSet, VesselData        ) : 1,
+				!      ( ImportDataSet, LocationData      ) : 1,
+				!      ( ExportDataSet, 'Vessel Overview' ) : 1,
+				!      ( ExportDataSet, 'Cargo Overview'  ) : 1,
+				!      ( ExportDataSet, 'Route Overview'  ) : 1 } ;
+				!
 			}
 		}
 		Procedure pr_goodbye {
@@ -1368,78 +1376,78 @@ Model Main_VesselScheduling {
 		}
 	}
 	Section Convert_format {
+		Set s_inputFileTables {
+			SubsetOf: dex::Tables;
+			Index: i_ift;
+			Definition: {
+				{ dex::tbl | dex::DatasetTableMapping('ImportDataSet',dex::tbl) }
+			}
+		}
+		Set s_outputFileTables {
+			SubsetOf: dex::Tables;
+			Index: i_oft;
+			Definition: {
+				{ dex::tbl | dex::DatasetTableMapping('ExportDataSet',dex::tbl) }
+			}
+		}
+		Set s_testSamples {
+			Index: i_test;
+			Definition: {
+				data { 
+					'VS_150Vessel_200Cargo',
+					'VS_100Vessel_150Cargo', 
+					'VS_120Vessel_150Cargo', 
+					'VS_80Vessel_120Cargo', 
+					'VS_70Vessel_100Cargo', 
+					'VS_40Vessel_50Cargo', 
+					'VS_30Vessel_50Cargo', 
+					'VS_15Vessel_30Cargo',
+					'VS_10Vessel_20Cargo', 
+					'VS_7Vessel_20Cargo', 
+					'VS_5Vessel_15Cargo'
+				} ;
+			}
+		}
 		Procedure pr_convAll {
 			Body: {
-				pr_conv("VS_5Vessel_15Cargo");
-				pr_conv("VS_7Vessel_20Cargo");
+				!pr_conv("VS_5Vessel_15Cargo");
+				!pr_conv("VS_7Vessel_20Cargo");
+				!pr_conv("VS_10Vessel_20Cargo");
+				!pr_conv("VS_150Vessel_200Cargo");
+				!pr_conv("VS_120Vessel_150Cargo");
+				!pr_conv("VS_100Vessel_150Cargo");
+				!pr_conv("VS_80Vessel_120Cargo");
+				!pr_conv("VS_70Vessel_100Cargo");
+				!pr_conv("VS_40Vessel_50Cargo");
+				!pr_conv("VS_30Vessel_50Cargo");
+				!pr_conv("VS_15Vessel_30Cargo");
+				!
+				for i_test do
+					pr_conv(formatString("%e",i_test));
+				endfor ;
 			}
 		}
 		Procedure pr_conv {
 			Arguments: (sp_main);
 			Body: {
+				modSolveService::pr_initTask();
 				dex::ReadFromFile(
 				            dataFile : "data/" + sp_main + ".xlsx", 
 				            mappingName : "Generated/ImportDataSet-Excel");
 				
-				
 				if not DirectoryExists( "data/" + sp_main ) then
 					DirectoryCreate( "data/" + sp_main );
 				endif ;
-				if not DirectoryExists( "data/" + sp_main + "/csv" ) then
-					DirectoryCreate( "data/" + sp_main  + "/csv" );
-				endif ;
-				if not DirectoryExists( "data/" + sp_main + "/parquet" ) then
-					DirectoryCreate( "data/" + sp_main  + "/parquet" );
-				endif ;
 				
-				_bp_pretty := 0 ;
-				_sp_folderName := "data/" + sp_main + "/csv/" ;
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "Horizon" + ".csv", 
-					mappingName :  "Generated/ImportDataSet-Horizon-CSV", 
-					pretty      :  _bp_pretty);
+				pr_convWork(
+					sp_main    :  sp_main, 
+					sp_fileSfx :  "csv", 
+					sp_mapSfx  :  "CSV");
 				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "VesselData" + ".csv", 
-					mappingName :  "Generated/ImportDataSet-VesselData-CSV", 
-					pretty      :  _bp_pretty);
-				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "CargoData" + ".csv", 
-					mappingName :  "Generated/ImportDataSet-CargoData-CSV", 
-					pretty      :  _bp_pretty);
-				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "LocationData" + ".csv", 
-					mappingName :  "Generated/ImportDataSet-LocationData-CSV", 
-					pretty      :  _bp_pretty);
-				zip::pr_zipFolderToFile(
-					sp_folderName      :  _sp_folderName, 
-					sp_destinationFile :  "data/" + sp_main+"-csv.zip");
-				
-				_sp_folderName := "data/" + sp_main + "/parquet/" ;
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "Horizon" + ".parquet", 
-					mappingName :  "Generated/ImportDataSet-Horizon-Parquet", 
-					pretty      :  _bp_pretty);
-				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "VesselData" + ".parquet", 
-					mappingName :  "Generated/ImportDataSet-VesselData-Parquet", 
-					pretty      :  _bp_pretty);
-				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "CargoData" + ".parquet", 
-					mappingName :  "Generated/ImportDataSet-CargoData-Parquet", 
-					pretty      :  _bp_pretty);
-				
-				dex::WriteToFile(
-					dataFile    :  _sp_folderName + "LocationData" + ".parquet", 
-					mappingName :  "Generated/ImportDataSet-LocationData-Parquet", 
-					pretty      :  _bp_pretty);
-				zip::pr_zipFolderToFile(
-					sp_folderName      :  _sp_folderName, 
-					sp_destinationFile :  "data/" + sp_main+"-parquet.zip");
+				pr_convWork(
+					sp_main    :  sp_main, 
+					sp_fileSfx :  "parquet", 
+					sp_mapSfx  :  "Parquet");
 			}
 			StringParameter sp_main {
 				Property: Input;
@@ -1448,9 +1456,83 @@ Model Main_VesselScheduling {
 			Parameter _bp_pretty {
 				Range: binary;
 			}
+			StringParameter _sp_filename;
+			StringParameter _sp_mapname;
+		}
+		Procedure pr_convWork {
+			Arguments: (sp_main,sp_fileSfx,sp_mapSfx);
+			Body: {
+				_bp_pretty := 1 ;
+				_sp_folderName := "data/" + sp_main + "/"+sp_fileSfx+"/" ;
+				if not  DirectoryExists( _sp_folderName ) then
+					DirectoryCreate( _sp_folderName );
+				endif ;
+				for i_ift do
+					_sp_filename := formatString("%s%e.%s", _sp_folderName, i_ift,sp_fileSfx);
+					_sp_mapname  := formatString("Generated/ImportDataSet-%e-%s", i_ift,sp_mapSfx);
+				dex::WriteToFile(
+						dataFile    :  _sp_filename, 
+						mappingName :  _sp_mapname, 
+					pretty      :  _bp_pretty);
+				endfor ;
+				zip::pr_zipFolderToFile(
+					sp_folderName      :  _sp_folderName, 
+					sp_destinationFile :  "data/" + sp_main+"-"+sp_fileSfx+".zip");
+			}
+			StringParameter sp_main {
+				Property: Input;
+			}
+			StringParameter sp_fileSfx {
+				Property: Input;
+			}
+			StringParameter sp_mapSfx {
+				Property: Input;
+			}
+			StringParameter _sp_folderName;
+			Parameter _bp_pretty {
+				Range: binary;
+			}
+			StringParameter _sp_filename;
+			StringParameter _sp_mapname;
 		}
 	}
 	Module Module_SolveService {
 		SourceFile: "moduleSolveService.ams";
+	}
+	Section small_utilities {
+		Function fnc_endsin {
+			Arguments: (sp_str,sp_tail);
+			Body: {
+				_p_retval := 0 ;
+				_p_lenStr  := StringLength( sp_str  );
+				_p_lenTail := StringLength( sp_tail );
+				if _p_lenStr >= _p_lenTail then
+				!	_sp_endStr := substring( sp_str, (_p_lenStr-_p_lenTail)+1, _p_lenStr ) ;
+				!	_sp_lowEndStr := StringToLower( _sp_endStr );
+				!	_sp_lowTail := StringToLower( sp_tail );
+				!	if _sp_lowEndStr
+					if FindString(
+						SearchString  :  substring( sp_str, (_p_lenStr-_p_lenTail)+1, _p_lenStr ), 
+						Key           :  sp_tail, 
+						CaseSensitive :  0 ) = 1 then
+						_p_retval := 1;
+					endif ;
+				endif ;
+				fnc_endsin := _p_retval ;
+			}
+			Comment: {
+				"Returns 1 iff sp_str ends in sp_tail, 0 otherwise.
+				String comparison is case insensitive."
+			}
+			Parameter sp_str {
+				Property: Input;
+			}
+			Parameter sp_tail {
+				Property: Input;
+			}
+			Parameter _p_lenStr;
+			Parameter _p_lenTail;
+			Parameter _p_retval;
+		}
 	}
 }
