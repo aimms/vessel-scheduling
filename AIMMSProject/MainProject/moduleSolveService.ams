@@ -425,7 +425,7 @@ Module Module_SolveService {
 			Index: i_oft;
 			Definition: {
 				{ dex::tbl | dex::DatasetTableMapping('ExportDataSet',dex::tbl) }
-		}
+			}
 		}
 		StringParameter sp_inputFileNames {
 			IndexDomain: i_ift;

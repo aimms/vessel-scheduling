@@ -25,3 +25,5 @@ solutions
 /licenses/aimms network license/licenses.cfg
 /inputs
 /outputs
+/python-bridge/main.pyi
+/AIMMSProject/data/VS_5Vessel_15Solution.xlsx

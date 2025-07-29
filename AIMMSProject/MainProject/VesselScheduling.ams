@@ -99,129 +99,129 @@ Model Main_VesselScheduling {
 				Property: Input;
 			}
 		}
-			Procedure pr_scanFileOnErrorMessages {
-				Arguments: (p_errorsEncountered,sp_fn,sp_msg);
-				Body: {
-					p_errorsEncountered := 0 ;
-					if FileExists( sp_fn ) then
-						_sp_content := fileread( sp_fn );
-						_p_len := StringLength( _sp_content );
-						if _p_len then
-							_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
-							if _p_noNewlines then
-								_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! Scan at most the first 100 lines.
-								_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
-								_sp_line(_i_pos) := substring( _sp_content, 
-									if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
-									_p_newlinePos(_i_pos) -1 );
-								for _i_pos do
-									if 	FindString(
-											SearchString  :  _sp_line( _i_pos ), 
-											Key           :  "ERROR", 
-											CaseSensitive :  0, 
-											WordOnly      :  1, 
-											IgnoreWhite   :  0) then
-										!outputMessage::pr_outputMessage( sp_msg + _sp_line( _i_pos ) );
-										pr_log("[ERROR] " + _sp_line( _i_pos ) );
-										p_errorsEncountered += 1 ;
-									endif ;
-					
-								endfor ;
-							else
+		Procedure pr_scanFileOnErrorMessages {
+			Arguments: (p_errorsEncountered,sp_fn,sp_msg);
+			Body: {
+				p_errorsEncountered := 0 ;
+				if FileExists( sp_fn ) then
+					_sp_content := fileread( sp_fn );
+					_p_len := StringLength( _sp_content );
+					if _p_len then
+						_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
+						if _p_noNewlines then
+							_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! Scan at most the first 100 lines.
+							_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
+							_sp_line(_i_pos) := substring( _sp_content, 
+								if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
+								_p_newlinePos(_i_pos) -1 );
+							for _i_pos do
 								if 	FindString(
-										SearchString  :  _sp_content, 
+										SearchString  :  _sp_line( _i_pos ), 
 										Key           :  "ERROR", 
 										CaseSensitive :  0, 
 										WordOnly      :  1, 
 										IgnoreWhite   :  0) then
-									!outputMessage::pr_outputMessage( sp_msg + _sp_content );
-									pr_log("[ERROR] " + _sp_content );
+									!outputMessage::pr_outputMessage( sp_msg + _sp_line( _i_pos ) );
+									pr_log("[ERROR] " + _sp_line( _i_pos ) );
 									p_errorsEncountered += 1 ;
 								endif ;
-							endif ;
-						endif ;
-					endif ;
-					return p_errorsEncountered;
-				}
-				StringParameter sp_fn {
-					Property: Input;
-				}
-				StringParameter _sp_content;
-				Parameter _p_noNewLines;
-				Parameter _p_len;
-				Set _s_positions {
-					SubsetOf: Integers;
-					Index: _i_pos;
-					Property: ElementsAreNumerical;
-				}
-				Parameter _p_newlinePos {
-					IndexDomain: _i_pos;
-				}
-				StringParameter _sp_line {
-					IndexDomain: _i_pos;
-				}
-				StringParameter sp_msg {
-					Property: Optional;
-				}
-				Parameter p_errorsEncountered {
-					Property: Output;
-				}
-			}
-			Procedure pr_addFileToLogMessages {
-				Arguments: (sp_fn,sp_msg);
-				Body: {
-					if FileExists( sp_fn ) then
-						_sp_content := fileread( sp_fn );
-						_p_len := StringLength( _sp_content );
-						if _p_len then
-							pr_log(formatString("%sAdding \"%s\" of size %i to log with following contents:", 
-								sp_msg, sp_fn, StringLength(_sp_content)));
-							_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
-							if _p_noNewlines then
-								_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! At most the first 50 lines.
-								_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
-								_sp_line(_i_pos) := substring( _sp_content, 
-									if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
-									_p_newlinePos(_i_pos) -1 );
-								for _i_pos do
-									pr_log(formatString("    %s line %e: %s", 
-										sp_fn, _i_pos, _sp_line( _i_pos ) ) );
-								endfor ;
-							else
-								pr_log(_sp_content);
-							endif ;
+				
+							endfor ;
 						else
-							pr_log(formatString("%sNot adding \"%s\" to the log because it is empty.", 
-								sp_msg, sp_fn ));
+							if 	FindString(
+									SearchString  :  _sp_content, 
+									Key           :  "ERROR", 
+									CaseSensitive :  0, 
+									WordOnly      :  1, 
+									IgnoreWhite   :  0) then
+								!outputMessage::pr_outputMessage( sp_msg + _sp_content );
+								pr_log("[ERROR] " + _sp_content );
+								p_errorsEncountered += 1 ;
+							endif ;
 						endif ;
-					else
-						pr_log(formatString("%sUnable to add \"%s\" to log messages because it does not exist.", 
-							sp_msg, sp_fn ));
 					endif ;
-				}
-				StringParameter sp_fn {
-					Property: Input;
-				}
-				StringParameter _sp_content;
-				Parameter _p_noNewLines;
-				Parameter _p_len;
-				Set _s_positions {
-					SubsetOf: Integers;
-					Index: _i_pos;
-					Property: ElementsAreNumerical;
-				}
-				Parameter _p_newlinePos {
-					IndexDomain: _i_pos;
-				}
-				StringParameter _sp_line {
-					IndexDomain: _i_pos;
-				}
-				StringParameter sp_msg {
-					Default: "";
-					Property: Optional;
-				}
+				endif ;
+				return p_errorsEncountered;
+			}
+			StringParameter sp_fn {
+				Property: Input;
+			}
+			StringParameter _sp_content;
+			Parameter _p_noNewLines;
+			Parameter _p_len;
+			Set _s_positions {
+				SubsetOf: Integers;
+				Index: _i_pos;
+				Property: ElementsAreNumerical;
+			}
+			Parameter _p_newlinePos {
+				IndexDomain: _i_pos;
+			}
+			StringParameter _sp_line {
+				IndexDomain: _i_pos;
+			}
+			StringParameter sp_msg {
+				Property: Optional;
+			}
+			Parameter p_errorsEncountered {
+				Property: Output;
 			}
 		}
+		Procedure pr_addFileToLogMessages {
+			Arguments: (sp_fn,sp_msg);
+			Body: {
+				if FileExists( sp_fn ) then
+					_sp_content := fileread( sp_fn );
+					_p_len := StringLength( _sp_content );
+					if _p_len then
+						pr_log(formatString("%sAdding \"%s\" of size %i to log with following contents:", 
+							sp_msg, sp_fn, StringLength(_sp_content)));
+						_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
+						if _p_noNewlines then
+							_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! At most the first 50 lines.
+							_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
+							_sp_line(_i_pos) := substring( _sp_content, 
+								if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
+								_p_newlinePos(_i_pos) -1 );
+							for _i_pos do
+								pr_log(formatString("    %s line %e: %s", 
+									sp_fn, _i_pos, _sp_line( _i_pos ) ) );
+							endfor ;
+						else
+							pr_log(_sp_content);
+						endif ;
+					else
+						pr_log(formatString("%sNot adding \"%s\" to the log because it is empty.", 
+							sp_msg, sp_fn ));
+					endif ;
+				else
+					pr_log(formatString("%sUnable to add \"%s\" to log messages because it does not exist.", 
+						sp_msg, sp_fn ));
+				endif ;
+			}
+			StringParameter sp_fn {
+				Property: Input;
+			}
+			StringParameter _sp_content;
+			Parameter _p_noNewLines;
+			Parameter _p_len;
+			Set _s_positions {
+				SubsetOf: Integers;
+				Index: _i_pos;
+				Property: ElementsAreNumerical;
+			}
+			Parameter _p_newlinePos {
+				IndexDomain: _i_pos;
+			}
+			StringParameter _sp_line {
+				IndexDomain: _i_pos;
+			}
+			StringParameter sp_msg {
+				Default: "";
+				Property: Optional;
+			}
+		}
+	}
 	Section Business_model {
 		Section Calendars {
 			StringParameter sp_timeslotFormat {
@@ -1372,6 +1372,62 @@ Model Main_VesselScheduling {
 				modSolveService::pr_actuallySolveVesselSchedulingExcel(
 					sp_inp :  sp_theExcelInput, 
 					sp_out :  sp_theExcelOutput);
+			}
+		}
+	}
+	Section python_bridge_support {
+		Procedure pr_EchoInput {
+			Body: {
+				display ep_startHorizonDate ;
+				
+				! Location data:
+				display { p_latitude, p_longitude, p_idleCostLocation, p_adminCostAtLocation, p_loadingCostAtLocation }  ;
+				
+				! Cargo Data:
+				display { ep_loadingPortsCargo, ep_deliveringPortsCargo, p_spotCostVessel, ep_minTimeWindow,
+					ep_maxTimeWindow, p_cargoCost} ;
+				
+				! Vessel Data:
+				display { ep_originPortOfVessel, p_sailingCost } ;
+			}
+		}
+		Procedure pr_GenRoutesSolve {
+			Body: {
+				if not p_vesselVelocity then
+					p_vesselVelocity := 37.04 [km/hour];
+				endif ;
+				
+				!Activate all master data
+				bp_activeCargoes(i_cargo):= 1;
+				bp_activeVessels(i_vessel) := 1;
+				bp_activeLocations(i_loc) := 1;
+				
+				mm::pr_runModel;
+				
+				!Post Execution
+				mm::pr_post_vesselResults();
+				mm::pr_post_cargoResults();
+				mm::pr_post_routeResults();
+			}
+		}
+		Procedure pr_EchoOutput {
+			Body: {
+				! Vessel results: 
+				display { mm::ep_calc_routeOfVessel, 
+					mm::p_calc_operationalCostPerVessel, 
+					mm::p_calc_totalTravelDaysPerVessel } ;
+				
+				! Cargo overview:
+				display { mm::ep_calc_vesselOfCargo, 
+					mm::p_calc_totalCostPerCargo,
+					mm::sp_calc_loadingTimePerCargo, 
+					mm::sp_calc_deleveringTimePerCargo } ;
+				
+				! Route overview:
+				display { mm::ep_post_vesselActivityType, 
+					mm::ep_post_vesselActivityLocation,
+					mm::ep_post_vesselActivityFirst,
+					mm::ep_post_vesselActivityLast };
 			}
 		}
 	}
