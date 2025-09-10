@@ -31,7 +31,7 @@ print(f"Start: {now} cwd: {cwd}")
 # Initialize the AIMMS project
 project = Project(
     # path to the AIMMS Bin folder (on linux the Lib folder)
-    aimms_path=find_aimms_path("25.4.3.3"),
+    aimms_path=find_aimms_path("25.4"),
 
     # path to the AIMMS project file
     aimms_project_file="..\\AIMMSProject\\VesselScheduling.aimms",
@@ -62,63 +62,90 @@ my_aimms.ep_startHorizonDate = datainput_pd_horizon.loc[0,'StartDate']
 # Read Excel sheet:
 datainput_pd_location = pd.read_excel(datainput,sheet_name='LocationData')
 # Split it into multiple dataframes:
-df_lat   = datainput_pd_location[['Location','Latitude']].copy()
-df_lon   = datainput_pd_location[['Location','Longitude']].copy()
-df_idle  = datainput_pd_location[['Location','Idle Cost']].copy()
-df_admin = datainput_pd_location[['Location','Admin Cost']].copy()
-df_load  = datainput_pd_location[['Location','Loading Cost']].copy()
-# Rename the columns to AIMMS identifiers:
-df_lat.rename(columns={'Location':'i_loc','Latitude':'p_latitude'},inplace=True)
-df_lon.rename(columns={'Location':'i_loc','Longitude':'p_longitude'},inplace=True)
-df_idle.rename(columns={'Location':'i_loc','Idle Cost':'p_idleCostLocation'},inplace=True)
-df_admin.rename(columns={'Location':'i_loc','Admin Cost':'p_adminCostAtLocation'},inplace=True)
-df_load.rename(columns={'Location':'i_loc','Loading Cost':'p_loadingCostAtLocation'},inplace=True)
-# Actually assign to AIMMS identifiers:
-my_aimms.p_latitude.assign(df_lat)
-my_aimms.p_longitude.assign(df_lon)
-my_aimms.p_idleCostLocation.assign(df_idle)
-my_aimms.p_adminCostAtLocation.assign(df_admin)
-my_aimms.p_loadingCostAtLocation.assign(df_load)
-
+# df_lat   = datainput_pd_location[['Location','Latitude']].copy()
+# df_lon   = datainput_pd_location[['Location','Longitude']].copy()
+# df_idle  = datainput_pd_location[['Location','Idle Cost']].copy()
+# df_admin = datainput_pd_location[['Location','Admin Cost']].copy()
+# df_load  = datainput_pd_location[['Location','Loading Cost']].copy()
+# # Rename the columns to AIMMS identifiers:
+datainput_pd_location.rename(columns={         \
+    'Location'     : 'i_loc',                  \
+    'Latitude'     : 'p_latitude',             \
+    'Longitude'    : 'p_longitude',            \
+    'Idle Cost'    : 'p_idleCostLocation',     \
+    'Admin Cost'   : 'p_adminCostAtLocation',  \
+    'Loading Cost' : 'p_loadingCostAtLocation' \
+    }, inplace=True)
+# df_lat.rename(columns={'Location':'i_loc','Latitude':'p_latitude'},inplace=True)
+# df_lon.rename(columns={'Location':'i_loc','Longitude':'p_longitude'},inplace=True)
+# df_idle.rename(columns={'Location':'i_loc','Idle Cost':'p_idleCostLocation'},inplace=True)
+# df_admin.rename(columns={'Location':'i_loc','Admin Cost':'p_adminCostAtLocation'},inplace=True)
+# df_load.rename(columns={'Location':'i_loc','Loading Cost':'p_loadingCostAtLocation'},inplace=True)
+# # Actually assign to AIMMS identifiers:
+# my_aimms.p_latitude.assign(df_lat)
+# my_aimms.p_longitude.assign(df_lon)
+# my_aimms.p_idleCostLocation.assign(df_idle)
+# my_aimms.p_adminCostAtLocation.assign(df_admin)
+# my_aimms.p_loadingCostAtLocation.assign(df_load)
+my_aimms.multi_assign(datainput_pd_location)
 
 # Get the cargo data and copy it over to the AIMMS model:
 # Read Excel sheet:
 datainput_pd_cargo=pd.read_excel(datainput,sheet_name='CargoData')
 # Split it into multiple dataframes:
-df_LoadingPort=datainput_pd_cargo[['Cargo','Loading Port']].copy()
-df_DeleveringPort=datainput_pd_cargo[['Cargo','Delevering Port']].copy()
-df_SpotCost=datainput_pd_cargo[['Cargo','Spot Cost']].copy()
-df_MinimumLoadingTime=datainput_pd_cargo[['Cargo','Minimum Loading Time']].copy()
-df_MaximumLoadingTime=datainput_pd_cargo[['Cargo','Maximum Loading Time']].copy()
-df_FixedCost=datainput_pd_cargo[['Cargo','Fixed Cost']].copy()
-# Rename the columns to AIMMS identifiers:
-df_LoadingPort.rename(columns={'Cargo':'i_cargo','Loading Port':'ep_loadingPortsCargo'},inplace=True)
-df_DeleveringPort.rename(columns={'Cargo':'i_cargo','Delevering Port':'ep_deliveringPortsCargo'},inplace=True)
-df_SpotCost.rename(columns={'Cargo':'i_cargo','Spot Cost':'p_spotCostVessel'},inplace=True)
-df_MinimumLoadingTime.rename(columns={'Cargo':'i_cargo','Minimum Loading Time':'ep_minTimeWindow'},inplace=True)
-df_MaximumLoadingTime.rename(columns={'Cargo':'i_cargo','Maximum Loading Time':'ep_maxTimeWindow'},inplace=True)
-df_FixedCost.rename(columns={'Cargo':'i_cargo','Fixed Cost':'p_cargoCost'},inplace=True)
-# Actually assign to AIMMS identifiers:
-my_aimms.ep_loadingPortsCargo.assign(df_LoadingPort)
-my_aimms.ep_deliveringPortsCargo.assign(df_DeleveringPort)
-my_aimms.p_spotCostVessel.assign(df_SpotCost)
-my_aimms.ep_minTimeWindow.assign(df_MinimumLoadingTime)
-my_aimms.ep_maxTimeWindow.assign(df_MaximumLoadingTime)
-my_aimms.p_cargoCost.assign(df_FixedCost)
+# df_LoadingPort=datainput_pd_cargo[['Cargo','Loading Port']].copy()
+# df_DeleveringPort=datainput_pd_cargo[['Cargo','Delevering Port']].copy()
+# df_SpotCost=datainput_pd_cargo[['Cargo','Spot Cost']].copy()
+# df_MinimumLoadingTime=datainput_pd_cargo[['Cargo','Minimum Loading Time']].copy()
+# df_MaximumLoadingTime=datainput_pd_cargo[['Cargo','Maximum Loading Time']].copy()
+# df_FixedCost=datainput_pd_cargo[['Cargo','Fixed Cost']].copy()
+# # Rename the columns to AIMMS identifiers:
+datainput_pd_cargo.rename(columns={                     \
+    'Cargo'                : 'i_cargo',                 \
+    'Loading Port'         : 'sp_loadingPortsCargo',    \
+    'Delevering Port'      : 'sp_deliveringPortsCargo', \
+    'Spot Cost'            : 'p_spotCostVessel',        \
+    'Minimum Loading Time' : 'ep_minTimeWindow',        \
+    'Maximum Loading Time' : 'ep_maxTimeWindow',        \
+    'Fixed Cost'           : 'p_cargoCost'              \
+    }, inplace=True)
+print(datainput_pd_cargo)
+# df_LoadingPort.rename(columns={'Cargo':'i_cargo','Loading Port':'ep_loadingPortsCargo'},inplace=True)
+# df_DeleveringPort.rename(columns={'Cargo':'i_cargo','Delevering Port':'ep_deliveringPortsCargo'},inplace=True)
+# df_SpotCost.rename(columns={'Cargo':'i_cargo','Spot Cost':'p_spotCostVessel'},inplace=True)
+# df_MinimumLoadingTime.rename(columns={'Cargo':'i_cargo','Minimum Loading Time':'ep_minTimeWindow'},inplace=True)
+# df_MaximumLoadingTime.rename(columns={'Cargo':'i_cargo','Maximum Loading Time':'ep_maxTimeWindow'},inplace=True)
+# df_FixedCost.rename(columns={'Cargo':'i_cargo','Fixed Cost':'p_cargoCost'},inplace=True)
+# # Actually assign to AIMMS identifiers:
+# my_aimms.ep_loadingPortsCargo.assign(df_LoadingPort)
+# my_aimms.ep_deliveringPortsCargo.assign(df_DeleveringPort)
+# my_aimms.p_spotCostVessel.assign(df_SpotCost)
+# my_aimms.ep_minTimeWindow.assign(df_MinimumLoadingTime)
+# my_aimms.ep_maxTimeWindow.assign(df_MaximumLoadingTime)
+# my_aimms.p_cargoCost.assign(df_FixedCost)
+my_aimms.multi_assign(datainput_pd_cargo)
 
 
-# Get the cargo data and copy it over to the AIMMS model:
+# Get the vessel data and copy it over to the AIMMS model:
 # Read Excel sheet:
 datainput_pd_vessel=pd.read_excel(datainput,sheet_name='VesselData')
 # Split it into multiple dataframes:
-df_PortOfOrigin=datainput_pd_vessel[['Vessel','Port of Origin']].copy()
-df_SailingCost=datainput_pd_vessel[['Vessel','Sailing Cost']].copy()
-# Rename the columns to AIMMS identifiers:
-df_PortOfOrigin.rename(columns={'Vessel':'i_vessel','Port of Origin':'ep_originPortOfVessel'},inplace=True)
-df_SailingCost.rename(columns={'Vessel':'i_vessel','Sailing Cost':'p_sailingCost'},inplace=True)
-my_aimms.ep_originPortOfVessel.assign(df_PortOfOrigin)
-my_aimms.p_sailingCost.assign(df_SailingCost)
+# df_PortOfOrigin=datainput_pd_vessel[['Vessel','Port of Origin']].copy()
+# df_SailingCost=datainput_pd_vessel[['Vessel','Sailing Cost']].copy()
+# # Rename the columns to AIMMS identifiers:
+datainput_pd_vessel.rename(columns={              \
+    'Vessel'         : 'i_vessel',                \
+    'Port of Origin' : 'ep_originPortOfVessel',   \
+    'Sailing Cost'   : 'p_sailingCost'            \
+    }, inplace=True)
+# df_PortOfOrigin.rename(columns={'Vessel':'i_vessel','Port of Origin':'ep_originPortOfVessel'},inplace=True)
+# df_SailingCost.rename(columns={'Vessel':'i_vessel','Sailing Cost':'p_sailingCost'},inplace=True)
+# my_aimms.ep_originPortOfVessel.assign(df_PortOfOrigin)
+# my_aimms.p_sailingCost.assign(df_SailingCost)
+my_aimms.multi_assign(datainput_pd_vessel)
 
+
+my_aimms.pr_processPythonInput()
 
 # Running the AIMMS model, EchoInput and EchoOutput are only for debugging purposes.
 my_aimms.pr_EchoInput()

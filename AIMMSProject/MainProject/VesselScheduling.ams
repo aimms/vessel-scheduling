@@ -330,6 +330,9 @@ Model Main_VesselScheduling {
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
 			}
+			StringParameter sp_loadingPortsCargo {
+				IndexDomain: i_cargo;
+			}
 			ElementParameter ep_deliveringPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
@@ -337,6 +340,9 @@ Model Main_VesselScheduling {
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedCargo(i_cargo);
+			}
+			StringParameter sp_deliveringPortsCargo {
+				IndexDomain: i_cargo;
 			}
 			Parameter p_def_deliveryTimeCargo {
 				IndexDomain: i_cargo;
@@ -1376,6 +1382,24 @@ Model Main_VesselScheduling {
 		}
 	}
 	Section python_bridge_support {
+		Procedure pr_processPythonInput {
+			Body: {
+				block where single_column_display := 1;
+					display s_locations ;
+				endblock ;
+				ep_loadingPortsCargo(    i_cargo ) := StringToElement( s_locations, sp_loadingPortsCargo(i_cargo) );
+				ep_deliveringPortsCargo( i_cargo ) := StringToElement( s_locations, sp_deliveringPortsCargo(i_cargo) );
+				for i_cargo do
+					if not ep_loadingPortsCargo( i_cargo ) then
+						raise warning formatString("loading port for %e: '%s' not recognized", i_cargo, sp_loadingPortsCargo(i_cargo) );
+					endif ;
+					if not ep_deliveringPortsCargo( i_cargo ) then
+						raise warning formatString("loading port for %e: '%s' not recognized", i_cargo, sp_deliveringPortsCargo(i_cargo) );
+					endif ;
+				endfor ;
+				display {sp_loadingPortsCargo, sp_deliveringPortsCargo,ep_loadingPortsCargo,ep_deliveringPortsCargo};
+			}
+		}
 		Procedure pr_EchoInput {
 			Body: {
 				display ep_startHorizonDate ;

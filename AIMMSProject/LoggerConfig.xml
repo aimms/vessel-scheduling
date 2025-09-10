@@ -41,7 +41,7 @@
 
     <!-- see http://wiki.apache.org/logging-log4j/Log4jXmlFormat for formatting options -->
     <appender name="MyFileAppender" class="org.apache.log4j.FileAppender">
-        <param name="File" value="/outputs/aimms-log.txt" />
+        <param name="File" value="log/aimms-log.txt" />
         <param name="Append" value="true" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %t [%p] {%c} %m%n"/>
