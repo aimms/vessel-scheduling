@@ -13,10 +13,14 @@ warning_duplicate_row strict_warning_default
 * BARON 21
 * CBC 2.9
 * CONOPT 4.1
+* CPLEX 12.10
+* CPLEX 20.1
 * CPLEX 22.1
 "CPLEX 22.1".barrier_display 1
 "CPLEX 22.1".MIP_display 2
 * CPOptimizer 22.1
+* GUROBI 10.0
+* GUROBI 11.0
 * GUROBI 12.0
 * IPOPT 3.11
 * Knitro 14.0
@@ -28,4 +32,5 @@ warning_duplicate_row strict_warning_default
 * Environment
 Project_Title "Vessel Scheduling"
 Startup_Procedure "pr_startupProcedure"
+Startup_Case "data\init5.data"
 Open_WebUI_on_Startup 1

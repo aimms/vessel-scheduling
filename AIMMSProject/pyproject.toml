@@ -1,0 +1,10 @@
+[project]
+name = "vessel_scheduling_with_sea_route"
+version = "0.1.0"
+description = "Use Python library Sea Route to compute usable sea routes for large vessels"
+requires-python = "==3.13.*"
+dependencies = [
+    "aimmspy",
+    "pandas>=2.3.2",
+    "searoute",
+]

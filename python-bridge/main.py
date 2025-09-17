@@ -4,7 +4,7 @@
 
 # Remarks: 
 # - an element not in the set that is the range of parameter - difficult to find the typo.
-# - LoggerConfig.xml output opened in folder of .py file.
+# + LoggerConfig.xml output opened in folder of .py file.
 # - Superfluous DEBUG: type of 'self.project.aimms_api' is <class 'aimmspy_cpp.AimmsAPI'>
 
 import time
@@ -45,8 +45,10 @@ project = Project(
 
     # default data type when retrieving multi-dimensional data
     data_type_preference=DataReturnTypes.PANDAS,
+    
+    # Fill license URL if needed.
 )
-my_aimms : Model = project.get_model(__file__)
+aimms_model : Model = project.get_model(__file__)
 
 def process_vessel_schedule( datainput: str ):
     # Determine the input file.
@@ -55,15 +57,18 @@ def process_vessel_schedule( datainput: str ):
         print(f"File {datainput} does not exist.")
         sys.exit()
 
+
     # The horizon defines the start date for planning.
     datainput_pd_horizon = pd.read_excel(datainput,sheet_name='Horizon')
     ep_startHorizonDate = datainput_pd_horizon.loc[0,'StartDate']
-    my_aimms.ep_startHorizonDate = datainput_pd_horizon.loc[0,'StartDate']
+    aimms_model.ep_startHorizonDate = datainput_pd_horizon.loc[0,'StartDate']
 
     # Get the location data from the LocationData sheet and 
     # copy it over to the AIMMS project, parameters p_latitude, and p_longitude.
+
     # Read Excel sheet:
     datainput_pd_location = pd.read_excel(datainput,sheet_name='LocationData')
+
     # Rename the columns to AIMMS identifiers:
     datainput_pd_location.rename(columns={        
         'Location'     : 'i_loc',                 
@@ -73,12 +78,16 @@ def process_vessel_schedule( datainput: str ):
         'Admin Cost'   : 'p_adminCostAtLocation', 
         'Loading Cost' : 'p_loadingCostAtLocation'
         }, inplace=True)
+
     # Actually assign to AIMMS identifiers:
-    my_aimms.multi_assign(datainput_pd_location)
+    aimms_model.multi_assign(datainput_pd_location)
+
 
     # Get the cargo data and copy it over to the AIMMS model:
+
     # Read Excel sheet:
     datainput_pd_cargo=pd.read_excel(datainput,sheet_name='CargoData')
+
     # Rename the columns to AIMMS identifiers:
     datainput_pd_cargo.rename(columns={                     
         'Cargo'                : 'i_cargo',                 
@@ -89,30 +98,36 @@ def process_vessel_schedule( datainput: str ):
         'Maximum Loading Time' : 'ep_maxTimeWindow',        
         'Fixed Cost'           : 'p_cargoCost'              
         }, inplace=True)
+
     # Actually assign to AIMMS identifiers:
-    my_aimms.multi_assign(datainput_pd_cargo)
+    aimms_model.multi_assign(datainput_pd_cargo)
+
 
     # Get the vessel data and copy it over to the AIMMS model:
+
     # Read Excel sheet:
     datainput_pd_vessel=pd.read_excel(datainput,sheet_name='VesselData')
-    # Split it into multiple dataframes:
+
     # Rename the columns to AIMMS identifiers:
     datainput_pd_vessel.rename(columns={              
         'Vessel'         : 'i_vessel',                
         'Port of Origin' : 'ep_originPortOfVessel',   
         'Sailing Cost'   : 'p_sailingCost'            
         }, inplace=True)
-    # Actually assign to AIMMS identifiers:
-    my_aimms.multi_assign(datainput_pd_vessel)
 
-    # Running the AIMMS model, EchoInput and EchoOutput are only for debugging purposes.
-    my_aimms.pr_EchoInput()
-    my_aimms.pr_GenRoutesSolve()
-    my_aimms.pr_EchoOutput()
+    # Actually assign to AIMMS identifiers:
+    aimms_model.multi_assign(datainput_pd_vessel)
+
+
+    # Execute the optimization logic.
+    aimms_model.pr_GenRoutesSolve()
+
 
     # Retrieving the Vessel overview:
+
     # Getting data from AIMMS model:
-    df_vessel_overview = my_aimms.multi_data(["i_vessel","mm::ep_calc_routeOfVessel","mm::p_calc_operationalCostPerVessel","mm::p_calc_totalTravelDaysPerVessel"])
+    df_vessel_overview = aimms_model.multi_data(["i_vessel","mm::ep_calc_routeOfVessel","mm::p_calc_operationalCostPerVessel","mm::p_calc_totalTravelDaysPerVessel"])
+
     # Renaming columns Vessel overview for Excel Sheet:
     df_vessel_overview.rename(columns={
         'i_vessel'                            : 'Vessel',
@@ -121,9 +136,12 @@ def process_vessel_schedule( datainput: str ):
         'mm::p_calc_totalTravelDaysPerVessel' : 'Route Period'
         },inplace=True)
 
+
     # Retrieving the Cargo overview:
+
     # Getting data from AIMMS model:
-    df_cargo_overview = my_aimms.multi_data(["i_act_cargo","mm::ep_calc_vesselOfCargo","mm::p_calc_totalCostPerCargo","mm::sp_calc_loadingTimePerCargo","mm::sp_calc_deleveringTimePerCargo"])
+    df_cargo_overview = aimms_model.multi_data(["i_act_cargo","mm::ep_calc_vesselOfCargo","mm::p_calc_totalCostPerCargo","mm::sp_calc_loadingTimePerCargo","mm::sp_calc_deleveringTimePerCargo"])
+
     # Renaming columns Cargo overview for Excel Sheet:
     df_cargo_overview.rename(columns={
         'i_act_cargo'                        : 'Cargo',
@@ -133,9 +151,12 @@ def process_vessel_schedule( datainput: str ):
         'mm::sp_calc_deleveringTimePerCargo' : 'Delivery Time'
         },inplace=True)
 
+
     # Retrieving the Route overview:
+
     # Getting data from AIMMS model:
-    df_route_overview = my_aimms.multi_data(["i_act_cargo","mm::ep_calc_vesselOfCargo","mm::p_calc_totalCostPerCargo","mm::sp_calc_loadingTimePerCargo","mm::sp_calc_deleveringTimePerCargo"])
+    df_route_overview = aimms_model.multi_data(["i_act_cargo","mm::ep_calc_vesselOfCargo","mm::p_calc_totalCostPerCargo","mm::sp_calc_loadingTimePerCargo","mm::sp_calc_deleveringTimePerCargo"])
+
     # Renaming columns Route overview for Excel Sheet:
     df_route_overview.rename(columns={
         'i_used_route'                       : 'Route',
@@ -146,8 +167,9 @@ def process_vessel_schedule( datainput: str ):
         'mm::ep_post_vesselActivityLast'     : 'Last'
         },inplace=True)
 
-    excel_file_path = datainput.replace("Cargo","Solution")
 
+    # Exporting the three data frames each to a separate sheet:
+    excel_file_path = datainput.replace("Cargo","Solution")
     with pd.ExcelWriter(excel_file_path, engine='openpyxl') as writer:
         df_vessel_overview.to_excel(writer, sheet_name='Vessel Overview', index=False)
         df_cargo_overview.to_excel( writer, sheet_name='Cargo Overview',  index=False)
