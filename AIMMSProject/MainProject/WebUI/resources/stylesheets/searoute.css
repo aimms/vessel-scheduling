@@ -1,0 +1,7 @@
+.aimms-widget[data-widget\.uri="MappingCargoesWithCollors_2"] .leaflet-map-pane .arc:not(.annotation-midleg)  {
+    marker-end: none;
+}
+
+.aimms-widget[data-widget\.uri="MappingCargoesWithCollors_2"] .leaflet-map-pane .node {
+    display: none;
+}

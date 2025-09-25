@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<References AIMMS_Version="25.6.1.1 (x64)">
+<References AIMMS_Version="25.7.4.1 (x64)">
 	<MainProject Path="MainProject" />
 	<Library System="true" Path="AimmsPro" />
-	<RepositoryLibrary UUID="69378F70-E906-486F-8F2C-1D606AEB9669" Name="WebUI" Version="25.7.4.2" />
+	<RepositoryLibrary UUID="69378F70-E906-486F-8F2C-1D606AEB9669" Name="WebUI" Version="25.7.5.2" />
 	<RepositoryLibrary UUID="BDF54E1C-AF05-4D77-856C-F3C05F20FFB8" Name="AimmsDEX" Version="25.9.1.2" />
 	<RepositoryLibrary UUID="5A2255CE-23DB-4CB2-85F9-F62B349FE944" Name="pyaimms" Version="25.1.4.1" />
 	<Library Path="libs\MathematicalModel" />

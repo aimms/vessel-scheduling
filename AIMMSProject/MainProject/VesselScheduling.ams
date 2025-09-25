@@ -221,6 +221,16 @@ Model Main_VesselScheduling {
 				Property: Optional;
 			}
 		}
+		Set s_idsToBeEmptied {
+			SubsetOf: AllIdentifiers;
+		}
+		Procedure pr_emptyInstanceBusinessModel {
+			Body: {
+				s_idsToBeEmptied := Business_model ;
+				
+				Empty s_idsToBeEmptied ;
+			}
+		}
 	}
 	Section Business_model {
 		Section Calendars {
@@ -559,9 +569,9 @@ Model Main_VesselScheduling {
 				dex::TableName: LocationData;
 				webui::AnnotationsIdentifier: ui::sp_def_focusedLocationFrom;
 			}
-			Parameter p_def_harvesineDistanceBetweenLocations {
+			Parameter p_def_haversineDistance {
 				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
-				Unit: day;
+				Unit: km;
 				Definition: {
 					((6371.0[km])
 					    * arccos(
@@ -571,13 +581,34 @@ Model Main_VesselScheduling {
 					        sin(radians(90 - P_latitude(i_loc_from)))
 					        * sin(radians(90 - P_latitude(i_loc_to)))
 					        * cos(radians(p_longitude(i_loc_from) - p_longitude(i_loc_to)))))
+				}
+			}
+			Parameter p_def_harvesineDistanceBetweenLocations {
+				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
+				Unit: day;
+				Definition: {
+					p_def_haversineDistance(i_loc_from, i_loc_to)
+					/$ p_vesselVelocity
+				}
+			}
+			Parameter p_def_searouteDistanceBetweenLocations {
+				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
+				Unit: day;
+				Definition: {
+					( p_distance_searoute(i_loc_from, i_loc_to) + p_distance_searoute(i_loc_to, i_loc_from) )[km] 
 					/$ p_vesselVelocity
 				}
 			}
 			Parameter p_def_distanceBetweenLocations {
 				IndexDomain: (i_loc_from, i_loc_to);
 				Unit: day;
-				Definition: round(p_def_harvesineDistanceBetweenLocations(i_loc_from, i_loc_to),0);
+				Definition: {
+					if bp_use_searoute_distances then
+						round(p_def_searouteDistanceBetweenLocations(i_loc_from, i_loc_to),0)
+					else
+						round(p_def_harvesineDistanceBetweenLocations(i_loc_from, i_loc_to),0)
+					endif
+				}
 			}
 		}
 		Section Routes {
@@ -664,6 +695,11 @@ Model Main_VesselScheduling {
 			ElementParameter ep_calc_vesselActivityType {
 				IndexDomain: (i_route, i_leg);
 				Range: s_def_vesselActivities;
+				webui::FlagsIdentifier: ui::sp_def_readOnly;
+			}
+			ElementParameter ep_calc_vesselActivityCargo {
+				IndexDomain: (i_route, i_leg);
+				Range: s_cargoes;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			ElementParameter ep_calc_vesselActivityLocation {
@@ -971,6 +1007,7 @@ Model Main_VesselScheduling {
 							endif ;
 							ep_loc_legSailingPickup := ep_loc_lastLeg ;
 							ep_calc_vesselActivityType(     ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_def_vesselSailingPickup ;
+							ep_calc_vesselActivityCargo(    ep_loc_newRoute, ep_loc_legSailingPickup ) := i_act_cargo ;
 							ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loadingPortsCargo(i_act_cargo) ;
 							ep_calc_vesselActivityFirst(    ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_calc_vesselActivityFirst( ep_loc_newRoute, ep_loc_legSailingPickup ) ; ! so no change.
 							ep_calc_vesselActivityLast(     ep_loc_newRoute, ep_loc_legSailingPickup ) := ep_loc_arrivalDay( i_act_cargo ) ;
@@ -983,27 +1020,30 @@ Model Main_VesselScheduling {
 								ep_loc_lastLeg += 1;
 							endif;
 							ep_loc_legWaitingCargo := ep_loc_lastLeg;
-							ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_def_vesselIdleWaitCargo;
-							ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_loadingPortsCargo(i_act_cargo);
-							ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_loc_arrivalDay(i_act_cargo); 
-							ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legWaitingCargo) := ep_minTimeWindow(i_act_cargo);
+							ep_calc_vesselActivityType(     ep_loc_newRoute, ep_loc_legWaitingCargo ) := ep_def_vesselIdleWaitCargo;
+							ep_calc_vesselActivityCargo(    ep_loc_newRoute, ep_loc_legWaitingCargo ) := i_act_cargo ;
+							ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legWaitingCargo ) := ep_loadingPortsCargo(i_act_cargo);
+							ep_calc_vesselActivityFirst(    ep_loc_newRoute, ep_loc_legWaitingCargo ) := ep_loc_arrivalDay(i_act_cargo); 
+							ep_calc_vesselActivityLast(     ep_loc_newRoute, ep_loc_legWaitingCargo ) := ep_minTimeWindow(i_act_cargo);
 						endif ;
 					
 						! - sailing towards delivery location.
 						ep_loc_lastLeg += 1;
 						ep_loc_legSailingDelivery := ep_loc_lastLeg;
-						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_def_vesselSailingDelivery;
-						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_deliveringPortsCargo(i_act_cargo);
-						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_loc_pickupDay(i_act_cargo); 
-						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legSailingDelivery) := ep_loc_nextSailingDay(i_act_cargo);
+						ep_calc_vesselActivityType(     ep_loc_newRoute, ep_loc_legSailingDelivery ) := ep_def_vesselSailingDelivery;
+						ep_calc_vesselActivityCargo(    ep_loc_newRoute, ep_loc_legSailingDelivery ) := i_act_cargo ;
+						ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legSailingDelivery ) := ep_deliveringPortsCargo(i_act_cargo);
+						ep_calc_vesselActivityFirst(    ep_loc_newRoute, ep_loc_legSailingDelivery ) := ep_loc_pickupDay(i_act_cargo); 
+						ep_calc_vesselActivityLast(     ep_loc_newRoute, ep_loc_legSailingDelivery ) := ep_loc_nextSailingDay(i_act_cargo);
 					
 						! - Always reserving a leg to wait till end of horizon.
 						ep_loc_lastLeg += 1;
 						ep_loc_legIdleRetire := ep_loc_lastLeg;
-						ep_calc_vesselActivityType(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_vesselIdleRetired;
-						ep_calc_vesselActivityLocation(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_deliveringPortsCargo(i_act_cargo);
-						ep_calc_vesselActivityFirst(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_loc_nextSailingDay(i_act_cargo); 
-						ep_calc_vesselActivityLast(ep_loc_newRoute, ep_loc_legIdleRetire) := ep_def_finishHorizonDate;
+						ep_calc_vesselActivityType(     ep_loc_newRoute, ep_loc_legIdleRetire ) := ep_def_vesselIdleRetired;
+						ep_calc_vesselActivityCargo(    ep_loc_newRoute, ep_loc_legIdleRetire ) := i_act_cargo ;
+						ep_calc_vesselActivityLocation( ep_loc_newRoute, ep_loc_legIdleRetire ) := ep_deliveringPortsCargo(i_act_cargo);
+						ep_calc_vesselActivityFirst(    ep_loc_newRoute, ep_loc_legIdleRetire ) := ep_loc_nextSailingDay(i_act_cargo); 
+						ep_calc_vesselActivityLast(     ep_loc_newRoute, ep_loc_legIdleRetire ) := ep_def_finishHorizonDate;
 					
 						! - Finishing up admin.
 						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_loc_lastLeg;
@@ -1108,6 +1148,7 @@ Model Main_VesselScheduling {
 					!	_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
 					!	_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
 						ep_calc_vesselActivityType(     i_workRoute, i_leg ) := _ep_tmp_vesselActivityType(     _ep_parent_route(i_workRoute), i_leg);
+						ep_calc_vesselActivityCargo(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityCargo(    _ep_parent_route(i_workRoute), i_leg);
 						ep_calc_vesselActivityLocation( i_workRoute, i_leg ) := _ep_tmp_vesselActivityLocation( _ep_parent_route(i_workRoute), i_leg);
 						ep_calc_vesselActivityFirst(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityFirst(    _ep_parent_route(i_workRoute), i_leg);
 						ep_calc_vesselActivityLast(     i_workRoute, i_leg ) := _ep_tmp_vesselActivityLast(     _ep_parent_route(i_workRoute), i_leg);
@@ -1121,11 +1162,11 @@ Model Main_VesselScheduling {
 						_ep_debug_loadingPortsCargo(i_workRoute) := ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ));
 						_bp_tmp_SailToPickup(i_workRoute) := 
 							 ep_temp_lastLocation( _ep_parent_route(i_workRoute) ) <> ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ));
-						!display { ep_temp_lastLocation(i_workRoute), _ep_last_cargo( i_workRoute ), _ep_debug_loadingPortsCargo( i_workRoute ), _bp_tmp_SailToPickup( i_workRoute ) } ;
 						_ep_loc_lastLeg(i_workRoute) $ ( _bp_tmp_SailToPickup(i_workRoute) and 
 							( ep_calc_vesselActivityType( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) <> ep_def_vesselIdleRetired ) )
 							+= 1 ;
 						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_def_vesselSailingPickup ;
+						ep_calc_vesselActivityCargo(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := _ep_last_cargo( i_workRoute ) ;
 						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_loadingPortsCargo(_ep_last_cargo( i_workRoute )) ;
 						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) ; ! so no change.
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) $ _bp_tmp_SailToPickup(i_workRoute) := _ep_loc_arrivalDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) );
@@ -1136,6 +1177,7 @@ Model Main_VesselScheduling {
 							( ep_calc_vesselActivityType( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) <> ep_def_vesselIdleRetired ) )
 							+= 1 ;
 						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_def_vesselIdleWaitCargo;
+						ep_calc_vesselActivityCargo(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := _ep_last_cargo( i_workRoute );
 						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_loadingPortsCargo( _ep_last_cargo( i_workRoute ) );
 						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := _ep_loc_arrivalDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) ); 
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) $ _bp_tmp_WaitingForCargoAvailability(i_workRoute) := ep_minTimeWindow(_ep_last_cargo( i_workRoute ));
@@ -1143,6 +1185,7 @@ Model Main_VesselScheduling {
 						! - sailing towards delivery location.
 						_ep_loc_lastLeg(i_workRoute) += 1;
 						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := ep_def_vesselSailingDelivery;
+						ep_calc_vesselActivityCargo(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := _ep_last_cargo( i_workRoute );
 						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := ep_deliveringPortsCargo(                               _ep_last_cargo( i_workRoute ) );
 						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := _ep_loc_pickupDay(      _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) ); 
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute) ) := _ep_loc_nextSailingDay( _ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute ) );
@@ -1150,11 +1193,13 @@ Model Main_VesselScheduling {
 						! - Always reserving a leg to wait till end of horizon.
 						_ep_loc_lastLeg(i_workRoute) += 1;
 						ep_calc_vesselActivityType(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_vesselIdleRetired;
+						ep_calc_vesselActivityCargo(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) := _ep_last_cargo( i_workRoute );
 						ep_calc_vesselActivityLocation( i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_deliveringPortsCargo(_ep_last_cargo( i_workRoute ));
 						ep_calc_vesselActivityFirst(    i_workRoute, _ep_loc_lastLeg(i_workRoute)) := _ep_loc_nextSailingDay(_ep_parent_route(i_workRoute), _ep_last_cargo( i_workRoute )); 
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_finishHorizonDate;
 					
 						_ep_tmp_vesselActivityType(     i_workRoute, i_leg ) := ep_calc_vesselActivityType(     i_workRoute, i_leg );
+						_ep_tmp_vesselActivityCargo(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityCargo(    i_workRoute, i_leg );
 						_ep_tmp_vesselActivityLocation( i_workRoute, i_leg ) := ep_calc_vesselActivityLocation( i_workRoute, i_leg );
 						_ep_tmp_vesselActivityFirst(    i_workRoute, i_leg ) := ep_calc_vesselActivityFirst(    i_workRoute, i_leg );
 						_ep_tmp_vesselActivityLast(     i_workRoute, i_leg ) := ep_calc_vesselActivityLast(     i_workRoute, i_leg );
@@ -1230,6 +1275,10 @@ Model Main_VesselScheduling {
 				ElementParameter _ep_tmp_vesselActivityType {
 					IndexDomain: (i_route, i_leg);
 					Range: s_def_vesselActivities;
+				}
+				ElementParameter _ep_tmp_vesselActivityCargo {
+					IndexDomain: (i_route, i_leg);
+					Range: s_cargoes;
 				}
 				ElementParameter _ep_tmp_vesselActivityLocation {
 					IndexDomain: (i_route,i_leg);
@@ -1453,6 +1502,9 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section pyaimms_leverage {
+			StringParameter sp_seaRouteDistanceFilename {
+				Definition: "data/distanceMatrixFromSeaRoute.parquet";
+			}
 			Parameter p_totlen;
 			Parameter p_nowaypoints;
 			Set s_waypoints {
@@ -1470,6 +1522,25 @@ Model Main_VesselScheduling {
 			Parameter p_origLon;
 			Parameter p_destLat;
 			Parameter p_destLon;
+			Parameter p_distance_searoute {
+				IndexDomain: (i_loc_from,i_loc_to);
+			}
+			Parameter bp_use_searoute_distances {
+				Range: binary;
+				InitialData: 0;
+			}
+			Parameter bp_python_source_scanned {
+				Range: binary;
+				InitialData: 0;
+			}
+			Procedure pr_scanPythonSource {
+				Body: {
+					if not bp_python_source_scanned then
+						py::run_python_script("leverage-sea-route.py");
+						bp_python_source_scanned := 1;
+					endif ;
+				}
+			}
 			Procedure pr_testSeaRoute {
 				Body: {
 					ep_locOrig := StringToElement(s_locations, "Ponta da Madeira,Brazil");
@@ -1490,14 +1561,67 @@ Model Main_VesselScheduling {
 						p_destLat, p_destLon ;
 					
 					s_waypoints := ElementRange(0,100);
-					py::run_python_script("leverage-sea-route.py");
-					py::run_python_statement("searoute_work()");
+					pr_scanPythonSource();
+					py::run_python_statement("searoute_route()");
 				}
 				ElementParameter ep_locOrig {
 					Range: s_locations;
 				}
 				ElementParameter ep_locDest {
 					Range: s_locations;
+				}
+			}
+			Procedure pr_distanceMatrixFromSeaRoute {
+				Body: {
+					pr_scanPythonSource();
+					py::run_python_statement("searoute_distance_matrix()");
+				}
+			}
+			Procedure pr_saveSeaRouteDistanceMatrixToParquet {
+				Body: {
+					dex::AddMapping(
+						mappingName :  "distanceMatrixParquet", 
+						mappingFile :  "Mappings/distanceMatrixParquet.xml");
+					dex::WriteToFile(
+						dataFile    :  sp_seaRouteDistanceFilename, 
+						mappingName :  "distanceMatrixParquet", 
+						pretty      :  1);
+				}
+			}
+			Procedure pr_readSeaRouteDistanceMatrixFromParquet {
+				Body: {
+					dex::AddMapping(
+						mappingName :  "distanceMatrixParquet", 
+						mappingFile :  "Mappings/distanceMatrixParquet.xml");
+					dex::ReadFromFile(
+						dataFile         :  sp_seaRouteDistanceFilename, 
+						mappingName      :  "distanceMatrixParquet", 
+						emptyIdentifiers :  0, 
+						emptySets        :  0, 
+						resetCounters    :  0);
+				}
+			}
+			Procedure pr_toggle_distance_computation {
+				Body: {
+					if card( s_locations ) then
+						if bp_use_searoute_distances then
+							ui::sp_systemStatusBar(8,'color') := "yellow";	
+							bp_use_searoute_distances := 0 ;
+						else
+							if not card( p_distance_searoute ) then
+								if FileExists( sp_seaRouteDistanceFilename ) then
+									pr_readSeaRouteDistanceMatrixFromParquet();
+								else
+									webui::SetProgressMessage("Computing Sea Routes - estimate: five to ten minutes");
+									pr_distanceMatrixFromSeaRoute();
+									pr_saveSeaRouteDistanceMatrixToParquet();
+									webui::SetProgressMessage("");
+								endif ;
+							endif ;
+							ui::sp_systemStatusBar(8,'color') := "green";
+							bp_use_searoute_distances := 1 ;
+						endif ;
+					endif ;
 				}
 			}
 		}

@@ -32,5 +32,4 @@ warning_duplicate_row strict_warning_default
 * Environment
 Project_Title "Vessel Scheduling"
 Startup_Procedure "pr_startupProcedure"
-Startup_Case "data\init5.data"
 Open_WebUI_on_Startup 1

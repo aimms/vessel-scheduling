@@ -140,6 +140,12 @@
                     "children": []
                   },
                   {
+                    "name": "Searoute Map",
+                    "type": "pagev2-grid",
+                    "slug": "searoute_map",
+                    "children": []
+                  },
+                  {
                     "name": "Planned Routes",
                     "type": "pagev2-grid",
                     "slug": "planned_routes",
@@ -890,7 +896,7 @@
       ]
     },
     "layoutId": {
-      "literal": "custom_84b3a1cd-3e48-4f4b-bae1-1ac32605be3a"
+      "literal": "Layout9"
     },
     "widgets": {
       "literal": [
@@ -1478,17 +1484,22 @@
         {
           "widgetUri": "msl_selecRoutes",
           "gridArea": "area-b",
-          "dndId": "area-amsl_selecRoutes1"
+          "dndId": "area-bmsl_selecRoutes0"
         },
         {
           "widgetUri": "MappingCargoesWithCollors_1",
           "gridArea": "area-a",
-          "dndId": "area-aMappingCargoesWithCollors_10"
+          "dndId": "area-aMappingCargoesWithCollors_11"
         }
       ]
     },
     "layoutId": {
       "literal": "custom_bfe68fbb-2026-47ae-8b31-52cf652a9995"
+    },
+    "onload": {
+      "aimms": {
+        "run": "ui::pr_OpenPageVisualizeMap"
+      }
     },
     "widgets": {
       "literal": [
@@ -3165,6 +3176,9 @@
     "arcs.0.label.hide": {
       "literal": true
     },
+    "arcs.0.line.straight": {
+      "literal": false
+    },
     "arcs.0.value": {
       "literal": {
         "identifier": "ui::p_def_visibleArc",
@@ -3182,11 +3196,14 @@
         ]
       }
     },
+    "arcs.0.width.dynamic": {
+      "literal": true
+    },
     "center.latitude": {
-      "literal": 2.1088986592431382
+      "literal": -6.578682456224758
     },
     "center.longitude": {
-      "literal": 27.064955404603275
+      "literal": 31.971032103825497
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3302,7 +3319,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2
+      "literal": 2.2609835639453464
     }
   },
   "widgets/MinMax Scalars": {
@@ -4563,16 +4580,16 @@
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ui::p_deleteVessels"
+            "<IDENTIFIER-SET>": "ui::p_editVessels"
           },
-          "width": 8.36
+          "width": 8.18
         },
         {
           "type": "colHeader",
           "colKey": {
-            "<IDENTIFIER-SET>": "ui::p_editVessels"
+            "<IDENTIFIER-SET>": "ui::p_deleteVessels"
           },
-          "width": 8.18
+          "width": 11.95
         }
       ]
     },
@@ -4616,6 +4633,271 @@
           }
         ]
       }
+    }
+  },
+  "pages/searoute_map": {
+    "aimms.widget.type": {
+      "literal": "pagev2-grid"
+    },
+    "bindings": {
+      "literal": [
+        {
+          "widgetUri": "msl_selecRoutes_1",
+          "gridArea": "area-b",
+          "dndId": "Unassigned widgetsmsl_selecRoutes_11"
+        },
+        {
+          "widgetUri": "MappingCargoesWithCollors_2",
+          "gridArea": "area-a",
+          "dndId": "area-aMappingCargoesWithCollors_20"
+        }
+      ]
+    },
+    "layoutId": {
+      "literal": "custom_bfe68fbb-2026-47ae-8b31-52cf652a9995"
+    },
+    "onload": {
+      "aimms": {
+        "run": "ui::pr_openPageSeaRouteMap"
+      }
+    },
+    "widgets": {
+      "literal": [
+        {
+          "uri": "MappingCargoesWithCollors_2",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "msl_selecRoutes_1",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        }
+      ]
+    }
+  },
+  "widgets/MappingCargoesWithCollors_2": {
+    "aimms.widget.type": {
+      "literal": "map-v2"
+    },
+    "arcs.__display_order__": {
+      "literal": [
+        "arcs.0"
+      ]
+    },
+    "arcs.0": {
+      "aimms": {
+        "contents": [
+          "ui::bp_wayPointArc"
+        ],
+        "slices": [
+          {
+            "identifier": "ui::bp_wayPointArc",
+            "slice": [
+              {
+                "index": "ui::i_awp_from",
+                "type": "subset",
+                "value": "ui::i_swp"
+              },
+              {
+                "index": "ui::i_awp_to",
+                "type": "free",
+                "value": "ui::i_awp_to"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "arcs.0.label.hide": {
+      "literal": true
+    },
+    "arcs.0.line.straight": {
+      "literal": true
+    },
+    "arcs.0.value": {
+      "literal": {
+        "identifier": "ui::bp_wayPointArc",
+        "slice": [
+          {
+            "index": "ui::i_awp_from",
+            "type": "subset",
+            "value": "ui::i_swp"
+          },
+          {
+            "index": "ui::i_awp_to",
+            "type": "free",
+            "value": "ui::i_awp_to"
+          }
+        ]
+      }
+    },
+    "center.latitude": {
+      "literal": -8.059229627200192
+    },
+    "center.longitude": {
+      "literal": -6.852206633032569
+    },
+    "heatmaps.__display_order__": {
+      "literal": [
+        "heatmaps.0"
+      ]
+    },
+    "name": {
+      "literal": "SolutionRoutes (1)"
+    },
+    "nodes.__display_order__": {
+      "literal": [
+        "nodes.0"
+      ]
+    },
+    "nodes.0": {
+      "aimms": {
+        "contents": [
+          "ui::p_wpLon",
+          "ui::p_wpLat",
+          "ui::p_wpIconSize",
+          "ui::sp_wpIcon"
+        ],
+        "slices": [
+          {
+            "identifier": "ui::p_wpLon",
+            "slice": [
+              {
+                "index": "ui::i_awp",
+                "type": "subset",
+                "value": "ui::i_swp"
+              }
+            ]
+          },
+          {
+            "identifier": "ui::p_wpLat",
+            "slice": [
+              {
+                "index": "ui::i_awp",
+                "type": "subset",
+                "value": "ui::i_swp"
+              }
+            ]
+          },
+          {
+            "identifier": "ui::p_wpIconSize",
+            "slice": [
+              {
+                "index": "ui::i_awp",
+                "type": "subset",
+                "value": "ui::i_swp"
+              }
+            ]
+          },
+          {
+            "identifier": "ui::sp_wpIcon",
+            "slice": [
+              {
+                "index": "ui::i_awp",
+                "type": "subset",
+                "value": "ui::i_swp"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "nodes.0.icon": {
+      "literal": {
+        "identifier": "ui::sp_wpIcon",
+        "slice": [
+          {
+            "index": "ui::i_awp",
+            "type": "subset",
+            "value": "ui::i_swp"
+          }
+        ]
+      }
+    },
+    "nodes.0.index": {
+      "literal": {
+        "identifier": "ui::i_swp"
+      }
+    },
+    "nodes.0.latitude": {
+      "literal": {
+        "identifier": "ui::p_wpLat",
+        "slice": [
+          {
+            "index": "ui::i_awp",
+            "type": "subset",
+            "value": "ui::i_swp"
+          }
+        ]
+      }
+    },
+    "nodes.0.longitude": {
+      "literal": {
+        "identifier": "ui::p_wpLon",
+        "slice": [
+          {
+            "index": "ui::i_awp",
+            "type": "subset",
+            "value": "ui::i_swp"
+          }
+        ]
+      }
+    },
+    "nodes.0.maximumreferencesize": {
+      "literal": 1
+    },
+    "nodes.0.size": {
+      "literal": {
+        "identifier": "ui::p_wpIconSize",
+        "slice": [
+          {
+            "index": "ui::i_awp",
+            "type": "subset",
+            "value": "ui::i_swp"
+          }
+        ]
+      }
+    },
+    "title": {
+      "literal": "Map of Cargo Route"
+    },
+    "views": {
+      "literal": {}
+    },
+    "views.__display_order__": {
+      "literal": [
+        "views.0",
+        "views.1"
+      ]
+    },
+    "views.0.type": {
+      "literal": "view"
+    },
+    "views.1.type": {
+      "literal": "template"
+    },
+    "zoom": {
+      "literal": 2
+    }
+  },
+  "widgets/msl_selecRoutes_1": {
+    "aimms.widget.type": {
+      "literal": "multiselect"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "ui::bp_selectInUsedRoutes"
+        ]
+      }
+    },
+    "name": {
+      "literal": "msl_selecRoutes (1)"
     }
   }
 }

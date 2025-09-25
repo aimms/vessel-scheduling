@@ -99,6 +99,8 @@ LibraryModule DataIntegration {
 				            dataFile : sp_loc_IOFilePath, 
 				            mappingName : "ImportDataSet") then
 				
+				        FileDelete( sp_loc_IOFilePath );
+				
 				        !Activate all master data
 				        bp_activeCargoes(i_cargo):= 1;
 				        bp_activeVessels(i_vessel) := 1;
