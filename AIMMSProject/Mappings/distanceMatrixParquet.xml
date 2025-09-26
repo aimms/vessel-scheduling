@@ -1,0 +1,7 @@
+<AimmsParquetMapping>
+    <RowMapping name="table1">
+        <ColumnMapping name="from" binds-to="i_loc_from"/>
+        <ColumnMapping name="to" binds-to="i_loc_to"/>
+        <ColumnMapping name="dist" maps-to="p_distance_searoute(i_loc_from,i_loc_to)"/>
+    </RowMapping>
+</AimmsParquetMapping>
