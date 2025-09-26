@@ -33,9 +33,9 @@ LibraryModule MathematicalModel {
 			ui::sp_systemWorkflowFoldingStates(1, 4, 'openclose') := "close";
 			
 			!Changes statusbar
-			ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
-			ui::sp_systemStatusBar(2,'color') := "Green";
-			ui::sp_systemStatusBar(2,'tooltip') := "The model has been solved.";
+			ui::sp_systemStatusBar(3,'icon') := "aimms-checkmark-circle";
+			ui::sp_systemStatusBar(3,'color') := "Green";
+			ui::sp_systemStatusBar(3,'tooltip') := "The model has been solved.";
 			
 			!Post Execution
 			mm::pr_post_vesselResults;

@@ -495,24 +495,24 @@ LibraryModule UserInterface {
 					  ( '1', 'procedure' ) : "di::pr_importRequestFile",
 					  ( '1', 'state'     ) : "Active",
 					
+					  ( '3', 'icon'      ) : "aimms-cancel-circle2",
+					  ( '3', 'color'     ) : "red",
+					  ( '3', 'text'      ) : "Solve Model",
+					  ( '3', 'tooltip'   ) : "Model not ready to be solved.",
+					  ( '3', 'procedure' ) : "MainExecution",
+					  ( '3', 'state'     ) : "inactive",
+					
+					  ( '4', 'header'    ) : "Excel:",
+					  ( '4', 'icon'      ) : "aimms-warning2",
+					  ( '4', 'text'      ) : "Nothing Imported",
+					  ( '4', 'state'     ) : "Inactive",
+					
+					  ( '2', 'header'    ) : "Python",
 					  ( '2', 'icon'      ) : "aimms-cancel-circle2",
-					  ( '2', 'color'     ) : "red",
-					  ( '2', 'text'      ) : "Solve Model",
-					  ( '2', 'tooltip'   ) : "Model not ready to be solved.",
-					  ( '2', 'procedure' ) : "MainExecution",
-					  ( '2', 'state'     ) : "inactive",
-					
-					  ( '3', 'header'    ) : "Excel:",
-					  ( '3', 'icon'      ) : "aimms-warning2",
-					  ( '3', 'text'      ) : "Nothing Imported",
-					  ( '3', 'state'     ) : "Inactive",
-					
-					  ( '8', 'header'    ) : "Python",
-					  ( '8', 'icon'      ) : "aimms-sphere2",
-					  ( '8', 'color'     ) : "yellow", ! not available, green available.
-					  ( '8', 'text'      ) : "Distance computation",
-					  ( '8', 'procedure' ) : "pr_toggle_distance_computation",
-					  ( '8', 'state'     ) : "Active",
+					  ( '2', 'color'     ) : "red", ! not available, green available.
+					  ( '2', 'text'      ) : "Distance computation",
+					  ( '2', 'procedure' ) : "pr_toggle_distance_computation",
+					  ( '2', 'state'     ) : "Active",
 					
 					  ( '9', 'icon'      ) : "aimms-exit",
 					  ( '9', 'color'     ) : "green",
@@ -613,13 +613,13 @@ LibraryModule UserInterface {
 						sp_systemStatusBar(1,'tooltip') := "Data is succesfully generated.";
 						sp_systemStatusBar(1,'text') := "Data Generated";
 						
-						ui::sp_systemStatusBar(2,'color') := "Orange";
-						ui::sp_systemStatusBar(2,'icon'):= "aimms-circle2";
-						ui::sp_systemStatusBar(2,'tooltip') := "Application ready to be solved.";
-						ui::sp_systemStatusBar(2,'state') := "active";
+						ui::sp_systemStatusBar(3,'color') := "Orange";
+						ui::sp_systemStatusBar(3,'icon'):= "aimms-circle2";
+						ui::sp_systemStatusBar(3,'tooltip') := "Application ready to be solved.";
+						ui::sp_systemStatusBar(3,'state') := "active";
 						
-						ui::sp_systemStatusBar(3,'icon'):= "aimms-briefcase";
-						ui::sp_systemStatusBar(3,'text') := "Data Generated";
+						ui::sp_systemStatusBar(4,'icon'):= "aimms-briefcase";
+						ui::sp_systemStatusBar(4,'text') := "Data Generated";
 						
 						!Changes to workflow
 						sp_systemWorkFlowSteps(1,8,'workflowPageState'):= "inactive";
@@ -1486,7 +1486,6 @@ LibraryModule UserInterface {
 								_ep_awp := _p_awp ;
 								ep_wpLoc(_ep_awp) := _ep_toLoc ;
 								sp_wpIconTooltip(  _ep_awp ) := formatString("%e", ep_wpLoc(  _ep_awp ));
-								sp_wpIconAnnotation( _ep_awp ) := "searouteroutelocation" ;
 								p_wpLat(_ep_awp) := p_destLat;
 								p_wpLon(_ep_awp) := p_destLon;
 								ep_wpType(_ep_awp) := ep_locType(  _i_alp );
@@ -1540,6 +1539,8 @@ LibraryModule UserInterface {
 						
 						sp_wpIcon( i_awp ) := sp_iconLocType( ep_wpType( i_awp ) );
 						p_wpIconSize(i_awp) := 1 $ sp_wpIcon( i_awp );
+						sp_wpIconAnnotation(i_awp) := "LoadingPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) <> 'deliveryHarbor');
+						sp_wpIconAnnotation(i_awp) += "DeliveringPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) = 'deliveryHarbor');
 					}
 					Comment: {
 						"data { 
@@ -1633,8 +1634,8 @@ LibraryModule UserInterface {
 						Definition: {
 							data { 
 								'startHarbor'     : "aimms-ship", 
-								'loadingHarbor'   : "aimms-file-upload", 
-								'deliveryHarbor'  : "aimms-file-download"
+								'loadingHarbor'   : "aimms-esc", 
+								'deliveryHarbor'  : "aimms-enter6"
 							}
 						}
 					}

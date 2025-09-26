@@ -2688,10 +2688,10 @@
       ]
     },
     "center.latitude": {
-      "literal": -19.998496252582424
+      "literal": -14.987239525774244
     },
     "center.longitude": {
-      "literal": -51.34661333531207
+      "literal": -51.15240343803057
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -2995,10 +2995,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 4.5654735507102915
+      "literal": 8.195843221606202
     },
     "center.longitude": {
-      "literal": -80.49013762833403
+      "literal": 6.881511365789349
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3137,7 +3137,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 4
+      "literal": 2.8602581918332053
     }
   },
   "widgets/MappingCargoesWithCollors_1": {
@@ -3200,10 +3200,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -26.588527147308625
+      "literal": -2.3658149950718164
     },
     "center.longitude": {
-      "literal": -35.022677864633366
+      "literal": -20.725372882153756
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3319,7 +3319,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2
+      "literal": 2.569870904083398
     }
   },
   "widgets/MinMax Scalars": {
@@ -4371,10 +4371,10 @@
       ]
     },
     "center.latitude": {
-      "literal": 2.986927393334876
+      "literal": 10.80870618734284
     },
     "center.longitude": {
-      "literal": -6.852361976405096
+      "literal": -44.85826729386589
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4504,7 +4504,7 @@
       "literal": "view"
     },
     "zoom": {
-      "literal": 2
+      "literal": 3.1397418081667947
     }
   },
   "widgets/Vessels": {
@@ -4737,10 +4737,10 @@
       }
     },
     "center.latitude": {
-      "literal": 7.936987770198386
+      "literal": 21.58970795480819
     },
     "center.longitude": {
-      "literal": -15.59735980484906
+      "literal": -0.722886231356974
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4882,7 +4882,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2
+      "literal": 3.0779074908161546
     }
   },
   "widgets/msl_selecRoutes_1": {

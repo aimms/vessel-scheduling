@@ -1610,7 +1610,7 @@ Model Main_VesselScheduling {
 				Body: {
 					if card( s_locations ) then
 						if bp_use_searoute_distances then
-							ui::sp_systemStatusBar(8,'color') := "yellow";	
+							ui::sp_systemStatusBar(2,'color') := "red";	
 							bp_use_searoute_distances := 0 ;
 						else
 							if not card( p_distance_searoute ) then
@@ -1623,7 +1623,8 @@ Model Main_VesselScheduling {
 									webui::SetProgressMessage("");
 								endif ;
 							endif ;
-							ui::sp_systemStatusBar(8,'color') := "green";
+							ui::sp_systemStatusBar(2,'color') := "green";
+							ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
 							bp_use_searoute_distances := 1 ;
 						endif ;
 					endif ;

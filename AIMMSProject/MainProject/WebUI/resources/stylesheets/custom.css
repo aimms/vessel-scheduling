@@ -41,3 +41,7 @@ input.boolean-cell-editor-contents {
     color: #505767;
 }
 
+.aimms-widget[data-widget\.uri="MappingCargoesWithCollors_2"] .leaflet-map-pane .arc:not(.annotation-midleg)  {
+    marker-end: none;
+}
+
