@@ -1284,11 +1284,18 @@ LibraryModule UserInterface {
 							if _ep_nextLoc <> _ep_lastLoc then
 								_ep_locPos += 1 ;
 								_ep_loc( _ep_locPos) := _ep_nextLoc ;
-								if ( ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingPickup'    ) or 
-								   ( ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'idleWaitForCargo' )    then
+								!if ep_calc_vesselActivityCargo(i_used_route, i_leg_aux) then
+								!	_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
+								!endif ;
+								if ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingPickup' then
 									ep_locType( _ep_locPos ) := 'loadingHarbor' ;
+									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
+								elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'idleWaitForCargo' then
+									ep_locType( _ep_locPos ) := 'loadingHarbor' ;
+									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
 								elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingDelivery' then
 									ep_locType( _ep_locPos ) := 'deliveryHarbor' ;
+									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
 								endif ;
 								sp_def_visibleArcTooltip( _ep_lastLoc, _ep_nextLoc ) :=
 									"<div align=\"left\">" +
@@ -1309,7 +1316,7 @@ LibraryModule UserInterface {
 												 "Deliver: "
 											endif
 											+ "</TD>" +
-											"<TD>" + formatString("%e", ep_calc_vesselActivityCargo(i_used_route, i_leg_aux))  + "</TD>"  +
+											"<TD>" + formatString("%e",_ep_locCargo )  + "</TD>"  +
 										"</TR>" +
 										"<TR>" +
 											"<TD>" + "Destination:&nbsp;" + "</TD>"  +
@@ -1321,6 +1328,9 @@ LibraryModule UserInterface {
 							endif ;
 						endfor ;
 					endfor ;
+					
+					!sp_wpIconTooltip(i_awp) | p_wpIconSize(i_awp) := "Piet gaat vissen" ;
+					!sp_wpIconAnnotation(i_awp) | p_wpIconSize(i_awp) := "searouteroutelocation" ;
 				}
 				ElementParameter _p_awp {
 					Range: s_allWayPoints;
@@ -1347,6 +1357,9 @@ LibraryModule UserInterface {
 				ElementParameter _ep_end {
 					Range: s_allWayPoints;
 				}
+				ElementParameter _ep_locCargo {
+					Range: s_cargoes;
+				}
 			}
 			StringParameter sp_tabbedWidgetContentsItineraryPage {
 				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
@@ -1364,6 +1377,25 @@ LibraryModule UserInterface {
 					  ( 3, pageId      ) : "planned_routes",  
 					  ( 3, state       ) : "active"         
 					}
+				}
+			}
+			Parameter bp_typecargo_comp {
+				IndexDomain: (i_route,i_leg);
+				Definition: {
+					if ( ep_calc_vesselActivityType(i_route, i_leg) and ( ep_calc_vesselActivityType(i_route, i_leg) <> ep_def_vesselIdleRetired ) ) then
+						if not ep_calc_vesselActivityCargo(i_route, i_leg) then
+							1
+						endif 
+					else
+						if ep_calc_vesselActivityCargo(i_route, i_leg) then
+							2
+						endif 
+					endif
+				}
+			}
+			Procedure pr_dump {
+				Body: {
+					display { ep_calc_vesselActivityType, ep_calc_vesselActivityCargo, bp_typecargo_comp };
 				}
 			}
 			Section Sea_Route_Details {
@@ -1390,6 +1422,8 @@ LibraryModule UserInterface {
 						
 							_ep_awp := _p_awp ;
 							_ep_beg := _ep_awp ;
+							ep_wpLoc(  _ep_awp ) := _ep_lastLoc ;
+							sp_wpIconTooltip(  _ep_awp ) := formatString("%e", ep_wpLoc(  _ep_awp ));
 							p_wpLat(   _ep_awp ) := p_latitude(  _ep_lastLoc );
 							p_wpLon(   _ep_awp ) := p_longitude( _ep_lastLoc );
 							ep_wpType( _ep_awp ) := ep_locType(  _ep_locPos );
@@ -1434,7 +1468,9 @@ LibraryModule UserInterface {
 						
 								empty s_waypoints ;
 								s_waypoints := ElementRange(0,100);
-								py::run_python_statement("searoute_route()");
+								_sp_pyCall := formatString("searoute_route(%12.7n,%12.7n,%12.7n,%12.7n)",
+									p_origLat, p_origLon, p_destLat, p_destLon );
+								py::run_python_statement(_sp_pyCall);
 						
 								_p_wpLegBeg := _p_awp ;
 								_p_wp := 0 ;
@@ -1448,6 +1484,9 @@ LibraryModule UserInterface {
 									_p_awp += 1 ;
 								endwhile ;
 								_ep_awp := _p_awp ;
+								ep_wpLoc(_ep_awp) := _ep_toLoc ;
+								sp_wpIconTooltip(  _ep_awp ) := formatString("%e", ep_wpLoc(  _ep_awp ));
+								sp_wpIconAnnotation( _ep_awp ) := "searouteroutelocation" ;
 								p_wpLat(_ep_awp) := p_destLat;
 								p_wpLon(_ep_awp) := p_destLon;
 								ep_wpType(_ep_awp) := ep_locType(  _i_alp );
@@ -1456,10 +1495,10 @@ LibraryModule UserInterface {
 								_p_wpLegMid := round( ( _p_wpLegBeg + _p_wpLegEnd ) / 2 );
 								_ep_wpLegMid := _p_wpLegMid ;
 								s_waypointsForTooltip := { i_awp | 
-									i_awp >= _p_wpLegBeg and
-									i_awp <= _p_wpLegEnd and
+									i_awp >  _p_wpLegBeg and
+									i_awp <  _p_wpLegEnd /* and
 									i_awp >= ( _ep_wpLegMid - p_maxWaypointsFromMidForTooltip ) and
-									i_awp <= ( _ep_wpLegMid + p_maxWaypointsFromMidForTooltip )     } ;
+									i_awp <= ( _ep_wpLegMid + p_maxWaypointsFromMidForTooltip ) */    } ;
 								sp_wpTooltip(    i_wptt-1, i_wptt ) :=  
 									"<div align=\"left\">" +
 									"<table border=2px; class=\"left-aligned\"  style=\"margin:0;\">" +
@@ -1565,6 +1604,7 @@ LibraryModule UserInterface {
 					ElementParameter _ep_wpLegMid {
 						Range: s_allWayPoints;
 					}
+					StringParameter _sp_pyCall;
 				}
 				DeclarationSection waypoints_of_route {
 					Parameter p_maxWaypointsFromMidForTooltip {
@@ -1622,6 +1662,10 @@ LibraryModule UserInterface {
 						SubsetOf: s_allWayPoints;
 					}
 					Set s_deliveryWayPoints;
+					ElementParameter ep_wpLoc {
+						IndexDomain: i_awp;
+						Range: s_locations;
+					}
 					Parameter p_wpLat {
 						IndexDomain: i_awp;
 					}
@@ -1636,6 +1680,14 @@ LibraryModule UserInterface {
 						IndexDomain: i_awp;
 					}
 					Parameter p_wpIconSize {
+						IndexDomain: i_awp;
+						webui::AnnotationsIdentifier: sp_wpIconAnnotation;
+						webui::TooltipIdentifier: sp_wpIconTooltip;
+					}
+					StringParameter sp_wpIconTooltip {
+						IndexDomain: i_awp;
+					}
+					StringParameter sp_wpIconAnnotation {
 						IndexDomain: i_awp;
 					}
 					Parameter bp_wayPointArc {

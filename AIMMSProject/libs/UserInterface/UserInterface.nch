@@ -154,3 +154,4 @@
 "ui::sp_wayPointArc" "ui::sp_wpTooltip" "2025-09-24 11:36:07"
 "ui::Copy_sp_wpTooltip" "ui::sp_wpAnnotation" "2025-09-24 11:36:32"
 "ui::Copy_p_def_visibleArc" "ui::sp_def_visibleArcTooltip" "2025-09-24 13:19:45"
+"ui::ep_loc" "ui::ep_wpLoc" "2025-09-26 10:27:37"

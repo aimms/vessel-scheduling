@@ -3200,10 +3200,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -6.578682456224758
+      "literal": -26.588527147308625
     },
     "center.longitude": {
-      "literal": 31.971032103825497
+      "literal": -35.022677864633366
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3319,7 +3319,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2.2609835639453464
+      "literal": 2
     }
   },
   "widgets/MinMax Scalars": {
@@ -4737,10 +4737,10 @@
       }
     },
     "center.latitude": {
-      "literal": -8.059229627200192
+      "literal": 7.936987770198386
     },
     "center.longitude": {
-      "literal": -6.852206633032569
+      "literal": -15.59735980484906
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4849,7 +4849,7 @@
       }
     },
     "nodes.0.maximumreferencesize": {
-      "literal": 1
+      "literal": 5
     },
     "nodes.0.size": {
       "literal": {

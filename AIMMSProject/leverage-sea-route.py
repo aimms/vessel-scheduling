@@ -3,11 +3,11 @@ import pandas as pd
 from typing import Tuple
 from singleton import aimms_model, DataReturnTypes
 
-def searoute_route():
-    fromLon = aimms_model.p_origLon.data()
-    fromLat = aimms_model.p_origLat.data()
-    toLon   = aimms_model.p_destLon.data()
-    toLat   = aimms_model.p_destLat.data() 
+def searoute_route(fromLat:float,fromLon:float,toLat:float,toLon:float):
+    # fromLon = aimms_model.p_origLon.data()
+    # fromLat = aimms_model.p_origLat.data()
+    # toLon   = aimms_model.p_destLon.data()
+    # toLat   = aimms_model.p_destLat.data() 
     origin=[fromLon,fromLat]
     destination=[toLon,toLat]
     route = sr.searoute(origin,destination)

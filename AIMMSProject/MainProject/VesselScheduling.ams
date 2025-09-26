@@ -984,6 +984,7 @@ Model Main_VesselScheduling {
 						! First copy legs from working route to new route.
 						ep_calc_routeLastLeg(ep_loc_newRoute) := ep_calc_routeLastLeg(ep_in_workingRoute);
 						ep_calc_vesselActivityType(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityType(ep_in_workingRoute, i_leg);
+						ep_calc_vesselActivityCargo(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityCargo(ep_in_workingRoute, i_leg);
 						ep_calc_vesselActivityLocation(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityLocation(ep_in_workingRoute, i_leg);
 						ep_calc_vesselActivityFirst(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityFirst(ep_in_workingRoute, i_leg);
 						ep_calc_vesselActivityLast(ep_loc_newRoute, i_leg) := ep_calc_vesselActivityLast(ep_in_workingRoute, i_leg);
@@ -1089,6 +1090,7 @@ Model Main_VesselScheduling {
 			Procedure pr_processRouteListEx {
 				Body: {
 						_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
+						_ep_tmp_vesselActivityCargo(    i_route, i_leg ) := ep_calc_vesselActivityCargo(    i_route, i_leg );
 						_ep_tmp_vesselActivityLocation( i_route, i_leg ) := ep_calc_vesselActivityLocation( i_route, i_leg );
 						_ep_tmp_vesselActivityFirst(    i_route, i_leg ) := ep_calc_vesselActivityFirst(    i_route, i_leg );
 						_ep_tmp_vesselActivityLast(     i_route, i_leg ) := ep_calc_vesselActivityLast(     i_route, i_leg );
@@ -1199,7 +1201,7 @@ Model Main_VesselScheduling {
 						ep_calc_vesselActivityLast(     i_workRoute, _ep_loc_lastLeg(i_workRoute)) := ep_def_finishHorizonDate;
 					
 						_ep_tmp_vesselActivityType(     i_workRoute, i_leg ) := ep_calc_vesselActivityType(     i_workRoute, i_leg );
-						_ep_tmp_vesselActivityCargo(    i_workRoute, i_leg ) := _ep_tmp_vesselActivityCargo(    i_workRoute, i_leg );
+						_ep_tmp_vesselActivityCargo(    i_workRoute, i_leg ) := ep_calc_vesselActivityCargo(    i_workRoute, i_leg );
 						_ep_tmp_vesselActivityLocation( i_workRoute, i_leg ) := ep_calc_vesselActivityLocation( i_workRoute, i_leg );
 						_ep_tmp_vesselActivityFirst(    i_workRoute, i_leg ) := ep_calc_vesselActivityFirst(    i_workRoute, i_leg );
 						_ep_tmp_vesselActivityLast(     i_workRoute, i_leg ) := ep_calc_vesselActivityLast(     i_workRoute, i_leg );
@@ -1562,7 +1564,9 @@ Model Main_VesselScheduling {
 					
 					s_waypoints := ElementRange(0,100);
 					pr_scanPythonSource();
-					py::run_python_statement("searoute_route()");
+					_sp_pyCall := formatString("searoute_route(%12.7n,%12.7n,%12.7n,%12.7n)",
+						p_origLat, p_origLon, p_destLat, p_destLon );
+					py::run_python_statement(_sp_pyCall);
 				}
 				ElementParameter ep_locOrig {
 					Range: s_locations;
@@ -1570,6 +1574,7 @@ Model Main_VesselScheduling {
 				ElementParameter ep_locDest {
 					Range: s_locations;
 				}
+				StringParameter _sp_pyCall;
 			}
 			Procedure pr_distanceMatrixFromSeaRoute {
 				Body: {

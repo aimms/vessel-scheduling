@@ -3,8 +3,6 @@ Case_compatibility Aimms_4_80
 listing_page_width 32000
 major_messages 1
 rounding_compatibility Aimms_3_7
-solver_listing 3
-solver_listing_messages 4
 solver_window_messages 4
 time_messages 1
 use_UTC_forCaseAndStartEndDate 1
@@ -13,14 +11,8 @@ warning_duplicate_row strict_warning_default
 * BARON 21
 * CBC 2.9
 * CONOPT 4.1
-* CPLEX 12.10
-* CPLEX 20.1
 * CPLEX 22.1
-"CPLEX 22.1".barrier_display 1
-"CPLEX 22.1".MIP_display 2
 * CPOptimizer 22.1
-* GUROBI 10.0
-* GUROBI 11.0
 * GUROBI 12.0
 * IPOPT 3.11
 * Knitro 14.0
