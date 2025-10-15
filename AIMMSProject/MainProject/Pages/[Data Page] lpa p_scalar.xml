@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<Page Version="4000" TimeStamp="2025-09-26 10:27:39">
+	<Location top="30" left="30" bottom="540" right="600" />
+	<PageEditSize Type="Inherited">
+		<Size Width="600" Height="540" />
+	</PageEditSize>
+	<ProjectUUID>74B0C523-8BD6-4BE1-B50B-66CA17BF886B</ProjectUUID>
+	<Title>"[Data Page] lpa p_scalar"</Title>
+	<ResizeData>
+		<MainArea Line="FixedFromRight" Value="81">
+			<LeftArea Line="FixedFromTop" Value="10" />
+			<RightArea Line="FixedFromTop" Value="35">
+				<BottomArea Line="FixedFromBottom" Value="106" />
+			</RightArea>
+		</MainArea>
+	</ResizeData>
+	<Background Inherited="true" />
+	<PageObject Type="Button">
+		<Location top="10" left="520" bottom="35" right="590" />
+		<TabOrder>6</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Text</ButtonType>
+		<Title>"Close"</Title>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="ClosePage" />
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="435" left="520" bottom="460" right="590" />
+		<TabOrder>1</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Text</ButtonType>
+		<Title>"Undo"</Title>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="MenuCommand">
+				<Command>Edit-Undo Last</Command>
+			</Action>
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="470" left="520" bottom="495" right="590" />
+		<TabOrder>2</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Bitmap</ButtonType>
+		<BitmapFile LiteralFileName="true">"&lt;prj&gt;:bitmaps\totree.png"</BitmapFile>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="DataPageSpecific">
+				<DoWhat>LocationInTree</DoWhat>
+			</Action>
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="505" left="520" bottom="530" right="555" />
+		<TabOrder>3</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Bitmap</ButtonType>
+		<BitmapFile LiteralFileName="true">"&lt;prj&gt;:bitmaps\previous.png"</BitmapFile>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="DataPageSpecific">
+				<DoWhat>GotoPreviousSymbol</DoWhat>
+			</Action>
+			<Action Type="ClosePage" />
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="505" left="555" bottom="530" right="590" />
+		<TabOrder>4</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Bitmap</ButtonType>
+		<BitmapFile LiteralFileName="true">"&lt;prj&gt;:bitmaps\next.png"</BitmapFile>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="DataPageSpecific">
+				<DoWhat>GotoNextSymbol</DoWhat>
+			</Action>
+			<Action Type="ClosePage" />
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Scalar">
+		<Location top="10" left="10" bottom="530" right="510" />
+		<TabOrder>5</TabOrder>
+		<PopupMenu Default="true" DefaultPopupId="200" />
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<Border Style="InShadow" Width="2" />
+		<BackgroundColor RGB="#ffffff" />
+		<Layout>Text-Value</Layout>
+		<SeparatorSign>=</SeparatorSign>
+		<ExplicitIdentifier>
+			<Identifier>lpa::p_scalar</Identifier>
+			<NumberFormat Width="10" Decimals="5" Scientific="IfTooSmallorLarge" Alignment="Center" ShowDefaults="true" />
+		</ExplicitIdentifier>
+	</PageObject>
+	<UsedReferences>
+		<Model>
+			<Symbol>lpa::p_scalar</Symbol>
+		</Model>
+	</UsedReferences>
+</Page>

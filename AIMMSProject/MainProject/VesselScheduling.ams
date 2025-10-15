@@ -1503,6 +1503,91 @@ Model Main_VesselScheduling {
 				}
 			}
 		}
+		Module LeveragePythonAimms {
+			Prefix: lpa;
+			Parameter p_scalar;
+			Parameter p_globRouteLength;
+			Set s_globWaypoints {
+				SubsetOf: Integers;
+				Index: i_globWayPoint;
+			}
+			Parameter p_globLat {
+				IndexDomain: i_globWayPoint;
+			}
+			Parameter p_globLon {
+				IndexDomain: i_globWayPoint;
+			}
+			Procedure pr_testScalar {
+				Body: {
+					pr_scanPythonSource();
+					py::run_python_statement("test_scalar(\"lpa::p_scalar\")");
+				}
+			}
+			Procedure pr_getRoute {
+				Arguments: (ep_from,ep_to,p_routeLength,s_waypoints,p_latWP,p_lonWP);
+				Body: {
+					block ! Sanity checking
+						if not ep_from then
+							raise error "lpa::pr_getRoute.ep_from is not specified" ;
+						endif ;
+						if not ep_to then
+							raise error "lpa::pr_getRoute.ep_to is not specified" ;
+						endif ;
+						if ep_from = ep_to then
+							raise error "lpa::pr_getRoute.ep_from should be different from lpa::pr_getRoute.ep_to" ;
+						endif ;
+					endblock ;
+					
+					_p_fromLat := p_latitude(  ep_from );
+					_p_fromLon := p_longitude( ep_from );
+					_p_toLat := p_latitude(  ep_to );
+					_p_toLon := p_longitude( ep_to );
+					
+					! Prototype searoute_route2
+					! def searoute_route2(fromLat:float,fromLon:float,toLat:float,toLon:float,
+					!    indexName:str,latParName:str,lonParName:str,lenParName:str):
+					! Five decimals delivers locations precise to roughly 1 meter. Should be sufficient for large vessels.
+					_sp_pyCall := formatString("searoute_route2(%12.5n,%12.5n,%12.5n,%12.5n,\"lpa::i_globWayPoint\",\"lpa::p_globLat\",\"lpa::p_globLon\",\"lpa::p_globRouteLength\")",
+						_p_fromLat, _p_fromLon, _p_toLat, _p_toLon );
+					pr_scanPythonSource();
+					py::run_python_statement(_sp_pyCall);
+					
+					s_waypoints := s_globWaypoints ;
+					p_latWP(i_waypoint) := p_globLat(i_waypoint);
+					p_lonWP(i_waypoint) := p_globLon(i_waypoint);
+					p_routeLength := p_globRouteLength;
+				}
+				ElementParameter ep_from {
+					Range: s_locations;
+					Property: Input;
+				}
+				ElementParameter ep_to {
+					Range: s_locations;
+					Property: Input;
+				}
+				Set s_waypoints {
+					SubsetOf: Integers;
+					Index: i_waypoint;
+					Property: Output;
+				}
+				Parameter p_lonWP {
+					IndexDomain: i_waypoint;
+					Property: Output;
+				}
+				Parameter p_latWP {
+					IndexDomain: i_waypoint;
+					Property: Output;
+				}
+				Parameter p_routeLength {
+					Property: Output;
+				}
+				Parameter _p_fromLat;
+				Parameter _p_fromLon;
+				Parameter _p_toLat;
+				Parameter _p_toLon;
+				StringParameter _sp_pyCall;
+			}
+		}
 		Section pyaimms_leverage {
 			StringParameter sp_seaRouteDistanceFilename {
 				Definition: "data/distanceMatrixFromSeaRoute.parquet";
@@ -1534,6 +1619,43 @@ Model Main_VesselScheduling {
 			Parameter bp_python_source_scanned {
 				Range: binary;
 				InitialData: 0;
+			}
+			Procedure pr_testGetRoute {
+				Body: {
+					if not card( s_locations ) then
+						raise error "location data not yet read in" ;
+					endif ;
+					_ep_from := StringToElement(s_locations,"Caldera,Chile");
+					_ep_to   := StringToElement(s_locations,"Bahia Blanca,Argentina");
+					lpa::pr_getRoute(
+						ep_from       :  _ep_from, 
+						ep_to         :  _ep_to, 
+						p_routeLength :  _p_len, 
+						s_waypoints   :  _s_wp, 
+						p_latWP       :  _p_latwp, 
+						p_lonWP       :  _p_lonwp);
+					block where listing_number_precision := 5 ;
+						display _p_len ;
+						display { _p_latwp, _p_lonwp } ;
+					endblock ;
+				}
+				ElementParameter _ep_from {
+					Range: s_locations;
+				}
+				ElementParameter _ep_to {
+					Range: s_locations;
+				}
+				Set _s_wp {
+					SubsetOf: Integers;
+					Index: _i_wp;
+				}
+				Parameter _p_latwp {
+					IndexDomain: _i_wp;
+				}
+				Parameter _p_lonwp {
+					IndexDomain: _i_wp;
+				}
+				Parameter _p_len;
 			}
 			Procedure pr_scanPythonSource {
 				Body: {

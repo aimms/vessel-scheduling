@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<PageManager>
+	<Page Name="All Data Pages" PageGUID="DA13FFB0-DE8F-4AE9-A15C-A642BE07923B">
+		<Page Name="[Data Page] lpa p_scalar" PageGUID="736C7BBF-A55F-4D22-81E0-C6F88A86FC21" />
+	</Page>
+</PageManager>
