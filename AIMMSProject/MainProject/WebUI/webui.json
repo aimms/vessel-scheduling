@@ -4737,10 +4737,10 @@
       }
     },
     "center.latitude": {
-      "literal": 21.58970795480819
+      "literal": 4.743949182986117
     },
     "center.longitude": {
-      "literal": -0.722886231356974
+      "literal": -23.90447010022763
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4882,7 +4882,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 3.0779074908161546
+      "literal": 2
     }
   },
   "widgets/msl_selecRoutes_1": {

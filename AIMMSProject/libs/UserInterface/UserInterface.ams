@@ -1401,6 +1401,7 @@ LibraryModule UserInterface {
 			Section Sea_Route_Details {
 				Procedure pr_openPageSeaRouteMap {
 					Body: {
+						!DebuggerBreakpoint();
 						empty s_allWayPoints ;
 						s_allWayPoints := ElementRange(0,32000);
 						_p_awp := 0 ;
@@ -1461,24 +1462,23 @@ LibraryModule UserInterface {
 						
 								_ep_fromLoc := _ep_loc( _i_alp - 1 );
 								_ep_toloc   := _ep_loc( _i_alp     );
-								p_origLat := p_latitude(  _ep_fromLoc );
-								p_origLon := p_longitude( _ep_fromLoc );
-								p_destLat := p_latitude(  _ep_toLoc   );
-								p_destLon := p_longitude( _ep_toLoc   );
+								empty _s_legWaypoints ;
+								lpa::pr_getRoute(
+									ep_from       :  _ep_fromLoc, 
+									ep_to         :  _ep_toloc, 
+									p_routeLength :  _p_dummyLen, 
+									s_waypoints   :  _s_legWaypoints, 
+									p_latWP       :  _p_wayLat, 
+									p_lonWP       :  _p_wayLon);
 						
-								empty s_waypoints ;
-								s_waypoints := ElementRange(0,100);
-								_sp_pyCall := formatString("searoute_route(%12.7n,%12.7n,%12.7n,%12.7n)",
-									p_origLat, p_origLon, p_destLat, p_destLon );
-								py::run_python_statement(_sp_pyCall);
-						
+								_p_nowaypoints := card( _s_legWaypoints );
 								_p_wpLegBeg := _p_awp ;
 								_p_wp := 0 ;
-								while _p_wp < p_nowaypoints do
+								while _p_wp < _p_nowaypoints do
 									_ep_wp := _p_wp ;
 									_ep_awp := _p_awp ;
-									p_wpLat(_ep_awp) := p_wayLat( _ep_wp );
-									p_wpLon(_ep_awp) := p_wayLon( _ep_wp );
+									p_wpLat(_ep_awp) :=_p_wayLat( _ep_wp );
+									p_wpLon(_ep_awp) :=_p_wayLon( _ep_wp );
 									bp_wayPointArc(_ep_awp-1, _ep_awp):= 1 ;
 									_p_wp += 1 ;
 									_p_awp += 1 ;
@@ -1486,8 +1486,8 @@ LibraryModule UserInterface {
 								_ep_awp := _p_awp ;
 								ep_wpLoc(_ep_awp) := _ep_toLoc ;
 								sp_wpIconTooltip(  _ep_awp ) := formatString("%e", ep_wpLoc(  _ep_awp ));
-								p_wpLat(_ep_awp) := p_destLat;
-								p_wpLon(_ep_awp) := p_destLon;
+								p_wpLat(_ep_awp) := p_latitude(  _ep_toLoc   );
+								p_wpLon(_ep_awp) := p_longitude( _ep_toLoc   );
 								ep_wpType(_ep_awp) := ep_locType(  _i_alp );
 								bp_wayPointArc(_ep_awp-1, _ep_awp):= 1 ;
 								_p_wpLegEnd := _p_awp ;
@@ -1539,8 +1539,8 @@ LibraryModule UserInterface {
 						
 						sp_wpIcon( i_awp ) := sp_iconLocType( ep_wpType( i_awp ) );
 						p_wpIconSize(i_awp) := 1 $ sp_wpIcon( i_awp );
-						sp_wpIconAnnotation(i_awp) := "LoadingPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) <> 'deliveryHarbor');
-						sp_wpIconAnnotation(i_awp) += "DeliveringPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) = 'deliveryHarbor');
+						sp_wpIconAnnotation(i_awp) := "LoadingPort"    $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) <> 'deliveryHarbor');
+						sp_wpIconAnnotation(i_awp) += "DeliveringPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) =  'deliveryHarbor');
 					}
 					Comment: {
 						"data { 
@@ -1586,9 +1586,22 @@ LibraryModule UserInterface {
 					ElementParameter _ep_toloc {
 						Range: s_locations;
 					}
+					Parameter _p_dummyLen;
+					Set _s_legWaypoints {
+						SubsetOf: Integers;
+						Index: _i_legWP;
+						Property: ElementsAreNumerical;
+					}
+					Parameter _p_nowaypoints;
+					Parameter _p_wayLat {
+						IndexDomain: _i_legWP;
+					}
+					Parameter _p_wayLon {
+						IndexDomain: _i_legWP;
+					}
 					Parameter _p_wp;
 					ElementParameter _ep_wp {
-						Range: s_waypoints;
+						Range: _s_legWaypoints;
 					}
 					ElementParameter _ep_awp {
 						Range: s_allWayPoints;
