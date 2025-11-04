@@ -2,14 +2,9 @@
 
 LibraryModule DataIntegration {
 	Prefix: di;
-	Interface: Public_Declarations;
-	Section Public_Declarations {
-		Procedure pr_importRequestFile {
-			Body: {
-				webui::RequestFileUpload(onDone : 'di::pr_importExcel' );
-			}
-		}
-		DeclarationSection generate_request_file_declarations {
+	Interface: Public_Section;
+	Section Public_Section {
+		DeclarationSection Generate_Request_File_Declarations {
 			Parameter p_noCargos {
 				InitialData: 10;
 			}
@@ -56,6 +51,11 @@ LibraryModule DataIntegration {
 			}
 			StringParameter sp_generatedFilename {
 				Definition: formatString("VS_%iVessel_%iCargo.xlsx", ui::p_vesselsQuantity, ui::p_cargoesQuantity);
+			}
+		}
+		Procedure pr_importRequestFile {
+			Body: {
+				webui::RequestFileUpload(onDone : 'di::pr_importExcel' );
 			}
 		}
 		Procedure pr_generateRequestFile {
@@ -165,7 +165,7 @@ LibraryModule DataIntegration {
 		}
 		Procedure pr_emptyData {
 			Body: {
-				empty Business_model;
+				empty Data_Model;
 				
 				!Changes to secondary actions
 				ui::sp_systemSecondaryActions(3,'state'):= 'inactive';
@@ -265,8 +265,8 @@ LibraryModule DataIntegration {
 			StringParameter sp_loc_fileName;
 		}
 	}
-	Section Private_Declarations {
-		Section Library_Start_and_Finish {
+	Section Private_Section {
+		Section Library_Initialization_and_Termination {
 			Procedure LibraryInitialization {
 				Comment: "Add initialization statements here that do not require any other library being initialized already.";
 			}

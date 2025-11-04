@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
-	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
-	<ObjectMapping>
-		<ValueMapping name="id" maps-to="AIMMSPRO::_PROStorageBucketResponse::id(AIMMSPRO::i_instance)" />
-		<ValueMapping name="label" maps-to="AIMMSPRO::_PROStorageBucketResponse::label(AIMMSPRO::i_instance)" />
-		<ValueMapping name="createDate" maps-to="AIMMSPRO::_PROStorageBucketResponse::createDate(AIMMSPRO::i_instance)" />
-	</ObjectMapping>
-</AimmsJSONMapping>

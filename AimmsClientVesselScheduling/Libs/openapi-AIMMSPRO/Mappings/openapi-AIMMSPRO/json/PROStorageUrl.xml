@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
-	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
-	<ObjectMapping>
-		<ValueMapping name="file" maps-to="AIMMSPRO::_PROStorageUrl::file_(AIMMSPRO::i_instance)" />
-	</ObjectMapping>
-</AimmsJSONMapping>

@@ -3,18 +3,18 @@
 	<TableMapping name="Vessel Overview">
 		<RowMapping>
 			<ColumnMapping name="Vessel" binds-to="i_vessel" />
-			<ColumnMapping name="Route" maps-to="mm::ep_calc_routeOfVessel(i_vessel)" />
-			<ColumnMapping name="Route Cost" maps-to="mm::p_calc_operationalCostPerVessel(i_vessel)" />
-			<ColumnMapping name="Route Period" maps-to="mm::p_calc_totalTravelDaysPerVessel(i_vessel)" />
+			<ColumnMapping name="Route" maps-to="mm::ep_post_routeOfVessel(i_vessel)" />
+			<ColumnMapping name="Route Cost" maps-to="mm::p_post_operationalCostPerVessel(i_vessel)" />
+			<ColumnMapping name="Route Period" maps-to="mm::p_post_totalTravelDaysPerVessel(i_vessel)" />
 		</RowMapping>
 	</TableMapping>
 	<TableMapping name="Cargo Overview">
 		<RowMapping>
 			<ColumnMapping name="Cargo" binds-to="i_act_cargo" />
-			<ColumnMapping name="Vessel Used" maps-to="mm::ep_calc_vesselOfCargo(i_act_cargo)" />
-			<ColumnMapping name="Cargo Cost" maps-to="mm::p_calc_totalCostPerCargo(i_act_cargo)" />
-			<ColumnMapping name="Loading Time" maps-to="mm::sp_calc_loadingTimePerCargo(i_act_cargo)" />
-			<ColumnMapping name="Delivery Time" maps-to="mm::sp_calc_deleveringTimePerCargo(i_act_cargo)" />
+			<ColumnMapping name="Vessel Used" maps-to="mm::ep_post_vesselOfCargo(i_act_cargo)" />
+			<ColumnMapping name="Cargo Cost" maps-to="mm::p_post_totalCostPerCargo(i_act_cargo)" />
+			<ColumnMapping name="Loading Time" maps-to="mm::sp_post_loadingTimePerCargo(i_act_cargo)" />
+			<ColumnMapping name="Delivery Time" maps-to="mm::sp_post_deleveringTimePerCargo(i_act_cargo)" />
 		</RowMapping>
 	</TableMapping>
 	<TableMapping name="Route Overview">

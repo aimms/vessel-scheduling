@@ -1,9 +1,0 @@
-* The timestamps in this namechange file are stored in Coordinated universal time (UTC).
-"p_portNumber" "modSolveService::p_portNumber" "2024-09-02 13:44:44"
-"pr_startService" "modSolveService::pr_startService" "2024-09-02 13:44:44"
-"pr_stopService" "modSolveService::pr_stopService" "2024-09-02 13:44:44"
-"lsl" "listenport" "2025-02-07 07:44:37"
-"modSolveService::p_portNumber" "listenport::p_portNumber" "2025-02-07 07:44:55"
-"modSolveService::pr_startService" "listenport::pr_startService" "2025-02-07 07:44:55"
-"modSolveService::pr_stopService" "listenport::pr_stopService" "2025-02-07 07:44:55"
-"Library_ListenService_Library" "ListenService_Library" "2025-02-10 08:38:48"

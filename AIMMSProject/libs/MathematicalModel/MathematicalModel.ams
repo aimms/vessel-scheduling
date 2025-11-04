@@ -142,11 +142,11 @@ LibraryModule MathematicalModel {
 			IndexDomain: (i_act_vessel, i_route,i_act_cargo);
 			Definition: {
 				1 $ (v_allocateVesselToRoute(i_act_vessel, i_route) 
-				    and bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo))
+				    and bp_post_cargoesOnVessel(i_act_vessel, i_act_cargo))
 			}
 		}
-		DeclarationSection Post_Vessels {
-			ElementParameter ep_calc_routeOfVessel {
+		Section Post_Vessels {
+			ElementParameter ep_post_routeOfVessel {
 				IndexDomain: i_vessel;
 				Range: s_calc_feasibleRoutes;
 				dex::ColumnName: Route;
@@ -155,7 +155,7 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Parameter p_calc_operationalCostPerVessel {
+			Parameter p_post_operationalCostPerVessel {
 				IndexDomain: i_vessel;
 				Unit: $;
 				dex::ColumnName: Route Cost;
@@ -164,7 +164,7 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Parameter p_calc_totalTravelDaysPerVessel {
+			Parameter p_post_totalTravelDaysPerVessel {
 				IndexDomain: i_vessel;
 				Unit: day;
 				dex::ColumnName: Route Period;
@@ -173,33 +173,32 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Parameter bp_calc_cargoesOnVessel {
+			Parameter bp_post_cargoesOnVessel {
 				IndexDomain: (i_vessel,i_act_cargo);
 				Range: binary;
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-		}
-		Procedure pr_post_vesselResults {
-			Body: {
-				empty Post_Vessels;
-				
-				empty _bp_routeVessel ;
-				_bp_routeVessel( i_act_vessel, i_route ) := round(  v_allocateVesselToRoute(i_act_vessel, i_route) );
-				ep_calc_routeOfVessel(i_act_vessel) := first(i_route | _bp_routeVessel(i_act_vessel, i_route) );
-				p_calc_operationalCostPerVessel(i_act_vessel) := p_def_operationalCostPerRoute(ep_calc_routeOfVessel(i_act_vessel));
-				p_calc_totalTravelDaysPerVessel(i_act_vessel) := p_def_routeSailingDays(ep_calc_routeOfVessel(i_act_vessel));
-				bp_calc_cargoesOnVessel(i_act_vessel, i_act_cargo) := bp_def_cargoesOnRoute(ep_calc_routeOfVessel(i_act_vessel), i_act_cargo);
-				
-				s_calc_usedRoutes := { i_route | exists( i_act_vessel |  _bp_routeVessel(i_act_vessel, i_route) ) };
+			Procedure pr_post_vesselResults {
+				Body: {
+					empty Post_Vessels;
+					
+					bp_loc_routeVessel(i_act_vessel, i_route) := round(v_allocateVesselToRoute(i_act_vessel, i_route));
+					ep_post_routeOfVessel(i_act_vessel) := first(i_route | bp_loc_routeVessel(i_act_vessel, i_route));
+					p_post_operationalCostPerVessel(i_act_vessel) := p_def_operationalCostPerRoute(ep_post_routeOfVessel(i_act_vessel));
+					p_post_totalTravelDaysPerVessel(i_act_vessel) := p_def_routeSailingDays(ep_post_routeOfVessel(i_act_vessel));
+					bp_post_cargoesOnVessel(i_act_vessel, i_act_cargo) := bp_def_cargoesOnRoute(ep_post_routeOfVessel(i_act_vessel), i_act_cargo);
+					
+					s_calc_usedRoutes := {i_route | exists(i_act_vessel | bp_loc_routeVessel(i_act_vessel, i_route))};
+				}
+				Parameter bp_loc_routeVessel {
+					IndexDomain: (i_act_vessel,i_route);
+					Range: binary;
+				}
 			}
-			Parameter _bp_routeVessel {
-				IndexDomain: (i_act_vessel,i_route);
-				Range: binary;
-			}
 		}
-		DeclarationSection Post_Cargoes {
-			ElementParameter ep_calc_vesselOfCargo {
+		Section Post_Cargoes {
+			ElementParameter ep_post_vesselOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_vessels;
 				dex::ColumnName: Vessel Used;
@@ -208,13 +207,13 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			ElementParameter ep_calc_routeOfCargo {
+			ElementParameter ep_post_routeOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_calc_feasibleRoutes;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Parameter p_calc_totalCostPerCargo {
+			Parameter p_post_totalCostPerCargo {
 				IndexDomain: i_act_cargo;
 				Unit: $;
 				dex::ColumnName: Cargo Cost;
@@ -224,7 +223,7 @@ LibraryModule MathematicalModel {
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 				webui::TooltipIdentifier: ui::sp_def_cargoIsSpotTooltip;
 			}
-			StringParameter sp_calc_loadingTimePerCargo {
+			StringParameter sp_post_loadingTimePerCargo {
 				IndexDomain: i_act_cargo;
 				dex::ColumnName: Loading Time;
 				dex::Dataset: ExportDataSet;
@@ -232,7 +231,7 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			StringParameter sp_calc_deleveringTimePerCargo {
+			StringParameter sp_post_deleveringTimePerCargo {
 				IndexDomain: i_act_cargo;
 				dex::ColumnName: Delivery Time;
 				dex::Dataset: ExportDataSet;
@@ -240,36 +239,36 @@ LibraryModule MathematicalModel {
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
-			Parameter p_calc_cargoSpotCost {
+			Parameter p_post_cargoSpotCost {
 				IndexDomain: i_act_cargo;
 				Unit: $;
 			}
-		}
-		Procedure pr_post_cargoResults {
-			Body: {
-				empty Post_Cargoes;
-				
-				ep_calc_vesselOfCargo(i_act_cargo) :=  first(i_vessel | bp_calc_cargoesOnVessel(i_vessel, i_act_cargo));
-				ep_calc_routeOfCargo(i_act_cargo) :=  first(i_route | exists(i_act_vessel | bp_def_allocatedCargoOnVesselPerRoute(i_act_vessel, i_route, i_act_cargo)));
-				
-				p_calc_totalCostPerCargo(i_act_cargo) | bv_cargoOnCharteredVessel(i_act_cargo) := p_spotCostVessel(i_act_cargo);
-				
-				p_calc_totalCostPerCargo(i_act_cargo) | 
-				        not p_calc_totalCostPerCargo(i_act_cargo) 
-				:=  p_cargoCost(i_act_cargo);
-				
-				sp_calc_loadingTimePerCargo(i_act_cargo) |
-				          ep_calc_routeOfCargo(i_act_cargo)
-				:=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_def_loadingTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
-				
-				sp_calc_deleveringTimePerCargo(i_act_cargo) |
-				        ep_calc_routeOfCargo(i_act_cargo)
-				:=  MomentToString("%d/%m/%y",[day], ep_startHorizonDate, p_def_deleveringTimeCargoRoute(i_act_cargo, ep_calc_routeOfCargo(i_act_cargo)));
-				
-				p_calc_cargoSpotCost(i_act_cargo) := v_def_spotCost(i_act_cargo);
+			Procedure pr_post_cargoResults {
+				Body: {
+					empty Post_Cargoes;
+					
+					ep_post_vesselOfCargo(i_act_cargo) :=  first(i_vessel | bp_post_cargoesOnVessel(i_vessel, i_act_cargo));
+					ep_post_routeOfCargo(i_act_cargo) :=  first(i_route | exists(i_act_vessel | bp_def_allocatedCargoOnVesselPerRoute(i_act_vessel, i_route, i_act_cargo)));
+					
+					p_post_totalCostPerCargo(i_act_cargo) | bv_cargoOnCharteredVessel(i_act_cargo) := p_spotCostVessel(i_act_cargo);
+					
+					p_post_totalCostPerCargo(i_act_cargo) | 
+					        not p_post_totalCostPerCargo(i_act_cargo) 
+					:=  p_cargoCost(i_act_cargo);
+					
+					sp_post_loadingTimePerCargo(i_act_cargo) |
+					          ep_post_routeOfCargo(i_act_cargo)
+					:=  MomentToString("%d/%m/%y", [day], ep_startHorizonDate, p_def_loadingTimeCargoRoute(i_act_cargo, ep_post_routeOfCargo(i_act_cargo)));
+					
+					sp_post_deleveringTimePerCargo(i_act_cargo) |
+					        ep_post_routeOfCargo(i_act_cargo)
+					:=  MomentToString("%d/%m/%y",[day], ep_startHorizonDate, p_def_deleveringTimeCargoRoute(i_act_cargo, ep_post_routeOfCargo(i_act_cargo)));
+					
+					p_post_cargoSpotCost(i_act_cargo) := v_def_spotCost(i_act_cargo);
+				}
 			}
 		}
-		DeclarationSection Post_Routes {
+		Section Post_Routes {
 			ElementParameter ep_post_vesselActivityType {
 				IndexDomain: (i_used_route,i_leg);
 				Range: s_def_vesselActivities;
@@ -298,17 +297,18 @@ LibraryModule MathematicalModel {
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Route Overview;
 			}
-		}
-		Procedure pr_post_routeResults {
-			Body: {
-				ep_post_vesselActivityType(     i_used_route, i_leg ) := ep_calc_vesselActivityType(     i_used_route, i_leg ); 
-				ep_post_vesselActivityLocation( i_used_route, i_leg ) := ep_calc_vesselActivityLocation( i_used_route, i_leg ); 
-				ep_post_vesselActivityFirst(    i_used_route, i_leg ) := ep_calc_vesselActivityFirst(    i_used_route, i_leg ); 
-				ep_post_vesselActivityLast(     i_used_route, i_leg ) := ep_calc_vesselActivityLast(     i_used_route, i_leg );
+			Procedure pr_post_routeResults {
+				Body: {
+					empty Post_Routes;
+					ep_post_vesselActivityType(i_used_route, i_leg) := ep_calc_vesselActivityType(i_used_route, i_leg); 
+					ep_post_vesselActivityLocation(i_used_route, i_leg) := ep_calc_vesselActivityLocation(i_used_route, i_leg); 
+					ep_post_vesselActivityFirst(i_used_route, i_leg) := ep_calc_vesselActivityFirst(i_used_route, i_leg); 
+					ep_post_vesselActivityLast(i_used_route, i_leg) := ep_calc_vesselActivityLast(i_used_route, i_leg);
+				}
 			}
 		}
 	}
-	Section Library_Start_and_Finish {
+	Section Library_Initialization_and_Termination {
 		Procedure LibraryInitialization {
 			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}

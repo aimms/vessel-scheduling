@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
-	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
-	<ObjectMapping>
-		<ValueMapping name="description" maps-to="AIMMSPRO::_PROGroup::description(AIMMSPRO::i_instance)" />
-		<ValueMapping name="groupname" write-defaults="1" maps-to="AIMMSPRO::_PROGroup::groupname(AIMMSPRO::i_instance)" />
-		<ValueMapping name="maxUsers" maps-to="AIMMSPRO::_PROGroup::maxUsers(AIMMSPRO::i_instance)" number-type="integer" />
-	</ObjectMapping>
-</AimmsJSONMapping>

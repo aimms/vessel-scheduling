@@ -30,209 +30,7 @@ Model Main_VesselScheduling {
 			Comment: "Expresses the value of a distance.";
 		}
 	}
-	Section Tests_and_Debug {
-		Procedure pr_log {
-			Arguments: (sp_msg);
-			Body: {
-				if pro::GetPROEndPoint() and not ProjectDeveloperMode then
-					pro::management::LocalLogInfo("[VesselScheduling] "+sp_msg);
-				else
-					_sp_now := stopwatch::fnc_now();
-					_sp_out := _sp_now + " [VesselScheduling] " + sp_msg ;
-					put _sp_out, / ;
-				endif ;
-			}
-			StringParameter sp_msg {
-				Property: Input;
-			}
-			StringParameter _sp_now;
-			StringParameter _sp_out;
-		}
-		Procedure pr_testSharedFileList {
-			Body: {
-				dex::AddMapping(
-					mappingName :  "serviceSharedFilesJSON", 
-					mappingFile :  "Mappings/serviceSharedFilesJSON.xml");
-				dex::ReadFromFile(
-					dataFile         :  "C:\\u\\s\\examples\\application-examples\\vessel-scheduling\\Python Client\\VS_7Vessel_20Cargo-sharedFiles.json", 
-					mappingName      :  "serviceSharedFilesJSON", 
-					emptyIdentifiers :  0, 
-					emptySets        :  0, 
-					resetCounters    :  0);
-			}
-		}
-		Set _s_fns {
-			SubsetOf: Integers;
-			Index: _i_fns;
-			Property: ElementsAreLabels;
-		}
-		StringParameter _sp_fns {
-			IndexDomain: _i_fns;
-		}
-		Procedure pr_logContentsCurrentFolder {
-			Arguments: (sp_folder,bp_recursive);
-			Body: {
-				empty _s_fns ;
-				DirectoryGetFiles(
-					directory :  sp_folder, 
-					filter    :  "", 
-					filenames :  _sp_fns, 
-					recursive :  bp_recursive);
-				pr_log(formatString("No files in \"%s\" = %i", sp_folder, card(_sp_fns)));
-				for _i_fns do
-					pr_log(formatString("    %e: %s", 
-						_i_fns, _sp_fns(_i_fns)));
-				endfor ;
-			}
-			Set _s_fns {
-				SubsetOf: Integers;
-				Index: _i_fns;
-				Property: ElementsAreLabels;
-			}
-			StringParameter _sp_fns {
-				IndexDomain: _i_fns;
-			}
-			StringParameter sp_folder {
-				Property: Input;
-			}
-			Parameter bp_recursive {
-				Property: Input;
-			}
-		}
-		Procedure pr_scanFileOnErrorMessages {
-			Arguments: (p_errorsEncountered,sp_fn,sp_msg);
-			Body: {
-				p_errorsEncountered := 0 ;
-				if FileExists( sp_fn ) then
-					_sp_content := fileread( sp_fn );
-					_p_len := StringLength( _sp_content );
-					if _p_len then
-						_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
-						if _p_noNewlines then
-							_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! Scan at most the first 100 lines.
-							_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
-							_sp_line(_i_pos) := substring( _sp_content, 
-								if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
-								_p_newlinePos(_i_pos) -1 );
-							for _i_pos do
-								if 	FindString(
-										SearchString  :  _sp_line( _i_pos ), 
-										Key           :  "ERROR", 
-										CaseSensitive :  0, 
-										WordOnly      :  1, 
-										IgnoreWhite   :  0) then
-									!outputMessage::pr_outputMessage( sp_msg + _sp_line( _i_pos ) );
-									pr_log("[ERROR] " + _sp_line( _i_pos ) );
-									p_errorsEncountered += 1 ;
-								endif ;
-				
-							endfor ;
-						else
-							if 	FindString(
-									SearchString  :  _sp_content, 
-									Key           :  "ERROR", 
-									CaseSensitive :  0, 
-									WordOnly      :  1, 
-									IgnoreWhite   :  0) then
-								!outputMessage::pr_outputMessage( sp_msg + _sp_content );
-								pr_log("[ERROR] " + _sp_content );
-								p_errorsEncountered += 1 ;
-							endif ;
-						endif ;
-					endif ;
-				endif ;
-				return p_errorsEncountered;
-			}
-			StringParameter sp_fn {
-				Property: Input;
-			}
-			StringParameter _sp_content;
-			Parameter _p_noNewLines;
-			Parameter _p_len;
-			Set _s_positions {
-				SubsetOf: Integers;
-				Index: _i_pos;
-				Property: ElementsAreNumerical;
-			}
-			Parameter _p_newlinePos {
-				IndexDomain: _i_pos;
-			}
-			StringParameter _sp_line {
-				IndexDomain: _i_pos;
-			}
-			StringParameter sp_msg {
-				Property: Optional;
-			}
-			Parameter p_errorsEncountered {
-				Property: Output;
-			}
-		}
-		Procedure pr_addFileToLogMessages {
-			Arguments: (sp_fn,sp_msg);
-			Body: {
-				if FileExists( sp_fn ) then
-					_sp_content := fileread( sp_fn );
-					_p_len := StringLength( _sp_content );
-					if _p_len then
-						pr_log(formatString("%sAdding \"%s\" of size %i to log with following contents:", 
-							sp_msg, sp_fn, StringLength(_sp_content)));
-						_p_noNewLines := StringOccurrences(  _sp_content,  "\n");
-						if _p_noNewlines then
-							_s_positions := ElementRange( 1, min(100,_p_noNewLines) ); ! At most the first 50 lines.
-							_p_newlinePos(_i_pos) := FindNthString( _sp_content, "\n", _i_pos);
-							_sp_line(_i_pos) := substring( _sp_content, 
-								if _i_pos = 1 then 1 else _p_newlinePos(_i_pos-1) + 1 endif, 
-								_p_newlinePos(_i_pos) -1 );
-							for _i_pos do
-								pr_log(formatString("    %s line %e: %s", 
-									sp_fn, _i_pos, _sp_line( _i_pos ) ) );
-							endfor ;
-						else
-							pr_log(_sp_content);
-						endif ;
-					else
-						pr_log(formatString("%sNot adding \"%s\" to the log because it is empty.", 
-							sp_msg, sp_fn ));
-					endif ;
-				else
-					pr_log(formatString("%sUnable to add \"%s\" to log messages because it does not exist.", 
-						sp_msg, sp_fn ));
-				endif ;
-			}
-			StringParameter sp_fn {
-				Property: Input;
-			}
-			StringParameter _sp_content;
-			Parameter _p_noNewLines;
-			Parameter _p_len;
-			Set _s_positions {
-				SubsetOf: Integers;
-				Index: _i_pos;
-				Property: ElementsAreNumerical;
-			}
-			Parameter _p_newlinePos {
-				IndexDomain: _i_pos;
-			}
-			StringParameter _sp_line {
-				IndexDomain: _i_pos;
-			}
-			StringParameter sp_msg {
-				Default: "";
-				Property: Optional;
-			}
-		}
-		Set s_idsToBeEmptied {
-			SubsetOf: AllIdentifiers;
-		}
-		Procedure pr_emptyInstanceBusinessModel {
-			Body: {
-				s_idsToBeEmptied := Business_model ;
-				
-				Empty s_idsToBeEmptied ;
-			}
-		}
-	}
-	Section Business_model {
+	Section Data_Model {
 		Section Calendars {
 			StringParameter sp_timeslotFormat {
 				Definition: "%c%y-%m-%d";
@@ -1306,200 +1104,117 @@ Model Main_VesselScheduling {
 	}
 	Procedure MainExecution {
 		Body: {
+			! Check if connected to PRO or running as an end-user
 			if pro::GetPROEndPoint() or not ProjectDeveloperMode() then
+			
+			    ! Delegate model execution to the AIMMS PRO server
 			    if pro::DelegateToServer( 
-			        procedureName      :  'mm::pr_runModel',
-			        waitForCompletion  :  1,
-			        completionCallback :  'pro::session::LoadResultsCallBack' )
+			        procedureName      :  'mm::pr_runModel',        ! Procedure to run remotely
+			        waitForCompletion  :  1,                       ! Wait for the job to finish
+			        completionCallback :  'pro::session::LoadResultsCallBack' ) ! Fetch results after completion
 			    then 
 			
-			        mm::pr_updatePagesAfterSolve;
+			        mm::pr_updatePagesAfterSolve; ! Update the WebUI with the solution
 			
 			    endif;
 			else
+				! Execute model 
 			    mm::pr_runModel;
-			    mm::pr_updatePagesAfterSolve;
+			    mm::pr_updatePagesAfterSolve; ! Update the WebUI with the solution
 			
 			endif;
 		}
 	}
-	Section App_Start_Finish {
-		Procedure MainInitialization {
-			Body: {
-				!ProfilerStart();
-				
-				pr_initCalendar;
-			}
-			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
-		}
-		Procedure PostMainInitialization {
-			Comment: {
-				"Add initialization statements here that require that the libraries are already initialized properly,
-				or add statements that require the Data Management module to be initialized."
-			}
-		}
-		Procedure pr_startupProcedure {
-			Body: {
-				if DirectoryExists( "Mappings/Generated" ) then
-					dex::HandleDatasetAnnotations(); ! Needed for dex::DatasetTableMapping
-				else
-					dex::GenerateDatasetMappings();
-				endif;
-				
-				dex::ReadAllMappings();
-				
-				!block where single_column_display := 1;
-				!	display dex::DatasetTableMapping ;
-				!endblock ;
-				!
-				!    dex::DatasetTableMapping(dex::ds,dex::tbl) := data 
-				!    { ( ImportDataSet, Horizon           ) : 1,
-				!      ( ImportDataSet, CargoData         ) : 1,
-				!      ( ImportDataSet, VesselData        ) : 1,
-				!      ( ImportDataSet, LocationData      ) : 1,
-				!      ( ExportDataSet, 'Vessel Overview' ) : 1,
-				!      ( ExportDataSet, 'Cargo Overview'  ) : 1,
-				!      ( ExportDataSet, 'Route Overview'  ) : 1 } ;
-				!
-			}
-		}
-		Procedure pr_goodbye {
-			Body: {
-				exitaimms();
-			}
-		}
-		Procedure PreMainTermination {
-			Body: {
-				return 1;!DataManagementExit();
-			}
-			Comment: {
-				"Add termination statements here that require all libraries to be still alive.
-				Return 1 if you allow the termination sequence to continue.
-				Return 0 if you want to cancel the termination sequence."
-			}
-		}
-		Procedure MainTermination {
-			Body: {
-				return 1;
-			}
-			Comment: {
-				"Add termination statements here that do not require all libraries to be still alive.
-				Return 1 to allow the termination sequence to continue.
-				Return 0 if you want to cancel the termination sequence.
-				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
-			}
-		}
-	}
-	Section Leverage_AimmsCmd {
-		StringParameter sp_theExcelInput {
-			InitialData: "/inputs/input.xlsx";
-		}
-		StringParameter sp_theExcelOutput {
-			InitialData: "/outputs/output.xlsx";
-		}
-		Procedure pr_readExcel {
-			Body: {
-				
-				di::pr_actuallyImportExcel(sp_theExcelInput);
-			}
-		}
-		Procedure pr_solveTheModel {
-			Body: {
-				!display sp_theExcelInput, sp_theExcelOutput ;
-				
-				modSolveService::pr_actuallySolveVesselSchedulingExcel(
-					sp_inp :  sp_theExcelInput, 
-					sp_out :  sp_theExcelOutput);
-			}
-		}
-		Procedure pr_solveModelSessionArguments {
-			Body: {
-				SessionArgument(
-					argno    :  1, 
-					argument :  sp_theExcelInput);
-				
-				SessionArgument(
-					argno    :  2, 
-					argument :  sp_theExcelOutput);
-				
-				modSolveService::pr_actuallySolveVesselSchedulingExcel(
-					sp_inp :  sp_theExcelInput, 
-					sp_out :  sp_theExcelOutput);
-			}
-		}
-	}
-	Section python_bridge_support {
-		Section aimmspy_leverage {
+	Section Python_Bridge_Support {
+		Section aimmspy_Leverage {
 			Procedure pr_processPythonInput {
 				Body: {
+					! Display the set of valid locations
 					block where single_column_display := 1;
 						display s_locations ;
 					endblock ;
-					ep_loadingPortsCargo(    i_cargo ) := StringToElement( s_locations, sp_loadingPortsCargo(i_cargo) );
+					
+					! Map loading port string input to a location element using s_locations
+					ep_loadingPortsCargo( i_cargo ) := StringToElement( s_locations, sp_loadingPortsCargo(i_cargo) );
+					! Map delivering port string input to a location element using s_locations
 					ep_deliveringPortsCargo( i_cargo ) := StringToElement( s_locations, sp_deliveringPortsCargo(i_cargo) );
-					for i_cargo do
+					
+					for i_cargo do ! Validate mapped ports for all cargoes
+						! Check if loading port was successfully found in s_locations
 						if not ep_loadingPortsCargo( i_cargo ) then
 							raise warning formatString("loading port for %e: '%s' not recognized", i_cargo, sp_loadingPortsCargo(i_cargo) );
 						endif ;
+						! Check if delivering port was successfully found
 						if not ep_deliveringPortsCargo( i_cargo ) then
 							raise warning formatString("loading port for %e: '%s' not recognized", i_cargo, sp_deliveringPortsCargo(i_cargo) );
 						endif ;
 					endfor ;
+					
+					! Display both the original string inputs and the resulting element mappings
 					display {sp_loadingPortsCargo, sp_deliveringPortsCargo,ep_loadingPortsCargo,ep_deliveringPortsCargo};
 				}
 			}
-			Procedure pr_EchoInput {
+			Procedure pr_echoInput {
 				Body: {
+					! Display the model's planning start date
 					display ep_startHorizonDate ;
 					
-					! Location data:
-					display { p_latitude, p_longitude, p_idleCostLocation, p_adminCostAtLocation, p_loadingCostAtLocation }  ;
+					! Location data: Display coordinates and various location costs
+					display { p_latitude, p_longitude, p_idleCostLocation, p_adminCostAtLocation, p_loadingCostAtLocation } ;
 					
-					! Cargo Data:
+					! Cargo Data: Display assignment elements, costs, and time window constraints
 					display { ep_loadingPortsCargo, ep_deliveringPortsCargo, p_spotCostVessel, ep_minTimeWindow,
 						ep_maxTimeWindow, p_cargoCost} ;
 					
-					! Vessel Data:
+					! Vessel Data: Display vessel origin and sailing costs
 					display { ep_originPortOfVessel, p_sailingCost } ;
 				}
 			}
-			Procedure pr_GenRoutesSolve {
+			Procedure pr_genRoutesSolve {
 				Body: {
+					! Set a default value for vessel velocity if it's currently undefined
 					if not p_vesselVelocity then
 						p_vesselVelocity := 37.04 [km/hour];
 					endif ;
 					
 					!Activate all master data
+					! Set boolean activation flags to 1 (True) for all elements in the respective sets
 					bp_activeCargoes(i_cargo):= 1;
 					bp_activeVessels(i_vessel) := 1;
 					bp_activeLocations(i_loc) := 1;
 					
-					mm::pr_runModel;
+					mm::pr_runModel; ! Execute the main model solution procedure
 					
-					!Post Execution
+					!Post Execution: Run procedures to process, calculate, and store final results
 					mm::pr_post_vesselResults();
 					mm::pr_post_cargoResults();
 					mm::pr_post_routeResults();
 				}
 			}
-			Procedure pr_EchoOutput {
+			Procedure pr_echoOutput {
 				Body: {
-					! Vessel results: 
-					display { mm::ep_calc_routeOfVessel, 
-						mm::p_calc_operationalCostPerVessel, 
-						mm::p_calc_totalTravelDaysPerVessel } ;
+					! --- Vessel Results ---
+					display { 
+						mm::ep_post_routeOfVessel,          ! Vessel's assigned route sequence
+						mm::p_post_operationalCostPerVessel, ! Calculated operational cost per vessel
+						mm::p_post_totalTravelDaysPerVessel  ! Calculated total travel time per vessel
+					} ;
 					
-					! Cargo overview:
-					display { mm::ep_calc_vesselOfCargo, 
-						mm::p_calc_totalCostPerCargo,
-						mm::sp_calc_loadingTimePerCargo, 
-						mm::sp_calc_deleveringTimePerCargo } ;
+					! --- Cargo Overview ---
+					display { 
+						mm::ep_post_vesselOfCargo,         ! Assigned vessel for the cargo
+						mm::p_post_totalCostPerCargo,      ! Total calculated cost per cargo
+						mm::sp_post_loadingTimePerCargo,   ! Scheduled cargo loading time (as a string)
+						mm::sp_post_deleveringTimePerCargo ! Scheduled cargo delivery time (as a string)
+					} ;
 					
-					! Route overview:
-					display { mm::ep_post_vesselActivityType, 
-						mm::ep_post_vesselActivityLocation,
-						mm::ep_post_vesselActivityFirst,
-						mm::ep_post_vesselActivityLast };
+					! --- Route Overview ---
+					display { 
+						mm::ep_post_vesselActivityType,      ! Type of activity (e.g., Load, Sail) at each route step
+						mm::ep_post_vesselActivityLocation,  ! Location/port for each activity step
+						mm::ep_post_vesselActivityFirst,     ! Index of the first activity for a vessel
+						mm::ep_post_vesselActivityLast       ! Index of the last activity for a vessel
+					};
 				}
 			}
 		}
@@ -1526,33 +1241,36 @@ Model Main_VesselScheduling {
 			Procedure pr_getRoute {
 				Arguments: (ep_from,ep_to,p_routeLength,s_waypoints,p_latWP,p_lonWP);
 				Body: {
-					block ! Sanity checking
+					! --- Input Validation ---
+					block ! Sanity check for route definition elements
 						if not ep_from then
-							raise error "lpa::pr_getRoute.ep_from is not specified" ;
+							raise error "lpa::pr_getRoute.ep_from is not specified" ; ! Start location must be defined
 						endif ;
 						if not ep_to then
-							raise error "lpa::pr_getRoute.ep_to is not specified" ;
+							raise error "lpa::pr_getRoute.ep_to is not specified" ; ! End location must be defined
 						endif ;
 						if ep_from = ep_to then
-							raise error "lpa::pr_getRoute.ep_from should be different from lpa::pr_getRoute.ep_to" ;
+							raise error "lpa::pr_getRoute.ep_from should be different from lpa::pr_getRoute.ep_to" ; ! Start and end must be distinct
 						endif ;
 					endblock ;
 					
-					_p_fromLat := p_latitude(  ep_from );
+					! Retrieve coordinates for the start and end locations
+					_p_fromLat := p_latitude( ep_from );
 					_p_fromLon := p_longitude( ep_from );
-					_p_toLat := p_latitude(  ep_to );
+					_p_toLat := p_latitude( ep_to );
 					_p_toLon := p_longitude( ep_to );
 					
-					! Prototype searoute_route2
-					! def searoute_route2(fromLat:float,fromLon:float,toLat:float,toLon:float,
-					!    indexName:str,latParName:str,lonParName:str,lenParName:str):
-					! Five decimals delivers locations precise to roughly 1 meter. Should be sufficient for large vessels.
+					! --- External Python Route Calculation ---
+					
+					! Prepare Python call string, injecting coordinates and AIMMS output identifiers
 					_sp_pyCall := formatString("searoute_route2(%12.5n,%12.5n,%12.5n,%12.5n,\"lpa::i_globWayPoint\",\"lpa::p_globLat\",\"lpa::p_globLon\",\"lpa::p_globRouteLength\")",
 						_p_fromLat, _p_fromLon, _p_toLat, _p_toLon );
-					pr_scanPythonSource();
-					py::run_python_statement(_sp_pyCall);
+					pr_scanPythonSource();        ! Ensure Python environment is ready
+					py::run_python_statement(_sp_pyCall); ! Execute the external route calculation
 					
-					s_waypoints := s_globWaypoints ;
+					! --- Store Results ---
+					! Copy calculated results from global/temporary storage to local parameters
+					s_waypoints := s_globWaypoints ; 
 					p_latWP(i_waypoint) := p_globLat(i_waypoint);
 					p_lonWP(i_waypoint) := p_globLon(i_waypoint);
 					p_routeLength := p_globRouteLength;
@@ -1588,7 +1306,7 @@ Model Main_VesselScheduling {
 				StringParameter _sp_pyCall;
 			}
 		}
-		Section pyaimms_leverage {
+		Section pyaimms_Leverage {
 			StringParameter sp_seaRouteDistanceFilename {
 				Definition: "data/distanceMatrixFromSeaRoute.parquet";
 			}
@@ -1622,23 +1340,29 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_testGetRoute {
 				Body: {
+					! --- Precondition Check ---
 					if not card( s_locations ) then
-						raise error "location data not yet read in" ;
+						raise error "location data not yet read in" ; ! Stop execution if location data set is empty
 					endif ;
-					_ep_from := StringToElement(s_locations,"Caldera,Chile");
-					_ep_to   := StringToElement(s_locations,"Bahia Blanca,Argentina");
-					lpa::pr_getRoute(
-						ep_from       :  _ep_from, 
-						ep_to         :  _ep_to, 
-						p_routeLength :  _p_len, 
-						s_waypoints   :  _s_wp, 
-						p_latWP       :  _p_latwp, 
-						p_lonWP       :  _p_lonwp);
-					block where listing_number_precision := 5 ;
-						display _p_len ;
-						display { _p_latwp, _p_lonwp } ;
+					
+					! --- Set up Route Endpoints ---
+					_ep_from := StringToElement(s_locations,"Caldera,Chile");         ! Convert string to element for 'from' location
+					_ep_to   := StringToElement(s_locations,"Bahia Blanca,Argentina"); ! Convert string to element for 'to' location
+					
+					! --- Execute Route Calculation Procedure ---
+					lpa::pr_getRoute(                                 ! Call the procedure to calculate the route
+						ep_from       :  _ep_from,                   ! Start point
+						ep_to         :  _ep_to,                     ! End point
+						p_routeLength :  _p_len,                     ! Output parameter for route length
+						s_waypoints   :  _s_wp,                      ! Output set for waypoints
+						p_latWP       :  _p_latwp,                   ! Output parameter for waypoint latitude
+						p_lonWP       :  _p_lonwp);                  ! Output parameter for waypoint longitude
+					
+					! --- Display Results ---
+					block where listing_number_precision := 5 ; ! Set display precision for output
+						display _p_len ;                           ! Display the calculated route length
+						display { _p_latwp, _p_lonwp } ;           ! Display the coordinates of all intermediate waypoints
 					endblock ;
-					!
 				}
 				ElementParameter _ep_from {
 					Range: s_locations;
@@ -1660,36 +1384,46 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_scanPythonSource {
 				Body: {
+					! --- Python Initialization ---
+					! Check if the Python source code has already been executed/scanned
 					if not bp_python_source_scanned then
+						! Execute the specified Python script to load functions and dependencies
 						py::run_python_script("leverage-sea-route.py");
+						! Set the flag to True (1) to prevent the script from being run again
 						bp_python_source_scanned := 1;
 					endif ;
 				}
 			}
 			Procedure pr_testSeaRoute {
 				Body: {
-					ep_locOrig := StringToElement(s_locations, "Ponta da Madeira,Brazil");
-					ep_locDest := StringToElement(s_locations, "Puerto Prodeco,Colombia");
+					! --- Define and Validate Endpoints ---
+					ep_locOrig := StringToElement(s_locations, "Ponta da Madeira,Brazil"); ! Convert origin string to location element
+					ep_locDest := StringToElement(s_locations, "Puerto Prodeco,Colombia");   ! Convert destination string to location element
+					
 					if not ep_locOrig then
-						raise warning "origin location not found" ;
+						raise warning "origin location not found" ; ! Raise warning if origin is not in s_locations
 					endif ;
 					if not ep_locDest then
-						raise warning "destination location not found" ;
+						raise warning "destination location not found" ; ! Raise warning if destination is not in s_locations
 					endif ;
-					p_origLat := p_latitude(  ep_locOrig );
+					
+					! Retrieve coordinates using the validated elements
+					p_origLat := p_latitude( ep_locOrig );
 					p_origLon := p_longitude( ep_locOrig );
-					p_destLat := p_latitude(  ep_locDest );
+					p_destLat := p_latitude( ep_locDest );
 					p_destLon := p_longitude( ep_locDest );
 					
-					display ep_locOrig, ep_locDest, 
+					! Display validated elements and their coordinates
+					display ep_locOrig, ep_locDest,
 						p_origLat, p_origLon,
 						p_destLat, p_destLon ;
 					
-					s_waypoints := ElementRange(0,100);
-					pr_scanPythonSource();
-					_sp_pyCall := formatString("searoute_route(%12.7n,%12.7n,%12.7n,%12.7n)",
+					! --- Python Route Calculation ---
+					s_waypoints := ElementRange(0,100); ! Initialize a set for storing up to 101 waypoints
+					pr_scanPythonSource();            ! Ensure Python environment is ready
+					_sp_pyCall := formatString("searoute_route(%12.7n,%12.7n,%12.7n,%12.7n)", ! Prepare Python function call string with coordinates
 						p_origLat, p_origLon, p_destLat, p_destLon );
-					py::run_python_statement(_sp_pyCall);
+					py::run_python_statement(_sp_pyCall); ! Execute the external route calculation function
 				}
 				ElementParameter ep_locOrig {
 					Range: s_locations;
@@ -1707,212 +1441,115 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_saveSeaRouteDistanceMatrixToParquet {
 				Body: {
+					! --- Data Export Mapping Setup ---
 					dex::AddMapping(
-						mappingName :  "distanceMatrixParquet", 
-						mappingFile :  "Mappings/distanceMatrixParquet.xml");
+						mappingName :  "distanceMatrixParquet", ! Define a new Data Exchange mapping name
+						mappingFile :  "Mappings/distanceMatrixParquet.xml"); ! Load mapping definition from XML file
+					
+					! --- Data Export Execution ---
 					dex::WriteToFile(
-						dataFile    :  sp_seaRouteDistanceFilename, 
-						mappingName :  "distanceMatrixParquet", 
-						pretty      :  1);
+						dataFile    :  sp_seaRouteDistanceFilename, ! Specify the target output filename/path
+						mappingName :  "distanceMatrixParquet", ! Use the defined mapping to structure the output data
+						pretty      :  1); ! Format the output file in a human-readable/pretty way (if applicable, e.g., for JSON/XML)
 				}
 			}
 			Procedure pr_readSeaRouteDistanceMatrixFromParquet {
 				Body: {
+					! --- Data Import Mapping Setup ---
 					dex::AddMapping(
-						mappingName :  "distanceMatrixParquet", 
-						mappingFile :  "Mappings/distanceMatrixParquet.xml");
+						mappingName :  "distanceMatrixParquet", ! Define a new Data Exchange mapping name
+						mappingFile :  "Mappings/distanceMatrixParquet.xml"); ! Load mapping definition from XML file
+					
+					! --- Data Import Execution ---
 					dex::ReadFromFile(
-						dataFile         :  sp_seaRouteDistanceFilename, 
-						mappingName      :  "distanceMatrixParquet", 
-						emptyIdentifiers :  0, 
-						emptySets        :  0, 
-						resetCounters    :  0);
+						dataFile         :  sp_seaRouteDistanceFilename, ! Specify the input file path/name
+						mappingName      :  "distanceMatrixParquet", ! Use the defined mapping to interpret file structure
+						emptyIdentifiers :  0, ! Do NOT clear identifiers not found in the file
+						emptySets        :  0, ! Do NOT clear sets not found in the file
+						resetCounters    :  0); ! Do NOT reset internal set counters
 				}
 			}
 			Procedure pr_toggle_distance_computation {
 				Body: {
-					if card( s_locations ) then
-						if bp_use_searoute_distances then
-							ui::sp_systemStatusBar(2,'color') := "red";	
-							bp_use_searoute_distances := 0 ;
-						else
-							if not card( p_distance_searoute ) then
-								if FileExists( sp_seaRouteDistanceFilename ) then
-									pr_readSeaRouteDistanceMatrixFromParquet();
-								else
-									webui::SetProgressMessage("Computing Sea Routes - estimate: five to ten minutes");
-									pr_distanceMatrixFromSeaRoute();
-									pr_saveSeaRouteDistanceMatrixToParquet();
-									webui::SetProgressMessage("");
+					! --- Toggle Distance Calculation/Usage ---
+					if card( s_locations ) then ! Only proceed if location data has been loaded
+					
+						if bp_use_searoute_distances then ! Scenario 1: Sea route distances are currently active (Toggle OFF)
+							ui::sp_systemStatusBar(2,'color') := "red";	! Update UI status bar color to indicate switch
+							bp_use_searoute_distances := 0 ; ! Set flag to 0 (False) to stop using sea route distances
+					
+						else ! Scenario 2: Sea route distances are currently inactive (Toggle ON/Initialize)
+					
+							if not card( p_distance_searoute ) then ! Check if the distance matrix data is missing
+					
+								if FileExists( sp_seaRouteDistanceFilename ) then ! Check if the distance file exists locally
+									pr_readSeaRouteDistanceMatrixFromParquet(); ! Read the pre-calculated distance matrix
+					
+								else ! File does not exist, calculation is required
+									webui::SetProgressMessage("Computing Sea Routes - estimate: five to ten minutes"); ! Display progress to user
+									pr_distanceMatrixFromSeaRoute();        ! Perform the time-consuming distance calculation
+									pr_saveSeaRouteDistanceMatrixToParquet(); ! Save the newly calculated matrix to file
+									webui::SetProgressMessage("");          ! Clear progress message
 								endif ;
+					
 							endif ;
-							ui::sp_systemStatusBar(2,'color') := "green";
-							ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle";
-							bp_use_searoute_distances := 1 ;
+					
+							ui::sp_systemStatusBar(2,'color') := "green"; ! Update UI status bar color to indicate activation
+							ui::sp_systemStatusBar(2,'icon') := "aimms-checkmark-circle"; ! Change status bar icon
+							bp_use_searoute_distances := 1 ; ! Set flag to 1 (True) to use sea route distances
 						endif ;
+					
 					endif ;
 				}
 			}
 		}
 	}
-	Section Convert_format {
-		Set s_inputFileTables {
-			SubsetOf: dex::Tables;
-			Index: i_ift;
-			Definition: {
-				{ dex::tbl | dex::DatasetTableMapping('ImportDataSet',dex::tbl) }
-			}
-		}
-		Set s_outputFileTables {
-			SubsetOf: dex::Tables;
-			Index: i_oft;
-			Definition: {
-				{ dex::tbl | dex::DatasetTableMapping('ExportDataSet',dex::tbl) }
-			}
-		}
-		Set s_testSamples {
-			Index: i_test;
-			Definition: {
-				data { 
-					'VS_150Vessel_200Cargo',
-					'VS_100Vessel_150Cargo', 
-					'VS_120Vessel_150Cargo', 
-					'VS_80Vessel_120Cargo', 
-					'VS_70Vessel_100Cargo', 
-					'VS_40Vessel_50Cargo', 
-					'VS_30Vessel_50Cargo', 
-					'VS_15Vessel_30Cargo',
-					'VS_10Vessel_20Cargo', 
-					'VS_7Vessel_20Cargo', 
-					'VS_5Vessel_15Cargo'
-				} ;
-			}
-		}
-		Procedure pr_convAll {
+	Section Library_Initialization_and_Termination {
+		Procedure MainInitialization {
 			Body: {
-				!pr_conv("VS_5Vessel_15Cargo");
-				!pr_conv("VS_7Vessel_20Cargo");
-				!pr_conv("VS_10Vessel_20Cargo");
-				!pr_conv("VS_150Vessel_200Cargo");
-				!pr_conv("VS_120Vessel_150Cargo");
-				!pr_conv("VS_100Vessel_150Cargo");
-				!pr_conv("VS_80Vessel_120Cargo");
-				!pr_conv("VS_70Vessel_100Cargo");
-				!pr_conv("VS_40Vessel_50Cargo");
-				!pr_conv("VS_30Vessel_50Cargo");
-				!pr_conv("VS_15Vessel_30Cargo");
-				!
-				for i_test do
-					pr_conv(formatString("%e",i_test));
-				endfor ;
-			}
-		}
-		Procedure pr_conv {
-			Arguments: (sp_main);
-			Body: {
-				modSolveService::pr_initTask();
-				dex::ReadFromFile(
-				            dataFile : "data/" + sp_main + ".xlsx", 
-				            mappingName : "Generated/ImportDataSet-Excel");
+				!ProfilerStart();
 				
-				if not DirectoryExists( "data/" + sp_main ) then
-					DirectoryCreate( "data/" + sp_main );
-				endif ;
-				
-				pr_convWork(
-					sp_main    :  sp_main, 
-					sp_fileSfx :  "csv", 
-					sp_mapSfx  :  "CSV");
-				
-				pr_convWork(
-					sp_main    :  sp_main, 
-					sp_fileSfx :  "parquet", 
-					sp_mapSfx  :  "Parquet");
+				pr_initCalendar;
 			}
-			StringParameter sp_main {
-				Property: Input;
-			}
-			StringParameter _sp_folderName;
-			Parameter _bp_pretty {
-				Range: binary;
-			}
-			StringParameter _sp_filename;
-			StringParameter _sp_mapname;
+			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
 		}
-		Procedure pr_convWork {
-			Arguments: (sp_main,sp_fileSfx,sp_mapSfx);
-			Body: {
-				_bp_pretty := 1 ;
-				_sp_folderName := "data/" + sp_main + "/"+sp_fileSfx+"/" ;
-				if not  DirectoryExists( _sp_folderName ) then
-					DirectoryCreate( _sp_folderName );
-				endif ;
-				for i_ift do
-					_sp_filename := formatString("%s%e.%s", _sp_folderName, i_ift,sp_fileSfx);
-					_sp_mapname  := formatString("Generated/ImportDataSet-%e-%s", i_ift,sp_mapSfx);
-				dex::WriteToFile(
-						dataFile    :  _sp_filename, 
-						mappingName :  _sp_mapname, 
-					pretty      :  _bp_pretty);
-				endfor ;
-				zip::pr_zipFolderToFile(
-					sp_folderName      :  _sp_folderName, 
-					sp_destinationFile :  "data/" + sp_main+"-"+sp_fileSfx+".zip");
+		Procedure PostMainInitialization {
+			Comment: {
+				"Add initialization statements here that require that the libraries are already initialized properly,
+				or add statements that require the Data Management module to be initialized."
 			}
-			StringParameter sp_main {
-				Property: Input;
-			}
-			StringParameter sp_fileSfx {
-				Property: Input;
-			}
-			StringParameter sp_mapSfx {
-				Property: Input;
-			}
-			StringParameter _sp_folderName;
-			Parameter _bp_pretty {
-				Range: binary;
-			}
-			StringParameter _sp_filename;
-			StringParameter _sp_mapname;
 		}
-	}
-	Module Module_SolveService {
-		SourceFile: "moduleSolveService.ams";
-	}
-	Section small_utilities {
-		Function fnc_endsIn {
-			Arguments: (sp_str,sp_tail);
+		Procedure pr_startupProcedure {
 			Body: {
-				_p_retval := 0 ;
-				_p_lenStr  := StringLength( sp_str  );
-				_p_lenTail := StringLength( sp_tail );
-				if _p_lenStr >= _p_lenTail then
-				!	_sp_endStr := substring( sp_str, (_p_lenStr-_p_lenTail)+1, _p_lenStr ) ;
-				!	_sp_lowEndStr := StringToLower( _sp_endStr );
-				!	_sp_lowTail := StringToLower( sp_tail );
-				!	if _sp_lowEndStr
-					if FindString(
-						SearchString  :  substring( sp_str, (_p_lenStr-_p_lenTail)+1, _p_lenStr ), 
-						Key           :  sp_tail, 
-						CaseSensitive :  0 ) = 1 then
-						_p_retval := 1;
-					endif ;
-				endif ;
-				fnc_endsIn := _p_retval ;
+				if DirectoryExists( "Mappings/Generated" ) then
+					dex::HandleDatasetAnnotations(); ! Needed for dex::DatasetTableMapping
+				else
+					dex::GenerateDatasetMappings();
+				endif;
+				
+				dex::ReadAllMappings();
+			}
+		}
+		Procedure PreMainTermination {
+			Body: {
+				return 1;!DataManagementExit();
 			}
 			Comment: {
-				"Returns 1 iff sp_str ends in sp_tail, 0 otherwise.
-				String comparison is case insensitive."
+				"Add termination statements here that require all libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
 			}
-			Parameter sp_str {
-				Property: Input;
+		}
+		Procedure MainTermination {
+			Body: {
+				return 1;
 			}
-			Parameter sp_tail {
-				Property: Input;
+			Comment: {
+				"Add termination statements here that do not require all libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
 			}
-			Parameter _p_lenStr;
-			Parameter _p_lenTail;
-			Parameter _p_retval;
 		}
 	}
 }

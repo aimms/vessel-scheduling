@@ -896,7 +896,7 @@
       ]
     },
     "layoutId": {
-      "literal": "Layout9"
+      "literal": "Layout11"
     },
     "widgets": {
       "literal": [
@@ -1528,7 +1528,7 @@
       "aimms": {
         "slices": [
           {
-            "identifier": "mm::bp_calc_cargoesOnVessel",
+            "identifier": "mm::bp_post_cargoesOnVessel",
             "slice": [
               {
                 "index": "i_vessel",
@@ -1543,7 +1543,7 @@
             ]
           },
           {
-            "identifier": "mm::ep_calc_routeOfVessel",
+            "identifier": "mm::ep_post_routeOfVessel",
             "slice": [
               {
                 "index": "i_vessel",
@@ -1553,7 +1553,7 @@
             ]
           },
           {
-            "identifier": "mm::p_calc_operationalCostPerVessel",
+            "identifier": "mm::p_post_operationalCostPerVessel",
             "slice": [
               {
                 "index": "i_vessel",
@@ -1563,7 +1563,7 @@
             ]
           },
           {
-            "identifier": "mm::p_calc_totalTravelDaysPerVessel",
+            "identifier": "mm::p_post_totalTravelDaysPerVessel",
             "slice": [
               {
                 "index": "i_vessel",
@@ -1574,9 +1574,9 @@
           }
         ],
         "contents": [
-          "mm::ep_calc_routeOfVessel",
-          "mm::p_calc_operationalCostPerVessel",
-          "mm::p_calc_totalTravelDaysPerVessel"
+          "mm::ep_post_routeOfVessel",
+          "mm::p_post_operationalCostPerVessel",
+          "mm::p_post_totalTravelDaysPerVessel"
         ]
       }
     },
@@ -1584,7 +1584,7 @@
       "literal": {
         "ep_calc_vesselonroute": "1",
         "sp_calc_cargoesonroute": "1",
-        "mm::ep_calc_routeofvessel": "1"
+        "mm::ep_post_routeofvessel": "1"
       }
     },
     "contents.numdecimals": {
@@ -1719,16 +1719,16 @@
     "contents": {
       "aimms": {
         "contents": [
-          "mm::ep_calc_vesselOfCargo",
-          "mm::p_calc_totalCostPerCargo",
-          "mm::sp_calc_loadingTimePerCargo",
-          "mm::sp_calc_deleveringTimePerCargo"
+          "mm::ep_post_vesselOfCargo",
+          "mm::p_post_totalCostPerCargo",
+          "mm::sp_post_loadingTimePerCargo",
+          "mm::sp_post_deleveringTimePerCargo"
         ]
       }
     },
     "contents.displaydomain": {
       "literal": {
-        "mm::ep_calc_vesselofcargo": "1"
+        "mm::ep_post_vesselofcargo": "1"
       }
     },
     "contents.partition": {
@@ -4737,10 +4737,10 @@
       }
     },
     "center.latitude": {
-      "literal": 4.743949182986117
+      "literal": 9.622414142924818
     },
     "center.longitude": {
-      "literal": -23.90447010022763
+      "literal": 18.63353302979755
     },
     "heatmaps.__display_order__": {
       "literal": [

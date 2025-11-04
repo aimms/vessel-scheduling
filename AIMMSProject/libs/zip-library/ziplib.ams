@@ -2,8 +2,8 @@
 
 LibraryModule Library_ZipLibrary {
 	Prefix: zip;
-	Interface: PublicSection;
-	Section PublicSection {
+	Interface: Public_Section;
+	Section Public_Section {
 		Procedure pr_zipFolderToFile {
 			Arguments: (sp_folderName,sp_destinationFile);
 			Body: {
@@ -63,8 +63,8 @@ LibraryModule Library_ZipLibrary {
 			StringParameter _sp_commandLine;
 		}
 	}
-	Section PrivateSection {
-		Section StartStopLib {
+	Section Private_Section {
+		Section Library_Initialization_and_Termination {
 			Procedure LibraryInitialization {
 				Comment: "Add initialization statements here that do not require any other library being initialized already.";
 			}

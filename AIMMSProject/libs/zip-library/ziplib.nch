@@ -3,3 +3,6 @@
 "pr_unzipFileToFolder" "zip::pr_unzipFileToFolder" "2025-01-29 10:12:12"
 "pr_zipFolderToFile" "zip::pr_zipFolderToFile" "2025-01-29 10:12:12"
 "ziplib" "Library_ZipLibrary" "2025-01-29 10:14:10"
+"zip::PublicSection" "zip::Public_Section" "2025-11-04 18:34:39"
+"zip::PrivateSection" "zip::Private_Section" "2025-11-04 18:34:41"
+"zip::StartStopLib" "zip::Library_Initialization_and_Termination" "2025-11-04 18:36:54"

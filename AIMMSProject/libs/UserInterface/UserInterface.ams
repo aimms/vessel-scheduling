@@ -307,14 +307,14 @@ LibraryModule UserInterface {
 					'ui::p_def_totalRouteCostPerRoute' : "Total Route Cost",
 				
 				    ! Optimized Results
-					'mm::ep_calc_routeOfVessel' : "Route",
-					'mm::p_calc_operationalCostPerVessel' : "Route Cost",
-					'mm::p_calc_totalTravelDaysPerVessel' : "Route Period",
-					'mm::ep_calc_vesselOfCargo' : "Vessel Used",
-					'mm::p_calc_totalCostPerCargo' : "Cargo Cost",
-					'mm::sp_calc_loadingTimePerCargo' : "Loading Time",
-					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
-					'mm::sp_calc_deleveringTimePerCargo' : "Delivery Time",
+					'mm::ep_post_routeOfVessel' : "Route",
+					'mm::p_post_operationalCostPerVessel' : "Route Cost",
+					'mm::p_post_totalTravelDaysPerVessel' : "Route Period",
+					'mm::ep_post_vesselOfCargo' : "Vessel Used",
+					'mm::p_post_totalCostPerCargo' : "Cargo Cost",
+					'mm::sp_post_loadingTimePerCargo' : "Loading Time",
+					'mm::sp_post_deleveringTimePerCargo' : "Delivery Time",
+					'mm::sp_post_deleveringTimePerCargo' : "Delivery Time",
 					'ui::p_def_totalCargoCost' : "Cargo Cost",
 					'ui::p_def_totalSailingCost' : "Sailing Cost",
 					'ui::p_def_totalVisitingLocationCost' : "Visiting Location Cost",
@@ -1129,12 +1129,12 @@ LibraryModule UserInterface {
 			}
 			Parameter p_def_totalSpotCost {
 				Unit: $;
-				Definition: sum(i_act_cargo, mm::p_calc_cargoSpotCost(i_act_cargo));
+				Definition: sum(i_act_cargo, mm::p_post_cargoSpotCost(i_act_cargo));
 			}
 			StringParameter sp_def_cargoNotDeliveredAnnotation {
 				IndexDomain: i_act_cargo;
 				Definition: {
-					if not mm::ep_calc_vesselOfCargo(i_act_cargo) then
+					if not mm::ep_post_vesselOfCargo(i_act_cargo) then
 					    "not-fulfilled"
 					endif;
 				}
@@ -1142,7 +1142,7 @@ LibraryModule UserInterface {
 			StringParameter sp_def_vesselNotUsedAnnotation {
 				IndexDomain: i_vessel;
 				Definition: {
-					if not mm::ep_calc_routeOfVessel(i_vessel) then
+					if not mm::ep_post_routeOfVessel(i_vessel) then
 					    "not-fulfilled"
 					endif;
 				}
@@ -1720,7 +1720,7 @@ LibraryModule UserInterface {
 			}
 		}
 	}
-	Section Library_Start_and_Finish {
+	Section Library_Initialization_and_Termination {
 		Procedure LibraryInitialization {
 			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}

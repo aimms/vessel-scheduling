@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<AimmsJSONMapping iterative-reset="AIMMSPRO::i_childInstance,dex::schema::childNode,dex::schema::extbinding">
-	<ExternalBinding binds-to="AIMMSPRO::i_instance" binding="AIMMSPRO::CurrentInstance" />
-	<ObjectMapping>
-		<ValueMapping name="name" maps-to="AIMMSPRO::_PROAimms::name_(AIMMSPRO::i_instance)" />
-		<ValueMapping name="serviceName" maps-to="AIMMSPRO::_PROAimms::serviceName(AIMMSPRO::i_instance)" />
-	</ObjectMapping>
-</AimmsJSONMapping>

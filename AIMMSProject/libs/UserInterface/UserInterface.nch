@@ -155,3 +155,4 @@
 "ui::Copy_sp_wpTooltip" "ui::sp_wpAnnotation" "2025-09-24 11:36:32"
 "ui::Copy_p_def_visibleArc" "ui::sp_def_visibleArcTooltip" "2025-09-24 13:19:45"
 "ui::ep_loc" "ui::ep_wpLoc" "2025-09-26 10:27:37"
+"ui::Library_Start_and_Finish" "ui::Library_Initialization_and_Termination" "2025-11-04 18:37:01"
