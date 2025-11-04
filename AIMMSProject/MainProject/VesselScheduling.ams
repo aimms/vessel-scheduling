@@ -1261,8 +1261,12 @@ Model Main_VesselScheduling {
 					_p_toLon := p_longitude( ep_to );
 					
 					! --- External Python Route Calculation ---
+					! Prototype searoute_route2 (for reference)
+					! def searoute_route2(fromLat:float,fromLon:float,toLat:float,toLon:float,
+					!     indexName:str,latParName:str,lonParName:str,lenParName:str):
 					
 					! Prepare Python call string, injecting coordinates and AIMMS output identifiers
+					! Five decimals (%12.5n) provides a location precision of roughly 1 meter, sufficient for maritime routes.
 					_sp_pyCall := formatString("searoute_route2(%12.5n,%12.5n,%12.5n,%12.5n,\"lpa::i_globWayPoint\",\"lpa::p_globLat\",\"lpa::p_globLon\",\"lpa::p_globRouteLength\")",
 						_p_fromLat, _p_fromLon, _p_toLat, _p_toLon );
 					pr_scanPythonSource();        ! Ensure Python environment is ready
@@ -1387,10 +1391,13 @@ Model Main_VesselScheduling {
 					! --- Python Initialization ---
 					! Check if the Python source code has already been executed/scanned
 					if not bp_python_source_scanned then
-						! Execute the specified Python script to load functions and dependencies
+					
+						! Execute the specified Python script 
 						py::run_python_script("leverage-sea-route.py");
+					
 						! Set the flag to True (1) to prevent the script from being run again
 						bp_python_source_scanned := 1;
+					
 					endif ;
 				}
 			}
