@@ -1621,6 +1621,8 @@ LibraryModule UserInterface {
 					StringParameter _sp_pyCall;
 				}
 				DeclarationSection waypoints_of_route {
+					Parameter p_centerLat;
+					Parameter p_centerLon;
 					Parameter p_maxWaypointsFromMidForTooltip {
 						InitialData: 100;
 					}
@@ -1686,6 +1688,18 @@ LibraryModule UserInterface {
 					Parameter p_wpLon {
 						IndexDomain: i_awp;
 					}
+					Parameter p_wpAdapLon {
+						IndexDomain: i_awp;
+						Definition: {
+							if p_wpLon(i_awp) < ( p_centerLon - 180 ) then
+								p_wpLon(i_awp) + 360
+							elseif p_wpLon(i_awp) > ( p_centerLon + 180 ) then
+								p_wpLon(i_awp) - 360
+							else
+								p_wpLon(i_awp)
+							endif
+						}
+					}
 					ElementParameter ep_wpType {
 						IndexDomain: i_awp;
 						Range: s_waypointTypes;
@@ -1707,6 +1721,16 @@ LibraryModule UserInterface {
 					Parameter bp_wayPointArc {
 						IndexDomain: (i_awp_from, i_awp_to);
 						Range: binary;
+						webui::AnnotationsIdentifier: sp_wpAnnotation;
+						webui::TooltipIdentifier: sp_wpTooltip;
+					}
+					Parameter bp_wayAdapPointArc {
+						IndexDomain: (i_awp_from, i_awp_to);
+						Range: binary;
+						Definition: {
+							bp_wayPointArc(i_awp_from, i_awp_to) $
+								(abs(p_wpAdapLon(i_awp_from)-p_wpAdapLon(i_awp_to))<250)
+						}
 						webui::AnnotationsIdentifier: sp_wpAnnotation;
 						webui::TooltipIdentifier: sp_wpTooltip;
 					}

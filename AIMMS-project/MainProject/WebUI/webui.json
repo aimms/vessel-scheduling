@@ -3200,10 +3200,10 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": 5.09108543942189
+      "literal": -0.17578097424708533
     },
     "center.longitude": {
-      "literal": 0.5104937842348046
+      "literal": -2.2851562500000404
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3319,7 +3319,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2.0000000000000004
+      "literal": 2
     }
   },
   "widgets/MinMax Scalars": {
@@ -4692,16 +4692,16 @@
     "arcs.0": {
       "aimms": {
         "contents": [
-          "ui::bp_wayPointArc"
+          "ui::bp_wayAdapPointArc"
         ],
         "slices": [
           {
-            "identifier": "ui::bp_wayPointArc",
+            "identifier": "ui::bp_wayAdapPointArc",
             "slice": [
               {
                 "index": "ui::i_awp_from",
-                "type": "subset",
-                "value": "ui::i_swp"
+                "type": "free",
+                "value": "ui::i_awp_from"
               },
               {
                 "index": "ui::i_awp_to",
@@ -4721,12 +4721,12 @@
     },
     "arcs.0.value": {
       "literal": {
-        "identifier": "ui::bp_wayPointArc",
+        "identifier": "ui::bp_wayAdapPointArc",
         "slice": [
           {
             "index": "ui::i_awp_from",
-            "type": "subset",
-            "value": "ui::i_swp"
+            "type": "free",
+            "value": "ui::i_awp_from"
           },
           {
             "index": "ui::i_awp_to",
@@ -4737,10 +4737,20 @@
       }
     },
     "center.latitude": {
-      "literal": -4.7407978783076885
+      "aimms": {
+        "contents": [
+          "ui::p_centerLat"
+        ],
+        "slices": []
+      }
     },
     "center.longitude": {
-      "literal": -16.352671120763436
+      "aimms": {
+        "contents": [
+          "ui::p_centerLon"
+        ],
+        "slices": []
+      }
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -4758,14 +4768,14 @@
     "nodes.0": {
       "aimms": {
         "contents": [
-          "ui::p_wpLon",
+          "ui::p_wpAdapLon",
           "ui::p_wpLat",
           "ui::p_wpIconSize",
           "ui::sp_wpIcon"
         ],
         "slices": [
           {
-            "identifier": "ui::p_wpLon",
+            "identifier": "ui::p_wpAdapLon",
             "slice": [
               {
                 "index": "ui::i_awp",
@@ -4838,7 +4848,7 @@
     },
     "nodes.0.longitude": {
       "literal": {
-        "identifier": "ui::p_wpLon",
+        "identifier": "ui::p_wpAdapLon",
         "slice": [
           {
             "index": "ui::i_awp",

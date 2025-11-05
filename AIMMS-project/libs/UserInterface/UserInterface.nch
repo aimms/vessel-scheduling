@@ -156,3 +156,5 @@
 "ui::Copy_p_def_visibleArc" "ui::sp_def_visibleArcTooltip" "2025-09-24 13:19:45"
 "ui::ep_loc" "ui::ep_wpLoc" "2025-09-26 10:27:37"
 "ui::Library_Start_and_Finish" "ui::Library_Initialization_and_Termination" "2025-11-04 18:37:01"
+"ui::Copy_p_wpLon" "ui::p_wpAdapLon" "2025-11-05 08:36:22"
+"ui::Copy_bp_wayPointArc" "ui::bp_wayAdapPointArc" "2025-11-05 08:38:25"
