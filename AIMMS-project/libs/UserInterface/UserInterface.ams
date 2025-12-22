@@ -227,7 +227,7 @@ LibraryModule UserInterface {
 				
 				! And set the identifier element text of the following ones:
 				webui::IdentifierElementText(IndexIdentifiers) 
-				+=  data {
+				:=$  data {
 				
 				    ! Master Page
 					's_cargoes' : "Cargoes",
