@@ -1,25 +1,47 @@
-# vessel-scheduling
+# Vessel Scheduling
 
-![WebUI](https://img.shields.io/badge/UI-WebUI-success)
+[![Downloads](https://img.shields.io/github/downloads/aimms/vessel-scheduling/total?style=for-the-badge&logo=github&labelColor=000081&color=1847c9)](https://github.com/aimms/vessel-scheduling/releases)
+![AIMMS Version](https://img.shields.io/badge/AIMMS-25.9-white?style=for-the-badge&labelColor=009B00&color=00D400)
+![WebUI Version](https://img.shields.io/badge/WebUI-25.9.3.4-white?style=for-the-badge&labelColor=009B00&color=00D400)
+![DEX Version](https://img.shields.io/badge/DEX-26.1.6.1-white?style=for-the-badge&labelColor=009B00&color=00D400)
+![pyaimms Version](https://img.shields.io/badge/pyaimms-25.3.1.1-white?style=for-the-badge&labelColor=009B00&color=00D400) 
 
-**Mirrored in:** https://github.com/aimms/vessel-scheduling
+This repository contains a high-performance AIMMS example for **Vessel Scheduling and Route Optimization**. It demonstrates how to manage complex maritime logistics, delivering large cargoes using oil tankers while minimizing operational and spot-market costs.
 
-**How-to:** https://how-to.aimms.com/Articles/590/590-vessel-scheduling.html
+## 🎯 Business Problem
 
-## Story
+Maritime scheduling is a combinatorial challenge where the number of possible routes grows exponentially with the number of vessels and cargoes. This model solves:
 
-In this practical example, an efficient plan is developed for delivering large cargoes using oil tankers.
+* **Cost Optimization:** Minimizing the sum of operational costs, vessel idle costs, and spot-market penalties.
+* **Route Generation:** Dynamically generating valid routes based on cargo loading windows and vessel availability.
+* **Strategic Allocation:** Deciding whether to assign a cargo to a time-chartered vessel or leave it for the voyage-charter (spot) market.
 
-The model assumes each ship can carry only one cargo at a time, and once the time horizon begins, 
-all vessels head directly to the loading port. 
-Upon loading, each vessel proceeds directly to the delivery location within its designated time window.
 
-Constraints include: 
-   * cargo's are loaded inside the determined time window, 
-   * each cargo being transported by only one vessel, and
-   * charter vessels being assigned to only one route at a time.
 
-The objective is to minimize costs associated to combinations of cargoes and routes.
+## 📖 How to Use This Example
 
-**Reference:** Gustavo Diz, Luiz Felipe Scavarda, Roger Rocha, Silvio Hamacher (2014) Decision Support System for 
-PETROBRAS Ship Scheduling. Interfaces 44(6):555-566.
+To get the most out of this model, including the details on route generation logic and Python integration, we highly recommend our dedicated guide:
+
+👉 **[Read the Full Article: Vessel Scheduling](https://how-to.aimms.com/Articles/590/590-vessel-scheduling.html)**
+
+### Prerequisites
+* **AIMMS:** You will need AIMMS installed to run the model. [Download the Free Academic Edition here](https://www.aimms.com/support/licensing/).
+* **Python:** Python 3.11+ is required to run the `searoute` and `pandas` integration.
+* **WebUI:** This model is optimized for the AIMMS WebUI, featuring editable Gantt Charts and data-dependent CSS styling.
+
+
+## 🚀 Getting Started
+
+1.  **Download the Release:** Go to the [Releases](https://github.com/aimms/vessel-scheduling/releases) page and download the latest `.zip`.
+2.  **Setup Python:** Ensure your Python environment has `searoute` and `pandas` installed.
+3.  **Open the Project:** Launch the `.aimms` file.
+4.  **Generate & Solve:** Use the WebUI status bar to first generate the maritime routes and then solve the mathematical optimization.
+
+## 🤝 Support & Feedback
+
+This example is maintained by the **AIMMS User Support Team**.
+* Found an issue? [Open an issue](https://github.com/aimms/vessel-scheduling/issues).
+* Questions? Reach out via the [AIMMS Community](https://community.aimms.com).
+
+---
+*Maintained by the AIMMS User Support Team. We optimize the way you build optimization.*
