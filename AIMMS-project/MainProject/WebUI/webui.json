@@ -3152,11 +3152,11 @@
     "arcs.0": {
       "aimms": {
         "contents": [
-          "ui::p_def_visibleArc"
+          "ui::p_def_adapVisibleArc"
         ],
         "slices": [
           {
-            "identifier": "ui::p_def_visibleArc",
+            "identifier": "ui::p_def_adapVisibleArc",
             "slice": [
               {
                 "index": "i_loc_from",
@@ -3181,7 +3181,7 @@
     },
     "arcs.0.value": {
       "literal": {
-        "identifier": "ui::p_def_visibleArc",
+        "identifier": "ui::p_def_adapVisibleArc",
         "slice": [
           {
             "index": "i_loc_from",
@@ -3200,10 +3200,20 @@
       "literal": true
     },
     "center.latitude": {
-      "literal": -0.17578097424708533
+      "aimms": {
+        "contents": [
+          "ui::p_centerLat"
+        ],
+        "slices": []
+      }
     },
     "center.longitude": {
-      "literal": -2.2851562500000404
+      "aimms": {
+        "contents": [
+          "ui::p_centerLon"
+        ],
+        "slices": []
+      }
     },
     "heatmaps.__display_order__": {
       "literal": [
@@ -3221,13 +3231,13 @@
     "nodes.0": {
       "aimms": {
         "contents": [
-          "p_longitude",
+          "ui::p_def_adapLongitude",
           "p_latitude",
           "ui::p_def_locationNodeSize"
         ],
         "slices": [
           {
-            "identifier": "p_longitude",
+            "identifier": "ui::p_def_adapLongitude",
             "slice": [
               {
                 "index": "i_loc",
@@ -3278,7 +3288,7 @@
     },
     "nodes.0.longitude": {
       "literal": {
-        "identifier": "p_longitude",
+        "identifier": "ui::p_def_adapLongitude",
         "slice": [
           {
             "index": "i_loc",
@@ -3299,9 +3309,6 @@
           }
         ]
       }
-    },
-    "title": {
-      "literal": "Map of Cargo Route"
     },
     "views": {
       "literal": {}
@@ -4692,11 +4699,11 @@
     "arcs.0": {
       "aimms": {
         "contents": [
-          "ui::bp_wayAdapPointArc"
+          "ui::bp_def_wayAdapPointArc"
         ],
         "slices": [
           {
-            "identifier": "ui::bp_wayAdapPointArc",
+            "identifier": "ui::bp_def_wayAdapPointArc",
             "slice": [
               {
                 "index": "ui::i_awp_from",
@@ -4721,7 +4728,7 @@
     },
     "arcs.0.value": {
       "literal": {
-        "identifier": "ui::bp_wayAdapPointArc",
+        "identifier": "ui::bp_def_wayAdapPointArc",
         "slice": [
           {
             "index": "ui::i_awp_from",
@@ -4768,14 +4775,14 @@
     "nodes.0": {
       "aimms": {
         "contents": [
-          "ui::p_wpAdapLon",
+          "ui::p_def_wpAdapLon",
           "ui::p_wpLat",
           "ui::p_wpIconSize",
           "ui::sp_wpIcon"
         ],
         "slices": [
           {
-            "identifier": "ui::p_wpAdapLon",
+            "identifier": "ui::p_def_wpAdapLon",
             "slice": [
               {
                 "index": "ui::i_awp",
@@ -4848,7 +4855,7 @@
     },
     "nodes.0.longitude": {
       "literal": {
-        "identifier": "ui::p_wpAdapLon",
+        "identifier": "ui::p_def_wpAdapLon",
         "slice": [
           {
             "index": "ui::i_awp",
@@ -4873,9 +4880,6 @@
         ]
       }
     },
-    "title": {
-      "literal": "Map of Cargo Route"
-    },
     "views": {
       "literal": {}
     },
@@ -4892,7 +4896,7 @@
       "literal": "template"
     },
     "zoom": {
-      "literal": 2
+      "literal": 2.694538990246122
     }
   },
   "widgets/msl_selecRoutes_1": {

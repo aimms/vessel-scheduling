@@ -363,7 +363,6 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_systemWorkflowSteps {
 				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
-				Property: NoSave;
 				InitialData: {
 					data 
 					{ ( 1, 1, displayText       ) : "Welcome",
@@ -1149,28 +1148,129 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Visualizations_Page {
-			DeclarationSection Gantt_Details {
-				StringParameter sp_def_ganttChartStartTime {
-					Definition: FormatString("%e", ep_startHorizonDate);
+			DeclarationSection Page_Settings {
+				StringParameter sp_tabbedWidgetContentsItineraryPage {
+					IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
+					Definition: {
+						data { 
+						  ( 1, displayText ) : "Map"      ,  
+						  ( 1, pageId      ) : "visualize_map" ,  
+						  ( 1, state       ) : "active"        ,
+						
+						  ( 2, displayText ) : "Searoute"      ,  
+						  ( 2, pageId      ) : "searoute_map" ,  
+						  ( 2, state       ) : "active"        ,
+						
+						  ( 3, displayText ) : "Gantt"    ,  
+						  ( 3, pageId      ) : "planned_routes",  
+						  ( 3, state       ) : "active"         
+						}
+					}
 				}
-				Parameter p_def_durationCargoOnRoute {
-					IndexDomain: (i_act_cargo,i_route);
-					Unit: day;
-					Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
-					webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
-					webui::TooltipIdentifier: sp_def_empty;
-				}
-				Parameter p_def_loadingTimeCargoRouteInHours {
-					IndexDomain: (i_act_cargo,i_route);
-					Unit: day;
-					Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
-				}
-				StringParameter sp_def_cargoName {
-					IndexDomain: i_cargo;
-					Definition: i_cargo;
-				}
+				Parameter p_centerLat;
+				Parameter p_centerLon;
 			}
-			DeclarationSection Map_Details {
+			Section Map_Details {
+				Procedure pr_OpenPageVisualizeMap {
+					Body: {
+						for i_used_route /* | i_used_route = first( s_calc_usedRoutes ) */ do
+							empty s_locPos ; ! Also empties parameters defined over s_locpos.
+							s_locPos := ElementRange(0,1000);
+							_ep_locPos := 0 ;
+							_ep_loc( _ep_locPos ) := ep_originPortOfVessel( ep_calc_routeVessel(i_used_route) );
+							_ep_lastLoc := _ep_loc( _ep_locPos );
+							ep_locType( _ep_locPos ) :=   
+								if ep_calc_vesselActivityLocation( i_used_route, first( s_calc_legs ) ) = 'sailingDelivery' then
+									'loadingHarbor'
+								else
+									'startHarbor'
+								endif ;
+						
+							_ep_awp := _p_awp ;
+							_ep_beg := _ep_awp ;
+							p_wpLat(   _ep_awp ) := p_latitude(  _ep_lastLoc );
+							p_wpLon(   _ep_awp ) := p_longitude( _ep_lastLoc );
+							ep_wpType( _ep_awp ) := ep_locType(  _ep_locPos );
+							_p_awp += 1 ;
+						
+							! collect all locations visited for i_used_route.
+							for i_leg_aux | ep_calc_vesselActivityLocation( i_used_route, i_leg_aux ) do
+								_ep_nextLoc := ep_calc_vesselActivityLocation( i_used_route, i_leg_aux );
+								if _ep_nextLoc <> _ep_lastLoc then
+									_ep_locPos += 1 ;
+									_ep_loc( _ep_locPos) := _ep_nextLoc ;
+						
+									if ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingPickup' then
+										ep_locType( _ep_locPos ) := 'loadingHarbor' ;
+										_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
+									elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'idleWaitForCargo' then
+										ep_locType( _ep_locPos ) := 'loadingHarbor' ;
+										_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
+									elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingDelivery' then
+										ep_locType( _ep_locPos ) := 'deliveryHarbor' ;
+										_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
+									endif ;
+									sp_def_visibleArcTooltip( _ep_lastLoc, _ep_nextLoc ) :=
+										"<div align=\"left\">" +
+										"<table border=2px; class=\"left-aligned\"  style=\"margin:0;\">" +
+											"<TR>" +
+												"<TD>" + "Route: " + "</TD>"  +
+												"<TD>" + formatSTring("%e", i_used_route ) + "</TD>"  +
+											"</TR>" +
+											"<TR>" +
+												"<TD>" + "Origin: " + "</TD>"  +
+												"<TD>" + formatSTring("%e", _ep_lastLoc ) + "</TD>"  +
+											"</TR>" +
+											"<TR>" +
+												"<TD>" +
+												if ep_locType( _ep_locPos ) = 'loadingHarbor' then
+													 "Pickup: "
+												else
+													 "Deliver: "
+												endif
+												+ "</TD>" +
+												"<TD>" + formatString("%e",_ep_locCargo )  + "</TD>"  +
+											"</TR>" +
+											"<TR>" +
+												"<TD>" + "Destination:&nbsp;" + "</TD>"  +
+												"<TD>" + formatSTring("%e", _ep_nextLoc ) + "</TD>"  +
+											"</TR>" +
+										"</table>" ;
+									_ep_lastLoc := _ep_nextLoc ;
+						
+								endif ;
+							endfor ;
+						endfor ;
+					}
+					ElementParameter _p_awp {
+						Range: s_allWayPoints;
+					}
+					ElementParameter _ep_locPos {
+						Range: s_locPos;
+					}
+					ElementParameter _ep_loc {
+						IndexDomain: i_locpos;
+						Range: s_locations;
+					}
+					ElementParameter _ep_lastLoc {
+						Range: s_locations;
+					}
+					ElementParameter _ep_nextLoc {
+						Range: s_locations;
+					}
+					ElementParameter _ep_awp {
+						Range: s_allWayPoints;
+					}
+					ElementParameter _ep_beg {
+						Range: s_allWayPoints;
+					}
+					ElementParameter _ep_end {
+						Range: s_allWayPoints;
+					}
+					ElementParameter _ep_locCargo {
+						Range: s_cargoes;
+					}
+				}
 				Set s_def_visibleLocations {
 					SubsetOf: s_locations;
 					Index: i_vis_loc, i_vis_locFrom, i_vis_locTo;
@@ -1209,42 +1309,38 @@ LibraryModule UserInterface {
 				Parameter bp_selectInUsedRoutes {
 					IndexDomain: i_used_route;
 				}
+				Parameter p_def_adapLongitude {
+					IndexDomain: i_loc;
+					Definition: {
+						if p_longitude(i_loc) < ( p_centerLon - 180 ) then
+							p_longitude(i_loc) + 360
+						elseif p_longitude(i_loc) > ( p_centerLon + 180 ) then
+							p_longitude(i_loc) - 360
+						else
+							p_longitude(i_loc)
+						endif
+					}
+				}
 				Parameter p_def_visibleArc {
 					IndexDomain: (i_loc_from,i_loc_to);
 					Definition: {
 						sum(i_used_route |
 						        bp_selectInUsedRoutes(i_used_route)
 						        and p_calc_arcsPerRoute(i_used_route,i_loc_from,i_loc_to), 
-						        2 ^ ( 3 * ( ord( i_used_route ) - 1 ) ) * 
-						        1)
+						        2 ^ ( 3 * ( ord( i_used_route ) - 1 ) ) * 1)
+					}
+					webui::TooltipIdentifier: sp_def_visibleArcTooltip;
+				}
+				Parameter p_def_adapVisibleArc {
+					IndexDomain: (i_loc_from,i_loc_to);
+					Definition: {
+						p_def_visibleArc(i_loc_from,i_loc_to) $
+							(abs(p_def_adapLongitude(i_loc_from) - p_def_adapLongitude(i_loc_to)) < 250)
 					}
 					webui::TooltipIdentifier: sp_def_visibleArcTooltip;
 				}
 				StringParameter sp_def_visibleArcTooltip {
 					IndexDomain: (i_loc_from,i_loc_to);
-					Definition: {
-						!"Joep doei de mazzel dag."
-						!
-						!"<table>" +
-						!	"<TR>" +
-						!		"<TD>" + "Current: " + "</TD>"  +
-						!		"<TD>" + sp_currentFolder + "</TD>"  +
-						!	"</TR>" +
-						!	"<TR>" +
-						!		"<TD>" + "Startup: " + "</TD>"  +
-						!		"<TD>" + sp_startupFolder + "</TD>"  +
-						!	"</TR>" +
-						!	"<TR>" +
-						!		"<TD>" + "PRO_TEMP: " + "</TD>"  +
-						!		"<TD>" + pro::GetPROTempFolder  + "</TD>"  +
-						!	"</TR>" +
-						!	"<TR>" +
-						!		"<TD>" + "BucketBasePath: " + "</TD>"  +
-						!		"<TD>" + pro::session::BucketBasePath  + "</TD>"  +
-						!	"</TR>" +
-						!"</table>",
-						!
-					}
 				}
 				StringParameter sp_def_visibleLocationAnnotation {
 					IndexDomain: i_vis_loc;
@@ -1253,149 +1349,6 @@ LibraryModule UserInterface {
 				Parameter p_def_locationNodeSize {
 					IndexDomain: i_vis_loc;
 					Definition: 3;
-				}
-			}
-			Procedure pr_OpenPageVisualizeMap {
-				Body: {
-					! ui::p_def_visibleArc
-					for i_used_route /* | i_used_route = first( s_calc_usedRoutes ) */ do
-						empty s_locPos ; ! Also empties parameters defined over s_locpos.
-						s_locPos := ElementRange(0,1000);
-						_ep_locPos := 0 ;
-						_ep_loc( _ep_locPos ) := ep_originPortOfVessel( ep_calc_routeVessel(i_used_route) );
-						_ep_lastLoc := _ep_loc( _ep_locPos );
-						ep_locType( _ep_locPos ) :=   
-							if ep_calc_vesselActivityLocation( i_used_route, first( s_calc_legs ) ) = 'sailingDelivery' then
-								'loadingHarbor'
-							else
-								'startHarbor'
-							endif ;
-					
-						_ep_awp := _p_awp ;
-						_ep_beg := _ep_awp ;
-						p_wpLat(   _ep_awp ) := p_latitude(  _ep_lastLoc );
-						p_wpLon(   _ep_awp ) := p_longitude( _ep_lastLoc );
-						ep_wpType( _ep_awp ) := ep_locType(  _ep_locPos );
-						_p_awp += 1 ;
-					
-						! collect all locations visited for i_used_route.
-						for i_leg_aux | ep_calc_vesselActivityLocation( i_used_route, i_leg_aux ) do
-							_ep_nextLoc := ep_calc_vesselActivityLocation( i_used_route, i_leg_aux );
-							if _ep_nextLoc <> _ep_lastLoc then
-								_ep_locPos += 1 ;
-								_ep_loc( _ep_locPos) := _ep_nextLoc ;
-								!if ep_calc_vesselActivityCargo(i_used_route, i_leg_aux) then
-								!	_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
-								!endif ;
-								if ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingPickup' then
-									ep_locType( _ep_locPos ) := 'loadingHarbor' ;
-									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
-								elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'idleWaitForCargo' then
-									ep_locType( _ep_locPos ) := 'loadingHarbor' ;
-									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
-								elseif ep_calc_vesselActivityType(i_used_route, i_leg_aux) = 'sailingDelivery' then
-									ep_locType( _ep_locPos ) := 'deliveryHarbor' ;
-									_ep_locCargo := ep_calc_vesselActivityCargo(i_used_route, i_leg_aux);
-								endif ;
-								sp_def_visibleArcTooltip( _ep_lastLoc, _ep_nextLoc ) :=
-									"<div align=\"left\">" +
-									"<table border=2px; class=\"left-aligned\"  style=\"margin:0;\">" +
-										"<TR>" +
-											"<TD>" + "Route: " + "</TD>"  +
-											"<TD>" + formatSTring("%e", i_used_route ) + "</TD>"  +
-										"</TR>" +
-										"<TR>" +
-											"<TD>" + "Origin: " + "</TD>"  +
-											"<TD>" + formatSTring("%e", _ep_lastLoc ) + "</TD>"  +
-										"</TR>" +
-										"<TR>" +
-											"<TD>" +
-											if ep_locType( _ep_locPos ) = 'loadingHarbor' then
-												 "Pickup: "
-											else
-												 "Deliver: "
-											endif
-											+ "</TD>" +
-											"<TD>" + formatString("%e",_ep_locCargo )  + "</TD>"  +
-										"</TR>" +
-										"<TR>" +
-											"<TD>" + "Destination:&nbsp;" + "</TD>"  +
-											"<TD>" + formatSTring("%e", _ep_nextLoc ) + "</TD>"  +
-										"</TR>" +
-									"</table>" ;
-								_ep_lastLoc := _ep_nextLoc ;
-					
-							endif ;
-						endfor ;
-					endfor ;
-					
-					!sp_wpIconTooltip(i_awp) | p_wpIconSize(i_awp) := "Piet gaat vissen" ;
-					!sp_wpIconAnnotation(i_awp) | p_wpIconSize(i_awp) := "searouteroutelocation" ;
-				}
-				ElementParameter _p_awp {
-					Range: s_allWayPoints;
-				}
-				ElementParameter _ep_locPos {
-					Range: s_locPos;
-				}
-				ElementParameter _ep_loc {
-					IndexDomain: i_locpos;
-					Range: s_locations;
-				}
-				ElementParameter _ep_lastLoc {
-					Range: s_locations;
-				}
-				ElementParameter _ep_nextLoc {
-					Range: s_locations;
-				}
-				ElementParameter _ep_awp {
-					Range: s_allWayPoints;
-				}
-				ElementParameter _ep_beg {
-					Range: s_allWayPoints;
-				}
-				ElementParameter _ep_end {
-					Range: s_allWayPoints;
-				}
-				ElementParameter _ep_locCargo {
-					Range: s_cargoes;
-				}
-			}
-			StringParameter sp_tabbedWidgetContentsItineraryPage {
-				IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
-				Definition: {
-					data { 
-					  ( 1, displayText ) : "View Map"      ,  
-					  ( 1, pageId      ) : "visualize_map" ,  
-					  ( 1, state       ) : "active"        ,
-					
-					  ( 2, displayText ) : "Searoute"      ,  
-					  ( 2, pageId      ) : "searoute_map" ,  
-					  ( 2, state       ) : "active"        ,
-					
-					  ( 3, displayText ) : "View Gantt"    ,  
-					  ( 3, pageId      ) : "planned_routes",  
-					  ( 3, state       ) : "active"         
-					}
-				}
-			}
-			Parameter bp_typecargo_comp {
-				IndexDomain: (i_route,i_leg);
-				Definition: {
-					if ( ep_calc_vesselActivityType(i_route, i_leg) and ( ep_calc_vesselActivityType(i_route, i_leg) <> ep_def_vesselIdleRetired ) ) then
-						if not ep_calc_vesselActivityCargo(i_route, i_leg) then
-							1
-						endif 
-					else
-						if ep_calc_vesselActivityCargo(i_route, i_leg) then
-							2
-						endif 
-					endif
-				}
-			}
-			Procedure pr_dump {
-				Body: {
-					display { ep_calc_vesselActivityType, ep_calc_vesselActivityCargo, bp_typecargo_comp };
 				}
 			}
 			Section Sea_Route_Details {
@@ -1495,9 +1448,8 @@ LibraryModule UserInterface {
 								_ep_wpLegMid := _p_wpLegMid ;
 								s_waypointsForTooltip := { i_awp | 
 									i_awp >  _p_wpLegBeg and
-									i_awp <  _p_wpLegEnd /* and
-									i_awp >= ( _ep_wpLegMid - p_maxWaypointsFromMidForTooltip ) and
-									i_awp <= ( _ep_wpLegMid + p_maxWaypointsFromMidForTooltip ) */    } ;
+									i_awp <  _p_wpLegEnd  } ;
+						
 								sp_wpTooltip(    i_wptt-1, i_wptt ) :=  
 									"<div align=\"left\">" +
 									"<table border=2px; class=\"left-aligned\"  style=\"margin:0;\">" +
@@ -1537,7 +1489,7 @@ LibraryModule UserInterface {
 						p_wpLon(i_awp)|(p_wpLon(i_awp)< -180) += 360 ;
 						p_wpLon(i_awp)|(p_wpLon(i_awp)>  180) -= 360 ;
 						
-						sp_wpIcon( i_awp ) := sp_iconLocType( ep_wpType( i_awp ) );
+						sp_wpIcon( i_awp ) := sp_def_iconLocType( ep_wpType( i_awp ) );
 						p_wpIconSize(i_awp) := 1 $ sp_wpIcon( i_awp );
 						sp_wpIconAnnotation(i_awp) := "LoadingPort"    $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) <> 'deliveryHarbor');
 						sp_wpIconAnnotation(i_awp) += "DeliveringPort" $ (sp_wpIcon( i_awp ) and ep_wpType(i_awp) =  'deliveryHarbor');
@@ -1620,126 +1572,137 @@ LibraryModule UserInterface {
 					}
 					StringParameter _sp_pyCall;
 				}
-				DeclarationSection waypoints_of_route {
-					Parameter p_centerLat;
-					Parameter p_centerLon;
-					Parameter p_maxWaypointsFromMidForTooltip {
-						InitialData: 100;
+				Set s_allWayPoints {
+					SubsetOf: Integers;
+					Index: i_awp, i_awp_from, i_awp_to;
+					Property: ElementsAreLabels;
+				}
+				Set s_def_shownWayPoints {
+					SubsetOf: s_allWayPoints;
+					Index: i_swp;
+					Definition: {
+						union( i_used_route | bp_selectInUsedRoutes(i_used_route), 
+							s_routeWayPoints(i_used_route) )
 					}
-					Set s_waypointsForTooltip {
-						SubsetOf: s_allWayPoints;
-						Index: i_wptt;
-						Property: ElementsAreLabels;
-					}
-					Set s_locPos {
-						SubsetOf: Integers;
-						Index: i_locpos;
-						Property: ElementsAreLabels;
-					}
-					ElementParameter ep_locType {
-						IndexDomain: i_locpos;
-						Range: s_waypointTypes;
-					}
-					Set s_waypointTypes {
-						Index: i_wpType;
-						Definition: data { 'startHarbor', 'loadingHarbor', 'deliveryHarbor' };
-					}
-					StringParameter sp_iconLocType {
-						IndexDomain: i_wpType;
-						Definition: {
-							data { 
-								'startHarbor'     : "aimms-ship", 
-								'loadingHarbor'   : "aimms-esc", 
-								'deliveryHarbor'  : "aimms-enter6"
-							}
+				}
+				Set s_deliveryWayPoints;
+				Set s_loadingWayPoints {
+					SubsetOf: s_allWayPoints;
+				}
+				Set s_waypointsForTooltip {
+					SubsetOf: s_allWayPoints;
+					Index: i_wptt;
+					Property: ElementsAreLabels;
+				}
+				Set s_locPos {
+					SubsetOf: Integers;
+					Index: i_locpos;
+					Property: ElementsAreLabels;
+				}
+				ElementParameter ep_locType {
+					IndexDomain: i_locpos;
+					Range: s_def_waypointTypes;
+				}
+				Set s_def_waypointTypes {
+					Index: i_wpType;
+					Definition: data { 'startHarbor', 'loadingHarbor', 'deliveryHarbor' };
+				}
+				StringParameter sp_def_iconLocType {
+					IndexDomain: i_wpType;
+					Definition: {
+						data { 
+							'startHarbor'     : "aimms-ship", 
+							'loadingHarbor'   : "aimms-esc", 
+							'deliveryHarbor'  : "aimms-enter6"
 						}
 					}
-					Parameter p_locSize {
-						IndexDomain: i_awp;
+				}
+				Set s_routeWayPoints {
+					IndexDomain: i_used_route;
+					SubsetOf: s_allWayPoints;
+				}
+				ElementParameter ep_wpLoc {
+					IndexDomain: i_awp;
+					Range: s_locations;
+				}
+				Parameter p_wpLat {
+					IndexDomain: i_awp;
+				}
+				Parameter p_wpLon {
+					IndexDomain: i_awp;
+				}
+				Parameter p_def_wpAdapLon {
+					IndexDomain: i_awp;
+					Definition: {
+						if p_wpLon(i_awp) < ( p_centerLon - 180 ) then
+							p_wpLon(i_awp) + 360
+						elseif p_wpLon(i_awp) > ( p_centerLon + 180 ) then
+							p_wpLon(i_awp) - 360
+						else
+							p_wpLon(i_awp)
+						endif
 					}
-					Set s_allWayPoints {
-						SubsetOf: Integers;
-						Index: i_awp, i_awp_from, i_awp_to;
-						Property: ElementsAreLabels;
+				}
+				ElementParameter ep_wpType {
+					IndexDomain: i_awp;
+					Range: s_def_waypointTypes;
+				}
+				StringParameter sp_wpIcon {
+					IndexDomain: i_awp;
+				}
+				Parameter p_wpIconSize {
+					IndexDomain: i_awp;
+					webui::AnnotationsIdentifier: sp_wpIconAnnotation;
+					webui::TooltipIdentifier: sp_wpIconTooltip;
+				}
+				StringParameter sp_wpIconTooltip {
+					IndexDomain: i_awp;
+				}
+				StringParameter sp_wpIconAnnotation {
+					IndexDomain: i_awp;
+				}
+				Parameter bp_wayPointArc {
+					IndexDomain: (i_awp_from, i_awp_to);
+					Range: binary;
+					webui::AnnotationsIdentifier: sp_wpAnnotation;
+					webui::TooltipIdentifier: sp_wpTooltip;
+				}
+				Parameter bp_def_wayAdapPointArc {
+					IndexDomain: (i_awp_from, i_awp_to);
+					Range: binary;
+					Definition: {
+						bp_wayPointArc(i_awp_from, i_awp_to) $
+							(abs(p_def_wpAdapLon(i_awp_from)-p_def_wpAdapLon(i_awp_to))<250)
 					}
-					Set s_shownWayPoints {
-						SubsetOf: s_allWayPoints;
-						Index: i_swp;
-						Definition: {
-							union( i_used_route | bp_selectInUsedRoutes(i_used_route), 
-								s_routeWayPoints(i_used_route) )
-						}
-					}
-					Set s_routeWayPoints {
-						IndexDomain: i_used_route;
-						SubsetOf: s_allWayPoints;
-					}
-					Set s_loadingWayPoints {
-						SubsetOf: s_allWayPoints;
-					}
-					Set s_deliveryWayPoints;
-					ElementParameter ep_wpLoc {
-						IndexDomain: i_awp;
-						Range: s_locations;
-					}
-					Parameter p_wpLat {
-						IndexDomain: i_awp;
-					}
-					Parameter p_wpLon {
-						IndexDomain: i_awp;
-					}
-					Parameter p_wpAdapLon {
-						IndexDomain: i_awp;
-						Definition: {
-							if p_wpLon(i_awp) < ( p_centerLon - 180 ) then
-								p_wpLon(i_awp) + 360
-							elseif p_wpLon(i_awp) > ( p_centerLon + 180 ) then
-								p_wpLon(i_awp) - 360
-							else
-								p_wpLon(i_awp)
-							endif
-						}
-					}
-					ElementParameter ep_wpType {
-						IndexDomain: i_awp;
-						Range: s_waypointTypes;
-					}
-					StringParameter sp_wpIcon {
-						IndexDomain: i_awp;
-					}
-					Parameter p_wpIconSize {
-						IndexDomain: i_awp;
-						webui::AnnotationsIdentifier: sp_wpIconAnnotation;
-						webui::TooltipIdentifier: sp_wpIconTooltip;
-					}
-					StringParameter sp_wpIconTooltip {
-						IndexDomain: i_awp;
-					}
-					StringParameter sp_wpIconAnnotation {
-						IndexDomain: i_awp;
-					}
-					Parameter bp_wayPointArc {
-						IndexDomain: (i_awp_from, i_awp_to);
-						Range: binary;
-						webui::AnnotationsIdentifier: sp_wpAnnotation;
-						webui::TooltipIdentifier: sp_wpTooltip;
-					}
-					Parameter bp_wayAdapPointArc {
-						IndexDomain: (i_awp_from, i_awp_to);
-						Range: binary;
-						Definition: {
-							bp_wayPointArc(i_awp_from, i_awp_to) $
-								(abs(p_wpAdapLon(i_awp_from)-p_wpAdapLon(i_awp_to))<250)
-						}
-						webui::AnnotationsIdentifier: sp_wpAnnotation;
-						webui::TooltipIdentifier: sp_wpTooltip;
-					}
-					StringParameter sp_wpTooltip {
-						IndexDomain: (i_awp_from, i_awp_to);
-					}
-					StringParameter sp_wpAnnotation {
-						IndexDomain: (i_awp_from, i_awp_to);
-					}
+					webui::AnnotationsIdentifier: sp_wpAnnotation;
+					webui::TooltipIdentifier: sp_wpTooltip;
+				}
+				StringParameter sp_wpTooltip {
+					IndexDomain: (i_awp_from, i_awp_to);
+				}
+				StringParameter sp_wpAnnotation {
+					IndexDomain: (i_awp_from, i_awp_to);
+				}
+			}
+			Section Gantt_Details {
+				StringParameter sp_def_ganttChartStartTime {
+					Definition: FormatString("%e", ep_startHorizonDate);
+				}
+				Parameter p_def_durationCargoOnRoute {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
+					webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
+					webui::TooltipIdentifier: sp_def_empty;
+				}
+				Parameter p_def_loadingTimeCargoRouteInHours {
+					IndexDomain: (i_act_cargo,i_route);
+					Unit: day;
+					Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
+				}
+				StringParameter sp_def_cargoName {
+					IndexDomain: i_cargo;
+					Definition: i_cargo;
 				}
 			}
 		}

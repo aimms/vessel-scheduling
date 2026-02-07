@@ -1340,6 +1340,7 @@ Model Main_VesselScheduling {
 			}
 			Parameter bp_python_source_scanned {
 				Range: binary;
+				Property: NoSave;
 				InitialData: 0;
 			}
 			Procedure pr_testGetRoute {
