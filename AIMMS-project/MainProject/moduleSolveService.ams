@@ -2,11 +2,14 @@
 
 Module Module_SolveService {
 	Prefix: modSolveService;
+	Comment: "Exposes the vessel scheduling solver as DEX REST API services and background tasks, supporting Excel, CSV, Parquet, and shared-file input/output formats.";
 	Parameter bp_cleanup {
 		Range: binary;
 		InitialData: 1;
+		Comment: "When 1 (default), intermediate working folders and ZIP files are deleted after service execution to keep the project folder clean.";
 	}
 	Procedure pr_initTask {
+		Comment: "Resets the business model by emptying core sets and deleting all generated mathematical programs, preparing for a fresh solve.";
 		Body: {
 			! Reset the Business model
 			empty s_cargoes, s_vessels, s_locations, s_calc_feasibleRoutes ;
@@ -28,7 +31,9 @@ Module Module_SolveService {
 		}
 	}
 	Section Service_solveVesselSchedulingExcel {
+		Comment: "DEX REST service that accepts an Excel file as request body, solves the vessel scheduling model, and returns results as an Excel file.";
 		Procedure pr_solveVesselSchedulingExcel {
+			Comment: "DEX REST service entry point for the Excel format: initializes the task, reads request/response paths from DEX, delegates to pr_actuallySolveVesselSchedulingExcel, and handles errors.";
 			Body: {
 				block
 				
@@ -62,7 +67,9 @@ Module Module_SolveService {
 		}
 		Procedure pr_actuallySolveVesselSchedulingExcel {
 			Arguments: (sp_inp,sp_out);
+			Comment: "Reads input data from the Excel file sp_inp, activates all master data, generates routes and costs, solves the model, extracts results, and writes output to the Excel file sp_out.";
 			Body: {
+				! Add the DEX mapping for the Excel import dataset
 				dex::AddMapping(
 					mappingName : "ImportDataSet",
 					mappingFile : "Mappings/Generated/ImportDataSet-Excel.xml");
@@ -103,11 +110,14 @@ Module Module_SolveService {
 			}
 		}
 		Procedure pr_taskSolveVesselSchedulingExcel {
+			Comment: "Registers pr_actuallySolveVesselSchedulingExcel as a background task under the name 'taskSolveVesselSchedulingExcel' for asynchronous execution.";
 			dex::TaskName: taskSolveVesselSchedulingExcel;
 		}
 	}
 	Section Service_solveVesselSchedulingCSV {
+		Comment: "DEX REST service that accepts a ZIP of CSV files as request body, solves the vessel scheduling model, and returns results as a ZIP of CSV files.";
 		Procedure pr_solveVesselSchedulingCSV {
+			Comment: "DEX REST service entry point for the CSV format: initializes the task, reads request/response paths from DEX, delegates to pr_actuallySolveVesselSchedulingCSV, and handles errors.";
 			Body: {
 				block
 				
@@ -137,9 +147,10 @@ Module Module_SolveService {
 		}
 		Procedure pr_actuallySolveVesselSchedulingCSV {
 			Arguments: (sp_inp,sp_out);
+			Comment: "Unzips the input ZIP (sp_inp) containing CSV files, reads each CSV table, activates master data, solves the model, extracts results, writes output CSV files, zips them, and copies the ZIP to sp_out.";
 			Body: {
 				p_vesselVelocity := 37.04 [km/hour];
-				
+
 				block ! Get the request body in the AIMMS project folder, and unzip it.
 					if DirectoryExists( "csvinp" ) then
 						DirectoryDelete( "csvinp" );
@@ -251,7 +262,9 @@ Module Module_SolveService {
 		}
 	}
 	Section Service_solveVesselSchedulingParquet {
+		Comment: "DEX REST service that accepts a ZIP of Parquet files as request body, solves the vessel scheduling model, and returns results as a ZIP of Parquet files.";
 		Procedure pr_solveVesselSchedulingParquet {
+			Comment: "DEX REST service entry point for the Parquet format: initializes the task, reads request/response paths from DEX, delegates to pr_actuallySolveVesselSchedulingParquet, and handles errors.";
 			Body: {
 				block
 				
@@ -281,9 +294,10 @@ Module Module_SolveService {
 		}
 		Procedure pr_actuallySolveVesselSchedulingParquet {
 			Arguments: (sp_inp,sp_out);
+			Comment: "Unzips the input ZIP (sp_inp) containing Parquet files, reads each Parquet table, activates master data, solves the model, extracts results, writes output Parquet files, zips them, and copies the ZIP to sp_out.";
 			Body: {
 				p_vesselVelocity := 37.04 [km/hour];
-				
+
 				block ! Get the request body in the AIMMS project folder, and unzip it.
 					if DirectoryExists( "parquetinp" ) then
 						DirectoryDelete( "parquetinp" );
@@ -416,6 +430,7 @@ Module Module_SolveService {
 		Set s_inputFileTables {
 			SubsetOf: dex::Tables;
 			Index: i_ift;
+			Comment: "Set of DEX table names that belong to the ImportDataSet, representing the input tables expected in the shared-files service request.";
 			Definition: {
 				{ dex::tbl | dex::DatasetTableMapping('ImportDataSet',dex::tbl) }
 			}
@@ -423,18 +438,24 @@ Module Module_SolveService {
 		Set s_outputFileTables {
 			SubsetOf: dex::Tables;
 			Index: i_oft;
+			Comment: "Set of DEX table names that belong to the ExportDataSet, representing the output tables to be written by the shared-files service.";
 			Definition: {
 				{ dex::tbl | dex::DatasetTableMapping('ExportDataSet',dex::tbl) }
 			}
 		}
 		StringParameter sp_inputFileNames {
 			IndexDomain: i_ift;
+			Comment: "Filename (including path) of the input CSV file for each table in s_inputFileTables, passed by the caller via the service request JSON.";
 		}
 		StringParameter sp_outputFileNames {
 			IndexDomain: i_oft;
+			Comment: "Filename (including path) of the output CSV file for each table in s_outputFileTables, passed by the caller via the service request JSON.";
 		}
-		StringParameter sp_responseSummaryMessage;
+		StringParameter sp_responseSummaryMessage {
+			Comment: "Summary message written into the response JSON body after a successful shared-files solve.";
+		}
 		Procedure pr_testAllSolveSchedulingSharedFiles {
+			Comment: "Iterates over all test samples defined in s_testSamples and calls pr_testSolveSchedulingSharedFiles for each, showing a progress dialog.";
 			Body: {
 				for i_test do ! | i_test = last( s_testSamples ) do
 					DialogProgress(
@@ -446,6 +467,7 @@ Module Module_SolveService {
 		}
 		Procedure pr_testSolveSchedulingSharedFiles {
 			Arguments: sp_main;
+			Comment: "Test procedure that sets up input/output file paths for dataset sp_main in CSV format, writes the request JSON, then calls pr_actuallySolveVesselSchedulingSharedFiles to run the full solve pipeline.";
 			Body: {
 				! Selecting test
 				!sp_main := "VS_70Vessel_100Cargo" ;
@@ -479,14 +501,15 @@ Module Module_SolveService {
 			}
 		}
 		Procedure pr_solveVesselSchedulingSharedFiles {
+			Comment: "DEX REST service entry point for the shared-files format: initializes the task, reads request/response paths from DEX, delegates to pr_actuallySolveVesselSchedulingSharedFiles, and handles errors.";
 			Body: {
 				block
-				
+
 					pr_initTask();
-				
+
 					_sp_inp := dex::api::RequestAttribute( 'request-data-path'  ) ;
 					_sp_out := dex::api::RequestAttribute( 'response-data-path' ) ;
-				
+
 					pr_actuallySolveVesselSchedulingSharedFiles( _sp_inp, _sp_out );
 				
 				onerror _ep_err do
@@ -508,6 +531,7 @@ Module Module_SolveService {
 		}
 		Procedure pr_actuallySolveVesselSchedulingSharedFiles {
 			Arguments: (sp_inp,sp_out);
+			Comment: "Reads shared-files request JSON (sp_inp) to obtain per-table input file paths, reads each CSV input table, activates master data, solves the model, extracts results, writes output CSV files to the specified paths, and writes a response JSON to sp_out.";
 			Body: {
 				p_vesselVelocity := 37.04 [km/hour];
 				
@@ -610,7 +634,9 @@ Module Module_SolveService {
 		}
 	}
 	Section Service_stopSoon {
+		Comment: "DEX REST service that instructs the running REST server to stop accepting new requests after the current one completes.";
 		Procedure pr_stopsoon {
+			Comment: "Sets the REST service request limit and timeout to 1 to cause the service to shut down gracefully after the current request.";
 			Body: {
 				dex::api::RESTServiceMaxRequests := 1 ;
 				dex::api::RESTServiceTimeout     := 1 ;

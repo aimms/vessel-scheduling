@@ -3,70 +3,89 @@
 LibraryModule DataIntegration {
 	Prefix: di;
 	Interface: Public_Section;
+	Comment: "Handles all data import and export operations for the Vessel Scheduling application, including reading and writing Excel files and managing random data generation for testing.";
 	Section Public_Section {
+		Comment: "Publicly accessible declarations and procedures for data import, export, and random data generation.";
 		DeclarationSection Generate_Request_File_Declarations {
+			Comment: "Parameters controlling the generation of random test input data for the Vessel Scheduling model.";
 			Parameter p_noCargos {
 				InitialData: 10;
+				Comment: "Number of cargoes to generate when creating a random test dataset.";
 			}
 			Parameter p_noVessels {
 				InitialData: 5;
+				Comment: "Number of vessels to generate when creating a random test dataset.";
 			}
 			Parameter p_noMinDaysSailing {
 				Unit: day;
 				InitialData: 3;
+				Comment: "Minimum sailing duration (in days) used when generating random cargo routes.";
 			}
 			Parameter p_noMaxDaysSailing {
 				Unit: day;
 				InitialData: 30;
+				Comment: "Maximum sailing duration (in days) used when generating random cargo routes.";
 			}
 			Parameter p_noMinDaysWaiting {
 				InitialData: 5;
+				Comment: "Minimum number of days a cargo may be waiting within its time window during random data generation.";
 			}
 			Parameter p_noMaxDaysWaiting {
 				InitialData: 60;
+				Comment: "Maximum number of days a cargo may be waiting within its time window during random data generation.";
 			}
 			Parameter p_minCargoCost {
 				InitialData: 50;
+				Comment: "Minimum fixed cost per cargo used when generating random cargo cost data.";
 			}
 			Parameter p_maxCargoCost {
 				InitialData: 200;
+				Comment: "Maximum fixed cost per cargo used when generating random cargo cost data.";
 			}
 			Parameter p_minCargoSpotCost {
 				InitialData: 1e6;
+				Comment: "Minimum spot (chartered vessel) cost per cargo used when generating random data.";
 			}
 			Parameter p_maxCargoSpotCost {
 				InitialData: 2e6;
+				Comment: "Maximum spot (chartered vessel) cost per cargo used when generating random data.";
 			}
 			Parameter p_noHorizonDays {
 				InitialData: 90;
+				Comment: "Length of the planning horizon in days used when generating a random dataset.";
 			}
 			StringParameter sp_horizonEnd {
+				Comment: "Computed end date of the planning horizon, formatted as YYYY-MM-DD, based on the start date and p_noHorizonDays.";
 				Definition: {
 					MomentToString(
-						Format        :  "%c%y-%m-%d", 
-						unit          :  [day], 
+						Format        :  "%c%y-%m-%d",
+						unit          :  [day],
 						ReferenceDate :  formatString("%e", ep_startHorizonDate),
 						Elapsed       :  (p_noHorizonDays)[day]);
 				}
 			}
 			StringParameter sp_generatedFilename {
+				Comment: "Name of the Excel file generated for the random dataset, encoding the number of vessels and cargoes in the filename.";
 				Definition: formatString("VS_%iVessel_%iCargo.xlsx", ui::p_vesselsQuantity, ui::p_cargoesQuantity);
 			}
 		}
 		Procedure pr_importRequestFile {
+			Comment: "Triggers the WebUI file upload dialog, calling pr_importExcel upon completion to read the uploaded Excel input file.";
 			Body: {
 				webui::RequestFileUpload(onDone : 'di::pr_importExcel' );
 			}
 		}
 		Procedure pr_generateRequestFile {
+			Comment: "Clears the current cargo data in preparation for generating a new random dataset.";
 			Body: {
 				Empty Cargoes ;
 			}
 		}
 		Procedure pr_importExcel {
 			Arguments: (fname,statusCode,statusDescription);
+			Comment: "WebUI callback procedure invoked after a file is uploaded. Delegates the actual import work to pr_actuallyImportExcel.";
 			Body: {
-				
+
 				pr_actuallyImportExcel(fname);
 			}
 			StringParameter fname {
@@ -81,6 +100,7 @@ LibraryModule DataIntegration {
 		}
 		Procedure pr_actuallyImportExcel {
 			Arguments: (fname);
+			Comment: "Performs the actual Excel file import: clears existing data, reads the uploaded file using the generated DEX mapping, activates all master data, and updates the WebUI status bar and workflow state to reflect the successful import.";
 			Body: {
 				!Delete old data
 				empty Cargoes, Vessels, Locations, Routes;
@@ -158,12 +178,14 @@ LibraryModule DataIntegration {
 			StringParameter sp_loc_IOFilePath;
 		}
 		Procedure pr_exportExcelInputFile {
+			Comment: "Exports the current input data to an Excel file named 'InputData.xlsx' for download via the WebUI.";
 			Body: {
-				
+
 				pr_doWriteExcelInputFile("InputData.xlsx");
 			}
 		}
 		Procedure pr_emptyData {
+			Comment: "Empties all data model identifiers and resets the WebUI status bar, workflow steps, and secondary actions to their initial (no-data) state.";
 			Body: {
 				empty Data_Model;
 				
@@ -192,6 +214,7 @@ LibraryModule DataIntegration {
 			}
 		}
 		Procedure pr_actuallyExportSolutionFile {
+			Comment: "Writes the solution results to 'Results.xlsx' using the DEX export mapping, copies the file to the WebUI IO path, and triggers a file download for the user.";
 			Body: {
 				sp_loc_fileName := "Results.xlsx";
 				
@@ -226,6 +249,7 @@ LibraryModule DataIntegration {
 		}
 		Procedure pr_doWriteExcelInputFile {
 			Arguments: (sp_fn);
+			Comment: "Writes current input data to an Excel file with the given filename sp_fn (defaulting to 'InputData.xlsx'), copies it to the WebUI IO path, and triggers a download. Uses the generated ImportDataSet-Excel mapping.";
 			Body: {
 				if sp_fn then
 					sp_loc_fileName := sp_fn ;
@@ -266,7 +290,9 @@ LibraryModule DataIntegration {
 		}
 	}
 	Section Private_Section {
+		Comment: "Internal lifecycle procedures for the DataIntegration library module.";
 		Section Library_Initialization_and_Termination {
+			Comment: "Standard AIMMS library initialization and termination procedures.";
 			Procedure LibraryInitialization {
 				Comment: "Add initialization statements here that do not require any other library being initialized already.";
 			}

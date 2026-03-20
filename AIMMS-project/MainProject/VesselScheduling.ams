@@ -23,6 +23,7 @@ Model Main_VesselScheduling {
 		}
 		Quantity Q_Currency {
 			BaseUnit: $;
+			Comment: "Expresses monetary values such as costs and revenues in the model.";
 		}
 		Quantity SI_Length {
 			BaseUnit: m;
@@ -31,11 +32,16 @@ Model Main_VesselScheduling {
 		}
 	}
 	Section Data_Model {
+		Comment: "Master data declarations for the vessel scheduling problem: calendars, cargoes, vessels, locations, and routes.";
 		Section Calendars {
+			Comment: "Calendar definitions and derived date parameters for the planning horizon.";
 			StringParameter sp_timeslotFormat {
+				Comment: "Format string used to display calendar timeslots, e.g., '2023-01-15'.";
 				Definition: "%c%y-%m-%d";
 			}
-			StringParameter sp_today;
+			StringParameter sp_today {
+				Comment: "Today's date as a string in YYYY-MM-DD format, set during calendar initialization.";
+			}
 			Calendar cal_days {
 				Index: i_day;
 				Unit: day;
@@ -57,6 +63,7 @@ Model Main_VesselScheduling {
 			}
 			Parameter p_def_noDaysSchedule {
 				Unit: day;
+				Comment: "Total length of the planning horizon in days, computed as the difference between the last cargo delivery date and the start horizon date.";
 				Definition: {
 					if ep_def_finishHorizonDate and ep_startHorizonDate then
 						( ep_def_finishHorizonDate - ep_startHorizonDate ) + 1[day]
@@ -66,12 +73,15 @@ Model Main_VesselScheduling {
 				}
 			}
 			StringParameter sp_def_beginDate {
+				Comment: "Default start date of the cal_days calendar, used as the outer boundary for the calendar definition.";
 				Definition: "2023-01-01";
 			}
 			StringParameter sp_def_endDate {
+				Comment: "Default end date of the cal_days calendar, used as the outer boundary for the calendar definition.";
 				Definition: "2023-12-31";
 			}
 			Procedure pr_initCalendar {
+				Comment: "Initializes the planning calendar by setting sp_today to the current date and setting ep_startHorizonDate to the first element of cal_days.";
 				Body: {
 					sp_today := CurrentToString("%c%y-%m-%d");
 					!ep_startHorizonDate := StringToElement(cal_days, sp_today, 0);
@@ -80,23 +90,29 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section Cargoes {
+			Comment: "Master data for cargoes: sets, indices, activation flags, cost parameters, port assignments, and time windows.";
 			Set s_cargoes {
 				Index: i_cargo_aux;
 				Parameter: ep_cargo;
+				Comment: "Master set of all cargoes defined in the problem instance.";
 			}
 			Index i_cargo {
 				Range: s_cargoes;
+				Comment: "General index over all cargoes in s_cargoes.";
 				dex::ColumnName: Cargo;
 			}
 			Index i_act_cargo {
 				Range: s_def_activeCargoes;
+				Comment: "Index over active cargoes only (those with bp_activeCargoes = 1).";
 				dex::ColumnName: Cargo;
 			}
 			Index i_act_cargo_aux {
 				Range: s_def_activeCargoes;
+				Comment: "Auxiliary index over active cargoes, used to copy cargo data across routes.";
 			}
 			Set s_def_activeCargoes {
 				SubsetOf: s_cargoes;
+				Comment: "Subset of cargoes that are currently active (bp_activeCargoes = 1) and included in the optimization.";
 				Definition: {
 					{i_cargo | bp_activeCargoes(i_cargo)}
 				}
@@ -105,10 +121,12 @@ Model Main_VesselScheduling {
 				IndexDomain: i_cargo;
 				Range: binary;
 				InitialData: 1;
+				Comment: "Flag indicating whether cargo i_cargo is active (1) and should be included in the optimization, or inactive (0).";
 			}
 			Parameter p_spotCostVessel {
 				IndexDomain: i_cargo;
 				Unit: $;
+				Comment: "Cost of fulfilling cargo i_cargo using a chartered (spot) vessel instead of an owned vessel.";
 				dex::ColumnName: Spot Cost;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -117,6 +135,7 @@ Model Main_VesselScheduling {
 			ElementParameter ep_minTimeWindow {
 				IndexDomain: i_cargo;
 				Range: cal_days;
+				Comment: "Earliest calendar day on which cargo i_cargo can be loaded (start of the pickup time window).";
 				dex::ColumnName: Minimum Loading Time;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -125,6 +144,7 @@ Model Main_VesselScheduling {
 			ElementParameter ep_maxTimeWindow {
 				IndexDomain: i_cargo;
 				Range: cal_days;
+				Comment: "Latest calendar day on which cargo i_cargo can be loaded (end of the pickup time window).";
 				dex::ColumnName: Maximum Loading Time;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -133,6 +153,7 @@ Model Main_VesselScheduling {
 			ElementParameter ep_loadingPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
+				Comment: "Loading (pickup) port for cargo i_cargo.";
 				dex::ColumnName: Loading Port;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -140,10 +161,12 @@ Model Main_VesselScheduling {
 			}
 			StringParameter sp_loadingPortsCargo {
 				IndexDomain: i_cargo;
+				Comment: "String representation of the loading port for cargo i_cargo, used as input from the Python bridge before mapping to s_locations elements.";
 			}
 			ElementParameter ep_deliveringPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
+				Comment: "Delivery port for cargo i_cargo.";
 				dex::ColumnName: Delevering Port;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -151,10 +174,12 @@ Model Main_VesselScheduling {
 			}
 			StringParameter sp_deliveringPortsCargo {
 				IndexDomain: i_cargo;
+				Comment: "String representation of the delivery port for cargo i_cargo, used as input from the Python bridge before mapping to s_locations elements.";
 			}
 			Parameter p_def_deliveryTimeCargo {
 				IndexDomain: i_cargo;
 				Unit: day;
+				Comment: "Travel time in days from the loading port to the delivery port of cargo i_cargo, based on the selected distance metric.";
 				Definition: {
 					p_def_distanceBetweenLocations(
 						ep_loadingPortsCargo(i_cargo), 
@@ -165,6 +190,7 @@ Model Main_VesselScheduling {
 				IndexDomain: (i_cargo);
 				Range: free;
 				Unit: $;
+				Comment: "Fixed cost associated with transporting cargo i_cargo on a scheduled vessel route.";
 				dex::ColumnName: Fixed Cost;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: CargoData;
@@ -173,6 +199,7 @@ Model Main_VesselScheduling {
 			Set s_def_loadingPorts {
 				SubsetOf: s_locations;
 				Index: i_locLoad;
+				Comment: "Subset of locations that serve as a loading (pickup) port for at least one cargo.";
 				Definition: {
 					{i_loc | exists(i_cargo | i_loc = ep_loadingPortsCargo(i_cargo))}
 				}
@@ -180,6 +207,7 @@ Model Main_VesselScheduling {
 			Set s_def_deleveringPorts {
 				SubsetOf: s_locations;
 				Index: i_locDeliv;
+				Comment: "Subset of locations that serve as a delivery port for at least one cargo.";
 				Definition: {
 					{i_loc | exists(i_cargo | i_loc = ep_deliveringPortsCargo(i_cargo))}
 				}
@@ -187,6 +215,7 @@ Model Main_VesselScheduling {
 			Set s_def_vesselOriginPorts {
 				SubsetOf: s_locations;
 				Index: i_locVess;
+				Comment: "Subset of locations that are origin (berth) ports for at least one active vessel.";
 				Definition: {
 					{i_loc | exists(i_act_vessel | i_loc = ep_originPortOfVessel(i_act_vessel))}
 				}
@@ -194,16 +223,19 @@ Model Main_VesselScheduling {
 			Parameter p_def_minTimeWindow {
 				IndexDomain: i_cargo;
 				Unit: day;
+				Comment: "Minimum loading time of cargo i_cargo expressed as number of days elapsed since ep_startHorizonDate.";
 				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_minTimeWindow(i_cargo));
 			}
 			Parameter p_def_maxTimeWindow {
 				IndexDomain: i_cargo;
 				Unit: day;
+				Comment: "Maximum loading time of cargo i_cargo expressed as number of days elapsed since ep_startHorizonDate.";
 				Definition: StringToMoment("%c%y-%m-%d", [day], ep_startHorizonDate, ep_maxTimeWindow(i_cargo));
 			}
 			Parameter p_def_maxDeliveryDate {
 				IndexDomain: i_cargo;
 				Unit: day;
+				Comment: "Latest possible delivery date for cargo i_cargo: maximum pickup time plus the transit time to the delivery port.";
 				Definition: {
 					p_def_maxTimeWindow(i_cargo) +
 					p_def_deliveryTimeCargo(i_cargo)
@@ -211,6 +243,7 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section Vessels {
+			Comment: "Master data for vessels: sets, indices, activation flags, speed, costs, and activity type definitions.";
 			Parameter p_vesselVelocity {
 				Unit: km/hour;
 				InitialData: 37.04;
@@ -218,14 +251,17 @@ Model Main_VesselScheduling {
 			}
 			Set s_vessels {
 				Parameter: ep_vessel;
+				Comment: "Master set of all vessels defined in the problem instance.";
 			}
 			Index i_vessel {
 				Range: s_vessels;
+				Comment: "General index over all vessels in s_vessels.";
 				dex::ColumnName: Vessel;
 			}
 			Set s_def_activeVessels {
 				SubsetOf: s_vessels;
 				Index: i_act_vessel;
+				Comment: "Subset of vessels that are currently active (bp_activeVessels = 1) and included in the optimization.";
 				Definition: {
 					{i_vessel | bp_activeVessels(i_vessel)}
 				}
@@ -234,10 +270,12 @@ Model Main_VesselScheduling {
 				IndexDomain: i_vessel;
 				Range: binary;
 				InitialData: 1;
+				Comment: "Flag indicating whether vessel i_vessel is active (1) and available for route assignment, or inactive (0).";
 			}
 			ElementParameter ep_originPortOfVessel {
 				IndexDomain: i_vessel;
 				Range: s_locations;
+				Comment: "Starting location (berth port) of vessel i_vessel at the beginning of the planning horizon.";
 				dex::ColumnName: Port of Origin;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: VesselData;
@@ -255,6 +293,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_idleCostVesselNotUsed {
 				IndexDomain: i_vessel;
 				Unit: $;
+				Comment: "Total idle cost penalty for vessel i_vessel if it is not assigned to any route over the full planning horizon.";
 				Definition: {
 					p_def_noDaysSchedule * 
 					p_idleCostLocation( ep_originPortOfVessel( i_vessel ) )
@@ -262,6 +301,7 @@ Model Main_VesselScheduling {
 			}
 			Set s_def_vesselActivities {
 				Index: i_vesselActivities;
+				Comment: "Enumeration of all possible activity types a vessel can perform during a route leg.";
 				Definition: {
 					data { 
 						idleNothingToDo,  ! Waiting; no more cargos to be handled for this route.
@@ -274,21 +314,27 @@ Model Main_VesselScheduling {
 			}
 			ElementParameter ep_def_vesselIdleWaitCargo {
 				Range: s_def_vesselActivities;
+				Comment: "Constant element representing the 'idle waiting for cargo' activity type.";
 				Definition: 'idleWaitForCargo';
 			}
 			ElementParameter ep_def_vesselIdleRetired {
 				Range: s_def_vesselActivities;
+				Comment: "Constant element representing the 'idle with nothing to do' activity type (waiting until end of horizon).";
 				Definition: 'idleNothingToDo';
 			}
 			ElementParameter ep_def_vesselSailingPickup {
 				Range: s_def_vesselActivities;
+				Comment: "Constant element representing the 'sailing to pickup port' activity type.";
 				Definition: 'sailingPickup';
 			}
 			ElementParameter ep_def_vesselSailingDelivery {
 				Range: s_def_vesselActivities;
+				Comment: "Constant element representing the 'sailing to delivery port' activity type.";
 				Definition: 'sailingDelivery';
 			}
 			StringParameter sp_vesselActivityPresentation {
+				Comment: "Human-readable display text for each vessel activity type, used in WebUI widgets via the ElementTextIdentifier.";
+
 				IndexDomain: i_vesselActivities;
 				Definition: {
 					data { 
@@ -301,27 +347,34 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section Locations {
+			Comment: "Master data for port locations: sets, indices, activation flags, geographic coordinates, cost parameters, and distance calculations.";
 			Set s_locations {
 				Parameter: ep_location;
+				Comment: "Master set of all port locations defined in the problem instance.";
 			}
 			Parameter p_noLocations {
+				Comment: "Total number of locations in s_locations.";
 				Definition: card(s_locations);
 			}
 			Index i_loc {
 				Range: s_locations;
+				Comment: "General index over all locations in s_locations.";
 				dex::ColumnName: Location;
 			}
 			Index i_loc_from {
 				Range: s_locations;
+				Comment: "Origin location index used in distance matrices.";
 				dex::ColumnName: Location (From);
 			}
 			Index i_loc_to {
 				Range: s_locations;
+				Comment: "Destination location index used in distance matrices.";
 				dex::ColumnName: Location (To);
 			}
 			Set s_def_activeLocations {
 				SubsetOf: s_locations;
 				Index: i_act_loc;
+				Comment: "Subset of locations that are currently active (bp_activeLocations = 1) and included in the model.";
 				Definition: {
 					{i_loc | bp_activeLocations(i_loc)}
 				}
@@ -330,15 +383,18 @@ Model Main_VesselScheduling {
 				IndexDomain: i_loc;
 				Range: binary;
 				InitialData: 1;
+				Comment: "Flag indicating whether location i_loc is active (1) and available for routing, or inactive (0).";
 			}
 			Parameter p_latitude {
 				IndexDomain: i_loc;
+				Comment: "Geographic latitude (in decimal degrees) of location i_loc, used in Haversine distance calculations.";
 				dex::ColumnName: Latitude;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
 			}
 			Parameter p_longitude {
 				IndexDomain: i_loc;
+				Comment: "Geographic longitude (in decimal degrees) of location i_loc, used in Haversine distance calculations.";
 				dex::ColumnName: Longitude;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
@@ -354,6 +410,7 @@ Model Main_VesselScheduling {
 			Parameter p_adminCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
+				Comment: "Administrative cost incurred each time a vessel visits location i_loc.";
 				dex::ColumnName: Admin Cost;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
@@ -362,6 +419,7 @@ Model Main_VesselScheduling {
 			Parameter p_loadingCostAtLocation {
 				IndexDomain: (i_loc);
 				Unit: $;
+				Comment: "Loading cost incurred when a vessel picks up a cargo at location i_loc.";
 				dex::ColumnName: Loading Cost;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: LocationData;
@@ -370,6 +428,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_haversineDistance {
 				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
 				Unit: km;
+				Comment: "Great-circle (Haversine) distance in km between i_loc_from and i_loc_to, calculated from their latitude/longitude coordinates.";
 				Definition: {
 					((6371.0[km])
 					    * arccos(
@@ -384,6 +443,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_harvesineDistanceBetweenLocations {
 				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
 				Unit: day;
+				Comment: "Travel time in days between i_loc_from and i_loc_to based on the Haversine (great-circle) distance divided by vessel velocity.";
 				Definition: {
 					p_def_haversineDistance(i_loc_from, i_loc_to)
 					/$ p_vesselVelocity
@@ -392,6 +452,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_searouteDistanceBetweenLocations {
 				IndexDomain: (i_loc_from,i_loc_to)| i_loc_from <> i_loc_to;
 				Unit: day;
+				Comment: "Travel time in days between i_loc_from and i_loc_to based on the sea-route distance (from the pre-computed Parquet matrix) divided by vessel velocity.";
 				Definition: {
 					( p_distance_searoute(i_loc_from, i_loc_to) + p_distance_searoute(i_loc_to, i_loc_from) )[km] 
 					/$ p_vesselVelocity
@@ -400,6 +461,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_distanceBetweenLocations {
 				IndexDomain: (i_loc_from, i_loc_to);
 				Unit: day;
+				Comment: "Selected travel time in days between i_loc_from and i_loc_to: uses sea-route distances when bp_use_searoute_distances is 1, otherwise uses Haversine distances; rounded to whole days.";
 				Definition: {
 					if bp_use_searoute_distances then
 						round(p_def_searouteDistanceBetweenLocations(i_loc_from, i_loc_to),0)
@@ -410,12 +472,15 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section Routes {
+			Comment: "Declarations for feasible route generation and route cost calculations, including sets, indices, activity data, and cost parameters.";
 			Set s_routeCalculationImplementations {
+				Comment: "Set of available route calculation implementations: 'scalar' (sequential) and 'parallelized' (batch).";
 				Definition: data { scalar, parallelized };
 			}
 			ElementParameter ep_selectedRouteCalculationImplementation {
 				Range: s_routeCalculationImplementations;
 				InitialData: 'parallelized';
+				Comment: "Currently selected route calculation implementation to use when generating all feasible routes.";
 				dex::ColumnName: routeCalculationImplementation;
 				dex::Dataset: ImportDataSet;
 				dex::TableName: Horizon;
@@ -423,26 +488,32 @@ Model Main_VesselScheduling {
 			Set s_calc_feasibleRoutes {
 				Index: i_route;
 				Parameter: ep_route;
+				Comment: "Set of all feasible routes generated for the active vessels and cargoes. Each route represents a sequence of cargo pickups and deliveries for one vessel.";
 			}
 			Parameter p_noFeasibleRoutes {
+				Comment: "Total number of feasible routes currently generated in s_calc_feasibleRoutes.";
 				Definition: card( s_calc_feasibleRoutes );
 			}
 			Index i_leg {
 				Range: s_calc_legs;
+				Comment: "Index over the legs (activity steps) of a route, ranging over s_calc_legs.";
 				dex::ColumnName: Leg;
 			}
 			Index i_leg_aux {
 				Range: s_calc_legs;
+				Comment: "Auxiliary leg index used in route building logic when iterating over legs independently of i_leg.";
 			}
 			Set s_calc_legs {
 				SubsetOf: Integers;
 				Property: ElementsAreLabels;
+				Comment: "Set of integer leg numbers (1..200) used as position indices for vessel activity legs within a route.";
 				Definition: {
 					{ 1 .. 200 }
 				}
 			}
 			Index i_used_route {
 				Range: s_calc_usedRoutes;
+				Comment: "Index over the routes that are actually used in the optimal solution (subset of s_calc_feasibleRoutes).";
 				dex::ColumnName: Route;
 			}
 			Set s_calc_usedRoutes {
@@ -453,6 +524,7 @@ Model Main_VesselScheduling {
 				IndexDomain: i_route;
 				SubsetOf: s_cargoes;
 				OrderBy: user;
+				Comment: "For each route i_route, the set of cargoes that are picked up and delivered on that route.";
 			}
 			Set s_temp_routeWorkingList {
 				SubsetOf: s_calc_feasibleRoutes;
@@ -468,10 +540,12 @@ Model Main_VesselScheduling {
 			ElementParameter ep_temp_lastLocation {
 				IndexDomain: i_route;
 				Range: s_locations;
+				Comment: "Temporary: the last location reached by route i_route after processing all cargoes added so far, used during route generation.";
 			}
 			ElementParameter ep_temp_nextSailingDay {
 				IndexDomain: i_route;
 				Range: cal_days;
+				Comment: "Temporary: the earliest day a vessel on route i_route is available to depart after delivering the last cargo added so far.";
 			}
 			ElementParameter ep_calc_pickupDate {
 				IndexDomain: (i_route,i_cargo);
@@ -481,23 +555,28 @@ Model Main_VesselScheduling {
 			ElementParameter ep_calc_deliveryDate {
 				IndexDomain: (i_route,i_cargo);
 				Range: cal_days;
+				Comment: "Computed delivery date of cargo i_cargo on route i_route, based on pickup date plus transit time.";
 			}
 			ElementParameter ep_calc_routeVessel {
 				IndexDomain: i_route;
 				Range: s_vessels;
+				Comment: "The vessel that is assigned to route i_route during route generation.";
 			}
 			ElementParameter ep_calc_routeLastLeg {
 				IndexDomain: i_route;
 				Range: s_calc_legs;
+				Comment: "Index of the last active leg of route i_route in s_calc_legs.";
 			}
 			ElementParameter ep_calc_vesselActivityType {
 				IndexDomain: (i_route, i_leg);
 				Range: s_def_vesselActivities;
+				Comment: "Activity type performed by the vessel at leg i_leg of route i_route (e.g., sailingPickup, sailingDelivery, idleWaitForCargo).";
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			ElementParameter ep_calc_vesselActivityCargo {
 				IndexDomain: (i_route, i_leg);
 				Range: s_cargoes;
+				Comment: "The cargo associated with the vessel activity at leg i_leg of route i_route.";
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			ElementParameter ep_calc_vesselActivityLocation {
@@ -520,20 +599,24 @@ Model Main_VesselScheduling {
 			ElementParameter ep_calc_vesselActivityLast {
 				IndexDomain: (i_route,i_leg);
 				Range: cal_days;
+				Comment: "Last day of the vessel activity at leg i_leg of route i_route.";
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_calc_arcsPerRoute {
 				IndexDomain: (i_route,i_loc_from,i_loc_to);
 				Range: binary;
+				Comment: "1 if route i_route includes a sailing leg from i_loc_from to i_loc_to; used to draw arcs on the map.";
 			}
 			Parameter p_def_vesselActivityLength {
 				IndexDomain: (i_route,i_leg) | ep_calc_vesselActivityLast(i_route, i_leg);
 				Unit: day;
+				Comment: "Duration in days of the vessel activity at leg i_leg of route i_route (last day minus first day).";
 				Definition: ((ep_calc_vesselActivityLast(i_route, i_leg) - ep_calc_vesselActivityFirst(i_route, i_leg)));
 			}
 			Parameter p_def_routeSailingDays {
 				IndexDomain: i_route;
 				Unit: day;
+				Comment: "Total number of sailing days for route i_route, summed over all pickup and delivery sailing legs.";
 				Definition: {
 					sum(i_leg | 
 					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselSailingPickup 
@@ -544,6 +627,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_routeIdleDays {
 				IndexDomain: i_route;
 				Unit: day;
+				Comment: "Total number of idle days for route i_route, summed over all waiting-for-cargo and idle-retired legs.";
 				Definition: {
 					sum( i_leg | 
 						ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo or
@@ -554,6 +638,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_routeSailingCost {
 				IndexDomain: i_route;
 				Unit: $;
+				Comment: "Total sailing cost for route i_route: sailing days multiplied by the per-day sailing cost of the vessel assigned to the route.";
 				Definition: {
 					p_def_routeSailingDays(i_route) 
 					* p_sailingCost(ep_calc_routeVessel(i_route))
@@ -581,8 +666,9 @@ Model Main_VesselScheduling {
 			Parameter p_def_cargoCost {
 				IndexDomain: i_route;
 				Unit: $;
+				Comment: "Total fixed cargo cost for route i_route: the sum of p_cargoCost for all cargoes handled on the route.";
 				Definition: {
-					sum(i_cargo | 
+					sum(i_cargo |
 					        i_cargo in s_calc_cargosHandled(i_route),
 						p_cargoCost(i_cargo))
 				}
@@ -590,6 +676,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_routeIdleCost {
 				IndexDomain: i_route;
 				Unit: $;
+				Comment: "Total idle cost for route i_route: sum of idle duration at each idle leg multiplied by the idle cost rate at the vessel's location.";
 				Definition: {
 					sum(i_leg | 
 					        ep_calc_vesselActivityType(i_route, i_leg) = ep_def_vesselIdleWaitCargo
@@ -601,6 +688,7 @@ Model Main_VesselScheduling {
 			Parameter p_def_routeCosts {
 				IndexDomain: i_route;
 				Unit: $;
+				Comment: "Total cost for route i_route: sailing cost + location visiting cost + cargo cost + idle cost.";
 				Definition: {
 					p_def_routeSailingCost(i_route) 
 					+ p_def_visitingLocationCost(i_route) 
@@ -618,16 +706,19 @@ Model Main_VesselScheduling {
 			Parameter p_def_cargoesOnRoute {
 				IndexDomain: (i_route,i_cargo);
 				Range: nonnegative;
+				Comment: "1 if cargo i_cargo is handled on route i_route; 0 otherwise. Used as a coefficient in the cargo assignment constraint.";
 				Definition: 1 $ (i_cargo in s_calc_cargosHandled(i_route));
 			}
 			Parameter bp_def_cargoesOnRoute {
 				IndexDomain: (i_route,i_act_cargo);
 				Range: binary;
+				Comment: "Binary version of p_def_cargoesOnRoute restricted to active cargoes.";
 				Definition: 1 $ p_def_cargoesOnRoute(i_route,i_act_cargo);
 			}
 			Parameter p_def_deleveringTimeCargoRoute {
 				IndexDomain: (i_act_cargo,i_route) | p_def_cargoesOnRoute(i_route,i_act_cargo);
 				Unit: day;
+				Comment: "Day (offset from ep_startHorizonDate) on which cargo i_act_cargo is delivered when following route i_route.";
 				Definition: {
 					(p_def_loadingTimeCargoRoute(i_act_cargo, i_route) 
 					+ p_def_distanceBetweenLocations(ep_loadingPortsCargo(i_act_cargo), ep_deliveringPortsCargo(i_act_cargo)))
@@ -637,6 +728,7 @@ Model Main_VesselScheduling {
 			Parameter bp_def_deliveringLocationsOnRoute {
 				IndexDomain: (i_route,i_loc);
 				Range: binary;
+				Comment: "1 if location i_loc is visited as a delivery destination on route i_route; used for map visualization of used routes.";
 				Definition: {
 					exists(i_leg | 
 					    ep_calc_vesselActivityLocation(i_route, i_leg) = i_loc
@@ -646,6 +738,7 @@ Model Main_VesselScheduling {
 			Parameter bp_def_loadingLocationsOnRoute {
 				IndexDomain: (i_used_route,i_loc);
 				Range: binary;
+				Comment: "1 if location i_loc is visited as a loading point (pickup or origin) on used route i_used_route; used for map visualization.";
 				Definition: {
 					exists(i_leg | 
 					    (ep_calc_vesselActivityLocation(i_used_route, i_leg) = i_loc
@@ -657,6 +750,7 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_calculateRoutesAndCost {
 				Arguments: (ep_routeCalculationImplementation);
+				Comment: "Generates all feasible vessel routes using the selected implementation (scalar or parallelized), computes vessel activity legs, and builds arc data for map visualization.";
 				Body: {
 					! Determine horizon start (is read in via Excel inp).
 					! Determine horizon length (is end - start) whereby
@@ -697,6 +791,7 @@ Model Main_VesselScheduling {
 				Comment: "Empty the route set, and its element space.";
 			}
 			Procedure pr_initRouteSetWithVesselsOnly {
+				Comment: "Initializes s_calc_feasibleRoutes with one empty route per active vessel, setting the starting location and date for each vessel, and populating the working list.";
 				Body: {
 					ep_loc_leg := first(s_calc_legs);
 					
@@ -731,6 +826,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_processRouteList {
+				Comment: "Scalar (sequential) route generation: iterates over the working list one route at a time, calling pr_processSingleRoute for each to expand the feasible route set.";
 				Body: {
 					while card(s_temp_routeWorkingList) do
 						ep_loc_workingRoute := first(s_temp_routeWorkingList);
@@ -744,6 +840,7 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_processSingleRoute {
 				Arguments: (ep_in_workingRoute);
+				Comment: "For a given working route ep_in_workingRoute, computes feasibility of adding each active cargo and creates new child routes for all feasible cargo additions, appending them to the working list.";
 				Body: {
 					! Earliest possible arrival:
 					ep_loc_arrivalDay(i_act_cargo) 
@@ -886,6 +983,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_processRouteListEx {
+				Comment: "Parallelized (batch) route generation: processes all routes in the working list simultaneously per iteration, computing feasibility and creating child routes in bulk using indexed assignments for performance.";
 				Body: {
 						_ep_tmp_vesselActivityType(     i_route, i_leg ) := ep_calc_vesselActivityType(     i_route, i_leg );
 						_ep_tmp_vesselActivityCargo(    i_route, i_leg ) := ep_calc_vesselActivityCargo(    i_route, i_leg );
@@ -1103,6 +1201,7 @@ Model Main_VesselScheduling {
 		}
 	}
 	Procedure MainExecution {
+		Comment: "Main solve procedure for the WebUI: delegates to AIMMS PRO server when running in cloud or end-user mode, otherwise solves locally, then updates the WebUI pages with the solution.";
 		Body: {
 			! Check if connected to PRO or running as an end-user
 			if pro::GetPROEndPoint() or not ProjectDeveloperMode() then
@@ -1126,8 +1225,11 @@ Model Main_VesselScheduling {
 		}
 	}
 	Section Python_Bridge_Support {
+		Comment: "Support sections for integrating Python-based sea-route distance calculations and the AIMMS-Python bridge for the vessel scheduling model.";
 		Section aimmspy_Leverage {
+			Comment: "Procedures that use the AIMMS-Python (aimmspy) bridge to exchange data with Python scripts for sea-route distance computation.";
 			Procedure pr_processPythonInput {
+				Comment: "Maps the string-based loading and delivering port identifiers (from Python) to AIMMS s_locations elements, and raises warnings for unrecognized port names.";
 				Body: {
 					! Display the set of valid locations
 					block where single_column_display := 1;
@@ -1155,6 +1257,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_echoInput {
+				Comment: "Displays all input data (horizon start, location data, cargo data, vessel data) to the AIMMS listing for debugging and verification purposes.";
 				Body: {
 					! Display the model's planning start date
 					display ep_startHorizonDate ;
@@ -1171,6 +1274,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_genRoutesSolve {
+				Comment: "Activates all master data, sets default vessel velocity if needed, runs the model, and executes post-processing to extract vessel, cargo, and route results.";
 				Body: {
 					! Set a default value for vessel velocity if it's currently undefined
 					if not p_vesselVelocity then
@@ -1192,6 +1296,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_echoOutput {
+				Comment: "Displays all solution output data (vessel results, cargo overview, route overview) to the AIMMS listing for debugging purposes.";
 				Body: {
 					! --- Vessel Results ---
 					display { 
@@ -1220,19 +1325,28 @@ Model Main_VesselScheduling {
 		}
 		Module LeveragePythonAimms {
 			Prefix: lpa;
-			Parameter p_scalar;
-			Parameter p_globRouteLength;
+			Comment: "Module providing a Python-based sea-route calculation service, exposing a procedure to retrieve waypoints and route length for a pair of locations.";
+			Parameter p_scalar {
+				Comment: "Scalar parameter used for testing the AIMMS-Python scalar data exchange.";
+			}
+			Parameter p_globRouteLength {
+				Comment: "Global output parameter storing the total route length returned by the Python sea-route function.";
+			}
 			Set s_globWaypoints {
 				SubsetOf: Integers;
 				Index: i_globWayPoint;
+				Comment: "Global set of integer indices representing the waypoints returned by the Python sea-route function.";
 			}
 			Parameter p_globLat {
 				IndexDomain: i_globWayPoint;
+				Comment: "Latitude of each waypoint i_globWayPoint returned by the Python sea-route function.";
 			}
 			Parameter p_globLon {
 				IndexDomain: i_globWayPoint;
+				Comment: "Longitude of each waypoint i_globWayPoint returned by the Python sea-route function.";
 			}
 			Procedure pr_testScalar {
+				Comment: "Test procedure that scans the Python source and invokes the test_scalar Python function to verify scalar data exchange.";
 				Body: {
 					pr_scanPythonSource();
 					py::run_python_statement("test_scalar(\"lpa::p_scalar\")");
@@ -1240,6 +1354,7 @@ Model Main_VesselScheduling {
 			}
 			Procedure pr_getRoute {
 				Arguments: (ep_from,ep_to,p_routeLength,s_waypoints,p_latWP,p_lonWP);
+				Comment: "Calls the Python searoute_route2 function to retrieve the sea route between ep_from and ep_to, storing the route length in p_routeLength and the waypoint coordinates in s_waypoints/p_latWP/p_lonWP.";
 				Body: {
 					! --- Input Validation ---
 					block ! Sanity check for route definition elements
@@ -1311,39 +1426,60 @@ Model Main_VesselScheduling {
 			}
 		}
 		Section pyaimms_Leverage {
+			Comment: "Procedures and parameters for computing and caching sea-route distances using the Python searoute library, and toggling between Haversine and sea-route distance modes.";
 			StringParameter sp_seaRouteDistanceFilename {
+				Comment: "Path to the Parquet file storing the pre-computed sea-route distance matrix between all location pairs.";
 				Definition: "data/distanceMatrixFromSeaRoute.parquet";
 			}
-			Parameter p_totlen;
-			Parameter p_nowaypoints;
+			Parameter p_totlen {
+				Comment: "Total length of the last sea route computed during a test call.";
+			}
+			Parameter p_nowaypoints {
+				Comment: "Number of waypoints in the last sea route computed during a test call.";
+			}
 			Set s_waypoints {
 				SubsetOf: Integers;
 				Index: i_wayno;
 				Property: ElementsAreLabels;
+				Comment: "Set of integer indices for the waypoints of the last sea route computed during a test call.";
 			}
 			Parameter p_wayLat {
 				IndexDomain: i_wayno;
+				Comment: "Latitude of each waypoint i_wayno for the last sea route computed during a test call.";
 			}
 			Parameter p_wayLon {
 				IndexDomain: i_wayno;
+				Comment: "Longitude of each waypoint i_wayno for the last sea route computed during a test call.";
 			}
-			Parameter p_origLat;
-			Parameter p_origLon;
-			Parameter p_destLat;
-			Parameter p_destLon;
+			Parameter p_origLat {
+				Comment: "Latitude of the origin location used during a sea-route test call.";
+			}
+			Parameter p_origLon {
+				Comment: "Longitude of the origin location used during a sea-route test call.";
+			}
+			Parameter p_destLat {
+				Comment: "Latitude of the destination location used during a sea-route test call.";
+			}
+			Parameter p_destLon {
+				Comment: "Longitude of the destination location used during a sea-route test call.";
+			}
 			Parameter p_distance_searoute {
 				IndexDomain: (i_loc_from,i_loc_to);
+				Comment: "Pre-computed sea-route distance in km between location i_loc_from and i_loc_to, loaded from the Parquet distance matrix file.";
 			}
 			Parameter bp_use_searoute_distances {
 				Range: binary;
 				InitialData: 0;
+				Comment: "When 1, p_def_distanceBetweenLocations uses the sea-route distances from p_distance_searoute; when 0, it uses Haversine distances.";
 			}
 			Parameter bp_python_source_scanned {
 				Range: binary;
 				Property: NoSave;
 				InitialData: 0;
+				Comment: "Flag indicating whether the Python source script has already been executed in the current session; prevents redundant re-execution.";
 			}
 			Procedure pr_testGetRoute {
+				Comment: "Test procedure that validates sea-route retrieval between two hardcoded locations (Caldera,Chile and Bahia Blanca,Argentina), displaying the route length and waypoint coordinates.";
 				Body: {
 					! --- Precondition Check ---
 					if not card( s_locations ) then
@@ -1388,6 +1524,7 @@ Model Main_VesselScheduling {
 				Parameter _p_len;
 			}
 			Procedure pr_scanPythonSource {
+				Comment: "Ensures the Python script 'leverage-sea-route.py' is executed once per session to make the sea-route functions available for subsequent Python calls.";
 				Body: {
 					! --- Python Initialization ---
 					! Check if the Python source code has already been executed/scanned
@@ -1403,6 +1540,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_testSeaRoute {
+				Comment: "Test procedure that calls the Python searoute_route function for two hardcoded locations, displaying validated elements and their coordinates.";
 				Body: {
 					! --- Define and Validate Endpoints ---
 					ep_locOrig := StringToElement(s_locations, "Ponta da Madeira,Brazil"); ! Convert origin string to location element
@@ -1442,12 +1580,14 @@ Model Main_VesselScheduling {
 				StringParameter _sp_pyCall;
 			}
 			Procedure pr_distanceMatrixFromSeaRoute {
+				Comment: "Computes the full sea-route distance matrix for all location pairs by calling the Python searoute_distance_matrix function.";
 				Body: {
 					pr_scanPythonSource();
 					py::run_python_statement("searoute_distance_matrix()");
 				}
 			}
 			Procedure pr_saveSeaRouteDistanceMatrixToParquet {
+				Comment: "Exports the sea-route distance matrix from p_distance_searoute to the Parquet file defined by sp_seaRouteDistanceFilename using the distanceMatrixParquet DEX mapping.";
 				Body: {
 					! --- Data Export Mapping Setup ---
 					dex::AddMapping(
@@ -1462,6 +1602,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_readSeaRouteDistanceMatrixFromParquet {
+				Comment: "Reads the pre-computed sea-route distance matrix from the Parquet file defined by sp_seaRouteDistanceFilename into p_distance_searoute, without clearing existing identifiers or sets.";
 				Body: {
 					! --- Data Import Mapping Setup ---
 					dex::AddMapping(
@@ -1478,6 +1619,7 @@ Model Main_VesselScheduling {
 				}
 			}
 			Procedure pr_toggle_distance_computation {
+				Comment: "Toggles between Haversine and sea-route distance modes: if sea-route is active, switches it off; if inactive, loads or computes the distance matrix and activates sea-route distances, updating the WebUI status bar.";
 				Body: {
 					! --- Toggle Distance Calculation/Usage ---
 					if card( s_locations ) then ! Only proceed if location data has been loaded
@@ -1513,10 +1655,11 @@ Model Main_VesselScheduling {
 		}
 	}
 	Section Library_Initialization_and_Termination {
+		Comment: "Standard AIMMS model initialization and termination procedures for VesselScheduling.";
 		Procedure MainInitialization {
 			Body: {
 				!ProfilerStart();
-				
+
 				pr_initCalendar;
 			}
 			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
@@ -1528,6 +1671,7 @@ Model Main_VesselScheduling {
 			}
 		}
 		Procedure pr_startupProcedure {
+			Comment: "Startup procedure that either handles existing generated DEX dataset annotations or generates new mappings, then reads all DEX mappings into memory.";
 			Body: {
 				if DirectoryExists( "Mappings/Generated" ) then
 					dex::HandleDatasetAnnotations(); ! Needed for dex::DatasetTableMapping

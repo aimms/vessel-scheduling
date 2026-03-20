@@ -3,9 +3,12 @@
 LibraryModule Library_ZipLibrary {
 	Prefix: zip;
 	Interface: Public_Section;
+	Comment: "Provides cross-platform (Windows and Linux) utilities for compressing a folder into a ZIP archive and extracting a ZIP archive into a folder.";
 	Section Public_Section {
+		Comment: "Publicly accessible procedures for ZIP compression and extraction.";
 		Procedure pr_zipFolderToFile {
 			Arguments: (sp_folderName,sp_destinationFile);
+			Comment: "Compresses the contents of sp_folderName into a ZIP file at sp_destinationFile. Deletes any existing destination file before creating the archive. Uses PowerShell on Windows and the zip command on Linux.";
 			Body: {
 				CurrentErrorMessage := "" ;
 				if sp_destinationFile then
@@ -31,6 +34,7 @@ LibraryModule Library_ZipLibrary {
 		}
 		Procedure pr_unzipFileToFolder {
 			Arguments: (sp_fileName,sp_destinationFolderName);
+			Comment: "Extracts the ZIP archive sp_fileName into the folder sp_destinationFolderName. Removes any existing destination folder before extraction. Uses PowerShell on Windows and the unzip command on Linux.";
 			Body: {
 				CurrentErrorMessage := "" ;
 				if sp_destinationFolderName and ( sp_destinationFolderName <> "." ) then
@@ -64,7 +68,9 @@ LibraryModule Library_ZipLibrary {
 		}
 	}
 	Section Private_Section {
+		Comment: "Internal lifecycle procedures for the ZipLibrary library module.";
 		Section Library_Initialization_and_Termination {
+			Comment: "Standard AIMMS library initialization and termination procedures.";
 			Procedure LibraryInitialization {
 				Comment: "Add initialization statements here that do not require any other library being initialized already.";
 			}

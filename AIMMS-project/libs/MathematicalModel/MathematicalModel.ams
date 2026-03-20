@@ -3,10 +3,13 @@
 LibraryModule MathematicalModel {
 	Prefix: mm;
 	Interface: MathematicalModel;
+	Comment: "Contains the mathematical optimization model for the Vessel Scheduling problem, including pre-execution cost calculations, decision variables, constraints, the MIP model, and post-execution result extraction procedures.";
 	Section Pre_Execution {
+		Comment: "Pre-execution declarations: computed cost parameters that feed into the objective function.";
 		Parameter p_def_operationalCostPerRoute {
 			IndexDomain: i_route;
 			Unit: $;
+			Comment: "Total operational cost for a given route, aggregating cargo cost, location visiting cost, idle cost, and sailing cost.";
 			Definition: {
 				p_def_cargoCost(i_route)
 				+ p_def_visitingLocationCost(i_route)
@@ -16,13 +19,15 @@ LibraryModule MathematicalModel {
 		}
 	}
 	Procedure pr_runModel {
+		Comment: "Generates all feasible routes with their costs using the selected calculation implementation, then solves the vessel scheduling MIP model.";
 		Body: {
 			pr_calculateRoutesAndCost(ep_routeCalculationImplementation: ep_selectedRouteCalculationImplementation);
-			
+
 			solve mm::mp_vesselScheduling;
 		}
 	}
 	Procedure pr_updatePagesAfterSolve {
+		Comment: "Updates the WebUI status bar, workflow steps, and secondary actions after the model has been solved, and runs the post-execution result extraction procedures.";
 		Body: {
 			ui::sp_systemSecondaryActions(4,'state'):= 'active';
 			
@@ -44,8 +49,10 @@ LibraryModule MathematicalModel {
 		}
 	}
 	DeclarationSection VS_Constraints {
+		Comment: "Constraints enforcing the core business rules of the vessel scheduling model.";
 		Constraint c_assignCargoToOneVessel {
 			IndexDomain: i_act_cargo;
+			Comment: "Ensures each active cargo is assigned to exactly one vessel route or to a chartered (spot) vessel.";
 			Definition: {
 				sum(i_route | p_def_cargoesOnRoute(i_route, i_act_cargo), 
 				    v_allocateVesselToRoute(ep_calc_routeVessel(i_route), i_route)) 
@@ -55,6 +62,7 @@ LibraryModule MathematicalModel {
 		}
 		Constraint c_vesselMaxOneRoute {
 			IndexDomain: i_act_vessel;
+			Comment: "Ensures each active vessel is allocated to exactly one route or remains idle.";
 			Definition: {
 				sum(i_route, v_allocateVesselToRoute(i_act_vessel, i_route)) 
 				+ v_idleVessel(i_act_vessel) 
@@ -63,36 +71,44 @@ LibraryModule MathematicalModel {
 		}
 	}
 	DeclarationSection VS_Variables {
+		Comment: "Binary decision variables for the vessel scheduling optimization model.";
 		Variable v_allocateVesselToRoute {
 			IndexDomain: (i_act_vessel,i_route) | p_def_domainAllocateVesselToRoute(i_act_vessel, i_route);
 			Range: binary;
+			Comment: "1 if vessel i_act_vessel is assigned to route i_route; 0 otherwise. Domain restricted to routes belonging to that vessel.";
 		}
 		Parameter p_def_domainAllocateVesselToRoute {
 			IndexDomain: (i_act_vessel,i_route);
 			Range: binary;
 			Property: NoSave;
+			Comment: "Domain parameter for v_allocateVesselToRoute: equals 1 only when i_act_vessel matches the vessel pre-assigned to i_route during route generation.";
 			Definition: 1 $ (i_act_vessel = ep_calc_routeVessel(i_route));
 		}
 		Variable bv_cargoOnCharteredVessel {
 			IndexDomain: i_act_cargo;
 			Range: binary;
+			Comment: "1 if cargo i_act_cargo is fulfilled by a chartered (spot) vessel at spot cost; 0 if handled by an owned vessel on a scheduled route.";
 		}
 		Variable v_idleVessel {
 			IndexDomain: i_act_vessel;
 			Range: binary;
+			Comment: "1 if vessel i_act_vessel is not assigned to any cargo route and remains idle for the entire planning horizon.";
 		}
 	}
 	DeclarationSection VS_Model {
+		Comment: "The mathematical program and objective function variables for the vessel scheduling MIP model.";
 		MathematicalProgram mp_vesselScheduling {
 			Objective: v_objectiveFunction;
 			Direction: minimize;
 			Constraints: AllConstraints;
 			Variables: AllVariables;
 			Type: Automatic;
+			Comment: "Mixed-Integer Programming model that minimizes the total cost of assigning vessels to feasible routes, including operational costs, idle vessel costs, and spot charter costs.";
 		}
 		Variable v_objectiveFunction {
 			Range: free;
 			Unit: $;
+			Comment: "Total cost to minimize: sum of operational costs for used routes, idle vessel costs, and spot charter costs for unscheduled cargoes.";
 			Definition: {
 				v_totalOperationalCost
 				+  v_def_totaVesselNotUsedCost
@@ -102,18 +118,20 @@ LibraryModule MathematicalModel {
 		Variable v_totalOperationalCost {
 			Range: free;
 			Unit: $;
+			Comment: "Aggregated operational cost across all vessel-route allocations in the solution.";
 			Definition: {
-				sum((i_act_vessel,i_route), 
-				    p_def_operationalCostPerRoute(i_route) 
+				sum((i_act_vessel,i_route),
+				    p_def_operationalCostPerRoute(i_route)
 				    * v_allocateVesselToRoute(i_act_vessel, i_route))
 			}
 		}
 		Variable v_def_totaVesselNotUsedCost {
 			Range: free;
 			Unit: $;
+			Comment: "Total cost penalty for vessels that are idle (not assigned to any cargo route) over the full planning horizon.";
 			Definition: {
-				sum(i_act_vessel, 
-				    p_def_idleCostVesselNotUsed(i_act_vessel) 
+				sum(i_act_vessel,
+				    p_def_idleCostVesselNotUsed(i_act_vessel)
 				    !100[$]
 				    * v_idleVessel(i_act_vessel))
 			}
@@ -122,33 +140,39 @@ LibraryModule MathematicalModel {
 			IndexDomain: (i_act_cargo);
 			Range: free;
 			Unit: $;
+			Comment: "Spot (chartered vessel) cost incurred for cargo i_act_cargo when it is not assigned to any scheduled vessel route.";
 			Definition: {
-				p_spotCostVessel(i_act_cargo) 
+				p_spotCostVessel(i_act_cargo)
 				* bv_cargoOnCharteredVessel(i_act_cargo)
 			}
 		}
 	}
 	Section Post_Execution {
+		Comment: "Post-execution declarations and procedures that extract and store solution results for display in the WebUI and export.";
 		Set s_def_allocatedRoutes {
 			SubsetOf: s_calc_feasibleRoutes;
 			Index: i_allcRoute;
 			Parameter: ep_allcRoute;
 			OrderBy: ep_calc_routeVessel(i_allcRoute);
+			Comment: "Subset of feasible routes that are actually used in the optimal solution (at least one vessel allocated), ordered by vessel.";
 			Definition: {
 				{(i_route) | exists((i_act_vessel) | v_allocateVesselToRoute(i_act_vessel, i_route))};
 			}
 		}
 		Parameter bp_def_allocatedCargoOnVesselPerRoute {
 			IndexDomain: (i_act_vessel, i_route,i_act_cargo);
+			Comment: "1 if vessel i_act_vessel is allocated to i_route and cargo i_act_cargo is carried on that vessel's route.";
 			Definition: {
-				1 $ (v_allocateVesselToRoute(i_act_vessel, i_route) 
+				1 $ (v_allocateVesselToRoute(i_act_vessel, i_route)
 				    and bp_post_cargoesOnVessel(i_act_vessel, i_act_cargo))
 			}
 		}
 		Section Post_Vessels {
+			Comment: "Post-execution identifiers storing per-vessel solution results, used for WebUI display and Excel export.";
 			ElementParameter ep_post_routeOfVessel {
 				IndexDomain: i_vessel;
 				Range: s_calc_feasibleRoutes;
+				Comment: "The feasible route assigned to vessel i_vessel in the optimal solution.";
 				dex::ColumnName: Route;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Vessel Overview;
@@ -158,6 +182,7 @@ LibraryModule MathematicalModel {
 			Parameter p_post_operationalCostPerVessel {
 				IndexDomain: i_vessel;
 				Unit: $;
+				Comment: "Total operational cost of the route assigned to vessel i_vessel.";
 				dex::ColumnName: Route Cost;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Vessel Overview;
@@ -167,6 +192,7 @@ LibraryModule MathematicalModel {
 			Parameter p_post_totalTravelDaysPerVessel {
 				IndexDomain: i_vessel;
 				Unit: day;
+				Comment: "Total number of sailing days on the route assigned to vessel i_vessel.";
 				dex::ColumnName: Route Period;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Vessel Overview;
@@ -176,10 +202,12 @@ LibraryModule MathematicalModel {
 			Parameter bp_post_cargoesOnVessel {
 				IndexDomain: (i_vessel,i_act_cargo);
 				Range: binary;
+				Comment: "1 if cargo i_act_cargo is carried by vessel i_vessel in the optimal solution.";
 				webui::AnnotationsIdentifier: ui::sp_def_vesselNotUsedAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Procedure pr_post_vesselResults {
+				Comment: "Extracts vessel-level results from the solution: assigns routes to vessels, calculates operational costs and travel days, and identifies which cargoes each vessel carries.";
 				Body: {
 					empty Post_Vessels;
 					
@@ -198,9 +226,11 @@ LibraryModule MathematicalModel {
 			}
 		}
 		Section Post_Cargoes {
+			Comment: "Post-execution identifiers storing per-cargo solution results, used for WebUI display and Excel export.";
 			ElementParameter ep_post_vesselOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_vessels;
+				Comment: "The vessel assigned to deliver cargo i_act_cargo in the optimal solution; empty if the cargo is on a chartered vessel.";
 				dex::ColumnName: Vessel Used;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Cargo Overview;
@@ -210,12 +240,14 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_post_routeOfCargo {
 				IndexDomain: i_act_cargo;
 				Range: s_calc_feasibleRoutes;
+				Comment: "The feasible route on which cargo i_act_cargo is transported in the optimal solution.";
 				webui::AnnotationsIdentifier: ui::sp_def_cargoNotDeliveredAnnotation;
 				webui::FlagsIdentifier: ui::sp_def_readOnly;
 			}
 			Parameter p_post_totalCostPerCargo {
 				IndexDomain: i_act_cargo;
 				Unit: $;
+				Comment: "Total cost attributed to cargo i_act_cargo: the spot cost if chartered, or the fixed cargo cost if transported on a scheduled vessel.";
 				dex::ColumnName: Cargo Cost;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Cargo Overview;
@@ -225,6 +257,7 @@ LibraryModule MathematicalModel {
 			}
 			StringParameter sp_post_loadingTimePerCargo {
 				IndexDomain: i_act_cargo;
+				Comment: "Scheduled loading (pickup) date for cargo i_act_cargo, formatted as DD/MM/YY.";
 				dex::ColumnName: Loading Time;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Cargo Overview;
@@ -233,6 +266,7 @@ LibraryModule MathematicalModel {
 			}
 			StringParameter sp_post_deleveringTimePerCargo {
 				IndexDomain: i_act_cargo;
+				Comment: "Scheduled delivery date for cargo i_act_cargo, formatted as DD/MM/YY.";
 				dex::ColumnName: Delivery Time;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Cargo Overview;
@@ -242,8 +276,10 @@ LibraryModule MathematicalModel {
 			Parameter p_post_cargoSpotCost {
 				IndexDomain: i_act_cargo;
 				Unit: $;
+				Comment: "Actual spot cost incurred for cargo i_act_cargo if it was assigned to a chartered vessel; 0 otherwise.";
 			}
 			Procedure pr_post_cargoResults {
+				Comment: "Extracts cargo-level results: assigns vessels and routes to each cargo, calculates total cost per cargo, and formats loading and delivery times for display.";
 				Body: {
 					empty Post_Cargoes;
 					
@@ -269,9 +305,11 @@ LibraryModule MathematicalModel {
 			}
 		}
 		Section Post_Routes {
+			Comment: "Post-execution identifiers storing per-route activity details for the used routes, exported to the Route Overview table.";
 			ElementParameter ep_post_vesselActivityType {
 				IndexDomain: (i_used_route,i_leg);
 				Range: s_def_vesselActivities;
+				Comment: "Activity type (e.g., sailingPickup, sailingDelivery, idleWaitForCargo) for each leg of each used route in the solution.";
 				dex::ColumnName: ActionType;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Route Overview;
@@ -279,6 +317,7 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_post_vesselActivityLocation {
 				IndexDomain: (i_used_route,i_leg);
 				Range: s_locations;
+				Comment: "Location associated with each activity leg of each used route in the solution.";
 				dex::ColumnName: Location;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Route Overview;
@@ -286,6 +325,7 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_post_vesselActivityFirst {
 				IndexDomain: (i_used_route,i_leg);
 				Range: cal_days;
+				Comment: "Start date of each activity leg for the used routes in the solution.";
 				dex::ColumnName: First;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Route Overview;
@@ -293,11 +333,13 @@ LibraryModule MathematicalModel {
 			ElementParameter ep_post_vesselActivityLast {
 				IndexDomain: (i_used_route,i_leg);
 				Range: cal_days;
+				Comment: "End date of each activity leg for the used routes in the solution.";
 				dex::ColumnName: Last;
 				dex::Dataset: ExportDataSet;
 				dex::TableName: Route Overview;
 			}
 			Procedure pr_post_routeResults {
+				Comment: "Copies vessel activity type, location, and date data from calculated route identifiers into the post-execution route identifiers for export and WebUI display.";
 				Body: {
 					empty Post_Routes;
 					ep_post_vesselActivityType(i_used_route, i_leg) := ep_calc_vesselActivityType(i_used_route, i_leg); 
@@ -309,6 +351,7 @@ LibraryModule MathematicalModel {
 		}
 	}
 	Section Library_Initialization_and_Termination {
+		Comment: "Standard AIMMS library initialization and termination procedures for the MathematicalModel module.";
 		Procedure LibraryInitialization {
 			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}

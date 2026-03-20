@@ -3,18 +3,30 @@
 LibraryModule UserInterface {
 	Prefix: ui;
 	Interface: UserInterface;
-	StringParameter sp_def_empty;
+	Comment: "Contains all WebUI-related declarations and procedures for the Vessel Scheduling application, including CRUD dialogs, system workflow/status bar configuration, page-specific logic, and visualization support.";
+	StringParameter sp_def_empty {
+		Comment: "Empty string constant used as a placeholder annotation or identifier where no value is needed.";
+	}
 	StringParameter sp_def_readOnly {
+		Comment: "Annotation value 'readonly' applied to WebUI widget flags to prevent user editing of result identifiers.";
 		Definition: "readonly";
 	}
 	StringParameter sp_def_logo {
+		Comment: "Filename of the AIMMS logo image used in the WebUI application header.";
 		Definition: "aimms_logo.png";
 	}
 	Section CRUD {
-		Procedure pr_empty;
-		StringParameter sp_addEditElement;
+		Comment: "Create, Read, Update, Delete dialog procedures and shared state for vessels, locations, and cargoes.";
+		Procedure pr_empty {
+			Comment: "Empty no-op procedure used as a placeholder callback (e.g., dialog onDone when no action is needed).";
+		}
+		StringParameter sp_addEditElement {
+			Comment: "Shared string parameter holding the element name currently being added or edited in a CRUD dialog.";
+		}
 		Section CRUD_Vessel {
+			Comment: "Procedures for adding, editing, and deleting vessels via WebUI dialog pages.";
 			Procedure pr_openAddVessel {
+				Comment: "Clears the shared add/edit element and opens the CRUD dialog page to add a new vessel.";
 				Body: {
 					empty sp_addEditElement;
 					
@@ -34,6 +46,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_addVessel {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Add Vessel' dialog: if the user confirmed with OK, adds the new vessel name from sp_addEditElement to s_vessels.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    ep_Vessel := StringToElement(s_vessels, sp_AddEditElement, 1);
@@ -44,6 +57,7 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_openEditVessel {
+				Comment: "Populates the shared add/edit element with the current vessel name and opens the CRUD dialog to edit it.";
 				Body: {
 					sp_addEditElement := ep_vessel;
 					
@@ -63,6 +77,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_editVessel {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Edit Vessel' dialog: if the user confirmed with OK, renames the current vessel element in s_vessels using sp_addEditElement.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    SetElementRename(s_vessels , ep_vessel , sp_addEditElement);
@@ -73,15 +88,18 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_deleteVessel {
+				Comment: "Removes the currently selected vessel (ep_vessel) from s_vessels and resets the selection to the first available vessel.";
 				Body: {
 					s_vessels -= ep_vessel;
-					
+
 					ep_vessel := first(i_vessel);
 				}
 			}
 		}
 		Section CRUD_Location {
+			Comment: "Procedures for adding, editing, and deleting locations via WebUI dialog pages.";
 			Procedure pr_openAddLocation {
+				Comment: "Clears the shared add/edit element and opens the CRUD dialog page to add a new location.";
 				Body: {
 					empty sp_addEditElement;
 					
@@ -101,6 +119,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_addLocation {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Add Location' dialog: if the user confirmed with OK, adds the new location name from sp_addEditElement to s_locations.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    ep_location := StringToElement(s_locations, sp_addEditElement, 1);
@@ -111,6 +130,7 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_openEditLocation {
+				Comment: "Populates the shared add/edit element with the current location name and opens the CRUD dialog to edit it.";
 				Body: {
 					sp_addEditElement := ep_location;
 					
@@ -130,6 +150,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_editLocation {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Edit Location' dialog: if the user confirmed with OK, renames the current location element in s_locations using sp_addEditElement.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    SetElementRename(s_locations , ep_location , sp_addEditElement);
@@ -140,15 +161,18 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_deleteLocation {
+				Comment: "Removes the currently selected location (ep_location) from s_locations and resets the selection to the first available location.";
 				Body: {
 					s_locations -= ep_location;
-					
+
 					ep_location := first(i_loc);
 				}
 			}
 		}
 		Section CRUD_Cargo {
+			Comment: "Procedures for adding, editing, and deleting cargoes via WebUI dialog pages.";
 			Procedure pr_openAddCargo {
+				Comment: "Clears the shared add/edit element and opens the CRUD dialog page to add a new cargo.";
 				Body: {
 					empty sp_addEditElement;
 					
@@ -168,6 +192,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_addCargo {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Add Cargoes' dialog: if the user confirmed with OK, adds the new cargo name from sp_addEditElement to s_cargoes.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    ep_cargo := StringToElement(s_cargoes, sp_addEditElement, 1);
@@ -178,6 +203,7 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_openEditCargo {
+				Comment: "Populates the shared add/edit element with the current cargo name and opens the CRUD dialog to edit it.";
 				Body: {
 					sp_addEditElement := ep_cargo;
 					
@@ -197,6 +223,7 @@ LibraryModule UserInterface {
 			}
 			Procedure pr_editCargo {
 				Arguments: sp_arg_action;
+				Comment: "Callback for the 'Edit Cargoes' dialog: if the user confirmed with OK, renames the current cargo element in s_cargoes using sp_addEditElement.";
 				Body: {
 					if sp_arg_action = 'OK' then
 					    SetElementRename(s_cargoes, ep_cargo , sp_addEditElement);
@@ -207,16 +234,19 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_deleteCargo {
+				Comment: "Removes the currently selected cargo (ep_cargo) from s_cargoes and resets the selection to the first available cargo.";
 				Body: {
 					s_cargoes -= ep_cargo;
-					
+
 					ep_cargo := first(i_cargo);
 				}
 			}
 		}
 	}
 	Section System {
+		Comment: "System-level WebUI configuration: identifier display names, workflow steps, page actions, and status bar declarations.";
 		Procedure pr_adaptNamesForPresentationInWebUI {
+			Comment: "Clears and repopulates webui::IdentifierElementText for all relevant identifiers in the Main model and UserInterface library to set human-readable display names throughout the WebUI.";
 			Body: {
 				empty webui::IdentifierElementText;
 				
@@ -348,6 +378,7 @@ LibraryModule UserInterface {
 			}
 		}
 		Procedure pr_goodbye {
+			Comment: "Exits the AIMMS session: calls ExitAimms in developer mode or finishes the PRO session for end users.";
 			Body: {
 				if ProjectDeveloperMode() then
 					ExitAimms();
@@ -357,12 +388,15 @@ LibraryModule UserInterface {
 			}
 		}
 		DeclarationSection System_Workflow {
+			Comment: "Declarations for the WebUI workflow panel: workflow title, step definitions, and folding states.";
 			StringParameter sp_systemWorkflow {
 				IndexDomain: (webui::indexWorkflowOrder,webui::indexWorkflowSpec);
+				Comment: "Defines the top-level workflow title shown in the WebUI workflow panel.";
 				Definition: data { ( 1, title ) : "" };
 			}
 			StringParameter sp_systemWorkflowSteps {
 				IndexDomain: (webui::indexWorkflowOrder, webui::indexNoOfPages, webui::indexWorkflowPageSpec);
+				Comment: "Defines the workflow steps (pages) in the WebUI workflow panel, including display text, icon, page ID, tooltip, state, parent, and redirect page.";
 				InitialData: {
 					data 
 					{ ( 1, 1, displayText       ) : "Welcome",
@@ -442,13 +476,16 @@ LibraryModule UserInterface {
 			StringParameter sp_systemWorkflowFoldingStates {
 				IndexDomain: (webui::indexWorkflowOrder,webui::indexNoOfPages,webui::indexOpenCloseProps);
 				Property: NoSave;
+				Comment: "Controls the open/close state of workflow step groups in the WebUI workflow panel.";
 				InitialData: data { ( 1, 3, openClose ) : "open",  ( 1, 7, openClose ) : "close" };
 			}
 		}
 		DeclarationSection System_Page_Action {
+			Comment: "Declarations for the WebUI secondary (page-level) action buttons shown in the top action bar.";
 			StringParameter sp_systemSecondaryActions {
 				IndexDomain: (webui::indexPageExtension,webui::indexPageActionSpec);
 				Property: NoSave;
+				Comment: "Defines the secondary page actions (Upload, Download Input, Solve, Download Results, Empty Case) displayed in the WebUI action bar.";
 				InitialData: {
 					data {  
 					        ( '1', 'displaytext' ) : "Upload Input",  
@@ -481,9 +518,11 @@ LibraryModule UserInterface {
 			}
 		}
 		DeclarationSection System_Status_Bar {
+			Comment: "Declaration for the WebUI application status bar items.";
 			StringParameter sp_systemStatusBar {
 				IndexDomain: (webui::indexApplicationExtension,webui::indexStatusBarSpec);
 				Property: NoSave;
+				Comment: "Defines the status bar items (Import Excel, Solve, Excel file status, Distance computation toggle, Logoff) displayed at the bottom of the WebUI.";
 				InitialData: {
 					data
 					{ 
@@ -526,9 +565,13 @@ LibraryModule UserInterface {
 		}
 	}
 	Section Pages {
+		Comment: "Page-specific declarations and procedures for each WebUI page in the Vessel Scheduling application.";
 		Section Master_Page {
+			Comment: "Declarations and procedures for the master data page: CRUD action parameters, annotation strings, side panel, widget actions, and random data generation.";
 			Section Random_Data {
+				Comment: "Procedures and parameters for generating a random vessel scheduling test dataset.";
 				Procedure pr_generateRandomData {
+					Comment: "Generates a random test dataset by reading port coordinates, then randomly assigning cargo routes, vessel origins, and cost parameters. Writes the result to an Excel file and updates the WebUI status.";
 					Body: {
 						empty s_vessels, s_cargoes, s_locations; 
 						
@@ -643,15 +686,18 @@ LibraryModule UserInterface {
 				Parameter p_cargoesQuantity {
 					Range: nonnegative;
 					InitialData: 10;
+					Comment: "Number of cargoes to include in the randomly generated test dataset.";
 				}
 				Parameter p_vesselsQuantity {
 					Range: nonnegative;
 					InitialData: 5;
+					Comment: "Number of vessels to include in the randomly generated test dataset.";
 				}
 			}
 			Parameter p_deleteLocations {
 				IndexDomain: i_loc;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI delete-element control for location i_loc.";
 				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
 				webui::TooltipIdentifier: sp_def_deleteTooltip;
 				webui::UponChangeProcedure: pr_deleteLocation;
@@ -659,6 +705,7 @@ LibraryModule UserInterface {
 			Parameter p_editLocations {
 				IndexDomain: i_loc;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI edit-element control for location i_loc.";
 				webui::AnnotationsIdentifier: sp_def_editAnnotation;
 				webui::TooltipIdentifier: sp_def_editTooltip;
 				webui::UponChangeProcedure: pr_openEditLocation;
@@ -666,6 +713,7 @@ LibraryModule UserInterface {
 			Parameter p_deleteCargoes {
 				IndexDomain: i_cargo;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI delete-element control for cargo i_cargo.";
 				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
 				webui::TooltipIdentifier: sp_def_deleteTooltip;
 				webui::UponChangeProcedure: pr_deleteCargo;
@@ -673,6 +721,7 @@ LibraryModule UserInterface {
 			Parameter p_editCargoes {
 				IndexDomain: i_cargo;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI edit-element control for cargo i_cargo.";
 				webui::AnnotationsIdentifier: sp_def_editAnnotation;
 				webui::TooltipIdentifier: sp_def_editTooltip;
 				webui::UponChangeProcedure: pr_openEditCargo;
@@ -680,6 +729,7 @@ LibraryModule UserInterface {
 			Parameter p_deleteVessels {
 				IndexDomain: i_vessel;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI delete-element control for vessel i_vessel.";
 				webui::AnnotationsIdentifier: sp_def_deleteAnnotation;
 				webui::TooltipIdentifier: sp_def_deleteTooltip;
 				webui::UponChangeProcedure: pr_deleteVessel;
@@ -687,24 +737,30 @@ LibraryModule UserInterface {
 			Parameter p_editVessels {
 				IndexDomain: i_vessel;
 				Range: binary;
+				Comment: "Binary indicator used as a WebUI edit-element control for vessel i_vessel.";
 				webui::AnnotationsIdentifier: sp_def_editAnnotation;
 				webui::TooltipIdentifier: sp_def_editTooltip;
 				webui::UponChangeProcedure: pr_openEditVessel;
 			}
 			StringParameter sp_def_deleteAnnotation {
+				Comment: "Annotation string applied to WebUI delete controls to trigger the delete-element styling.";
 				Definition: "delete-element";
 			}
 			StringParameter sp_def_editAnnotation {
+				Comment: "Annotation string applied to WebUI edit controls to trigger the edit-element styling.";
 				Definition: "edit-element";
 			}
 			StringParameter sp_def_deleteTooltip {
+				Comment: "Tooltip text displayed when hovering over a delete control in a WebUI table.";
 				Definition: "Delete this element.";
 			}
 			StringParameter sp_def_editTooltip {
+				Comment: "Tooltip text displayed when hovering over an edit control in a WebUI table.";
 				Definition: "Edit this element.";
 			}
 			StringParameter sp_masterSidePanel {
 				IndexDomain: (webui::indexPageExtension,webui::indexSidePanelSpec);
+				Comment: "Defines the side panel configuration for the master page, specifying the display text, page ID, icon, and activation state for the Random Data side panel.";
 				Definition: {
 					data 
 					{ ( 1, displayText ) : "Random Data"          ,  ( 1, pageId      ) : "side_panel_randomdata",
@@ -713,6 +769,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_cargoesItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines per-item context menu actions (Edit and Delete) for cargo rows displayed in WebUI widgets, linking to the edit and delete cargo procedures.";
 				Definition: {
 					data 
 					{  (bp_activeCargoes      , 2, displaytext ) : "Edit",
@@ -727,6 +784,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_vesselItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines per-item context menu actions (Edit and Delete) for vessel rows displayed in WebUI widgets, linking to the edit and delete vessel procedures.";
 				Definition: {
 					data 
 					{  ( bp_activeVessels     , 2, displaytext ) : "Edit",
@@ -741,6 +799,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_typeOfCostItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines per-item context menu actions (Edit and Delete) for cost type rows across cargoes, locations, and vessels in WebUI widgets.";
 				Definition: {
 					data 
 					{
@@ -772,6 +831,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationsItemActions {
 				IndexDomain: (webui::indexWidgetItemActionSpec,webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines per-item context menu actions (Edit and Delete) for location rows in WebUI widgets, covering active locations, latitude, and longitude entries.";
 				Definition: {
 					data 
 					{  (bp_ActiveLocations      , 2, displaytext ) : "Edit",
@@ -802,6 +862,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_cargoesWidgetActions {
 				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines the widget-level toolbar action (Add) for the cargoes widget, triggering the add-cargo dialog.";
 				Definition: {
 					data 
 					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
@@ -810,6 +871,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_vesselWidgetActions {
 				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines the widget-level toolbar action (Add) for the vessels widget, triggering the add-vessel dialog.";
 				Definition: {
 					data 
 					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"         ,
@@ -818,6 +880,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_typeOfCostWidgetActions {
 				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines the widget-level toolbar action (Add) for the cost-type widget, triggering the add-cost-type dialog.";
 				Definition: {
 					data 
 					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
@@ -826,6 +889,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationWidgetActions {
 				IndexDomain: (webui::indexPageExtension,webui::indexWidgetActionSpec);
+				Comment: "Defines the widget-level toolbar action (Add) for the locations widget, triggering the add-location dialog.";
 				Definition: {
 					data 
 					{ ( 1, displaytext ) : "Add"                 ,  ( 1, icon        ) : "aimms-plus2"       ,
@@ -834,30 +898,37 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Overview_Datasets_Page {
+			Comment: "Contains page-open logic for the Overview Datasets page, navigating to the locations overview on load.";
 			Procedure pr_onPageOpenOverviewDatasets {
+				Comment: "Opens the locations overview page when the Overview Datasets page is loaded.";
 				Body: {
 					webui::OpenPage(pageId :  'locations_overview');
 				}
 			}
 		}
 		Section Locations_Page {
+			Comment: "Declarations and procedures supporting the Locations data page, including in-use/not-in-use annotations, distance title, and page-load initialization.";
 			Set s_def_locationsNotInUsage {
 				SubsetOf: s_locations;
 				Index: i_loc_not_usag;
+				Comment: "Subset of locations not referenced by any active cargo or vessel, displayed with a special annotation on the map.";
 				Definition: s_locations - s_def_locationsInUsage;
 				webui::AnnotationsIdentifier: sp_locationNotInUsageAnnotation(ui::i_loc_not_usag);
 			}
 			StringParameter sp_locationNotInUsageIcon {
 				IndexDomain: i_loc_not_usag;
+				Comment: "Icon identifier (a cross symbol) used to represent locations not in use on the map.";
 				Definition: "aimms-cross3";
 			}
 			Parameter p_locationNotInUsageSize {
 				IndexDomain: i_loc_not_usag;
+				Comment: "Marker size for locations not in use, rendered smaller (size 3) on the map to de-emphasize them.";
 				Definition: 3;
 				webui::TooltipIdentifier: sp_locationNotInUsageTooltip(i_loc_not_usag);
 			}
 			StringParameter sp_locationNotInUsageTooltip {
 				IndexDomain: i_loc_not_usag;
+				Comment: "Tooltip message for a location not in use, informing the user that no cargo or vessel is assigned to it.";
 				Definition: {
 					formatString("No cargo or vessel need to go to this Location (%e).",
 						i_loc_not_usag )
@@ -865,11 +936,13 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationNotInUsageAnnotation {
 				IndexDomain: i_loc_not_usag;
+				Comment: "CSS annotation class applied to map markers of locations not in use, enabling distinct visual styling.";
 				Definition: "NotInUse";
 			}
 			Set s_def_locationsInUsage {
 				SubsetOf: s_locations;
 				Index: i_loc_usag, i_loc_usag2;
+				Comment: "Subset of locations referenced by at least one active cargo (as loading or delivering port) or active vessel (as origin port).";
 				Parameter: ep_locationInUsage;
 				Definition: {
 					{i_act_loc | 
@@ -881,26 +954,32 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_locationInUsageIcon {
 				IndexDomain: i_loc_usag;
+				Comment: "Icon identifier (a cube symbol) used to represent locations in use on the map.";
 				Definition: "aimms-cube4";
 			}
 			Parameter p_locationInUsageSize {
 				IndexDomain: i_loc_usag;
+				Comment: "Marker size for locations in use, displayed larger (size 12) on the map to highlight active assignments.";
 				Definition: 12;
 				webui::TooltipIdentifier: ui::sp_def_locationInUsageTooltip(ui::i_loc_usag);
 			}
 			StringParameter sp_def_locationInUsageTooltip {
 				IndexDomain: i_loc_usag;
+				Comment: "Tooltip for a location in use, indicating it has at least one active cargo or vessel assignment.";
 				Definition: "There is at least one cargo or vessel that needs to come to this Location.";
 			}
 			StringParameter sp_locationInUsageAnnotation {
 				IndexDomain: i_loc_usag;
+				Comment: "CSS annotation class applied to map markers of locations in use, enabling distinct visual styling.";
 				Definition: "InUse";
 			}
 			StringParameter sp_def_distanceTitle {
+				Comment: "Dynamic title for the distance table, showing distances from the currently selected location.";
 				Definition: "Distance from \"" + ep_location + "\"";
 			}
 			StringParameter sp_def_focusedLocationFrom {
 				IndexDomain: (i_loc);
+				Comment: "Returns a highlight-cell annotation for the row matching the currently selected location in the distance table.";
 				Definition: {
 					if ep_location = i_loc then
 					    "highlight-cell"
@@ -910,6 +989,7 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_uponLoadLocationsPage {
+				Comment: "Initializes the selected location to the first available location when the Locations page is opened.";
 				Body: {
 					if not ep_location then
 					    ep_location := first(i_loc);
@@ -918,9 +998,11 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Cargoes_Page {
+			Comment: "Declarations and procedures supporting the Cargoes data page, including map icons and annotations for loading/delivering ports.";
 			Set s_def_visibleCargoLocations {
 				SubsetOf: s_locations;
 				Index: i_loc_visiblecargo;
+				Comment: "Subset of locations that are either the loading port or the delivering port of the currently selected cargo.";
 				Definition: {
 					{i_loc |  
 					    ep_loadingPortsCargo(ep_cargo) = i_loc 
@@ -929,6 +1011,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_def_cargoesMapIcon {
 				IndexDomain: i_loc;
+				Comment: "Icon for a location on the cargoes map: loading icon for loading ports, delivery icon for delivering ports.";
 				Definition: {
 					if (i_loc in s_def_loadingPorts)  then
 					    "aimms-esc"    
@@ -941,11 +1024,13 @@ LibraryModule UserInterface {
 			}
 			Parameter p_def_cargoesMapSize {
 				IndexDomain: i_Loc;
+				Comment: "Marker size (12) for locations shown on the cargoes map.";
 				Definition: 12;
 				webui::AnnotationsIdentifier: ui::sp_def_cargoesMapAnnotation(i_Loc);
 			}
 			StringParameter sp_def_cargoesMapAnnotation {
 				IndexDomain: i_loc;
+				Comment: "CSS annotation distinguishing loading ports from delivering ports on the cargo map for the selected cargo.";
 				Definition: {
 					if (ep_loadingPortsCargo(ep_cargo) = i_loc)  then
 					    "LoadingPort"    
@@ -959,6 +1044,7 @@ LibraryModule UserInterface {
 			Parameter p_def_deliveringToLoadingPorts {
 				IndexDomain: (i_loc_from,i_loc_to);
 				Unit: day;
+				Comment: "Travel time in days from loading to delivering port for the selected cargo, used to draw the route arc on the map.";
 				Definition: {
 					p_def_distanceBetweenLocations(i_loc_from, i_loc_to) $
 					        (i_loc_from = ep_def_loadingPortsCargo(ep_cargo)
@@ -968,12 +1054,14 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_def_deliveringToLoadingPortsTooltip {
 				IndexDomain: (i_loc_from,i_loc_to);
+				Comment: "Tooltip showing origin and destination location names for the cargo route arc on the cargoes map.";
 				Definition: {
 					FormatString("From: %e<br>To: %e.", i_loc_from, i_loc_to);
 				}
 			}
 			StringParameter sp_def_focusedCargo {
 				IndexDomain: i_cargo;
+				Comment: "Returns a highlight-cell annotation for the currently selected cargo row in tables.";
 				Definition: {
 					if ep_cargo = i_cargo then
 					    "highlight-cell"
@@ -983,34 +1071,41 @@ LibraryModule UserInterface {
 				}
 			}
 			Procedure pr_onPageOpenCargoes {
+				Comment: "Initializes the selected cargo to the first active cargo when the Cargoes page is opened.";
 				Body: {
 					ep_cargo := first(i_cargo);
 				}
 			}
 		}
 		Section Vessel_Page {
+			Comment: "Declarations for the Vessel data page, providing map icon, size, tooltip, and annotation for vessel origin port locations.";
 			StringParameter sp_def_vesselOriginPortIcon {
 				IndexDomain: i_locVess;
+				Comment: "Icon identifier (a ship symbol) used to mark vessel origin port locations on the map.";
 				Definition: "aimms-ship";
 			}
 			Parameter p_def_vesselOriginPortSize {
 				IndexDomain: i_locVess;
+				Comment: "Marker size (12) for vessel origin port locations on the vessel map.";
 				Definition: 12;
 				webui::AnnotationsIdentifier: sp_vesselOriginPortAnnotation(i_locVess);
 				webui::TooltipIdentifier: sp_vesselOriginPortTooltip(i_locVess);
 			}
 			StringParameter sp_vesselOriginPortTooltip {
 				IndexDomain: i_locVess;
+				Comment: "Tooltip for a vessel origin port marker, showing the name of the vessel whose origin is at that location.";
 				Definition: first(i_vessel | ep_originPortOfVessel(i_vessel) = i_locVess);
 			}
 			StringParameter sp_vesselOriginPortAnnotation {
 				IndexDomain: i_locVess;
+				Comment: "CSS annotation class applied to vessel origin port markers on the map, marking them as in use.";
 				Definition: "InUse";
 			}
 		}
 		Section Itineraries_Page {
 			Comment: "AKA the route details.";
 			Procedure pr_uponLoadPageGeneratedItineraries {
+				Comment: "Initializes the selected route to the first used route when the Itineraries page is opened, if no route is currently selected.";
 				Body: {
 					if not ep_selectedRoute then
 						ep_selectedRoute := first(s_calc_usedRoutes);
@@ -1018,51 +1113,64 @@ LibraryModule UserInterface {
 				}
 			}
 			DeclarationSection Scalar_Details {
+				Comment: "Scalar parameters and element parameters providing summarized cost and time statistics for the currently selected route on the Itineraries page.";
 				StringParameter sp_def_titleScalarSelectRoute {
+					Comment: "Title string for the scalar widget used to select a route for detailed itinerary display.";
 					Definition: "Select Route for Details";
 				}
 				ElementParameter ep_selectedRoute {
 					Range: s_calc_usedRoutes;
+					Comment: "Currently selected route on the Itineraries page, used to drive all detail widgets for that route.";
 					InitialData: '';
 				}
 				ElementParameter ep_def_selectedVessel {
 					Range: s_vessels;
+					Comment: "The vessel assigned to the currently selected route, derived from the route-to-vessel mapping.";
 					Definition: ep_calc_routeVessel(ep_selectedRoute);
 				}
 				ElementParameter ep_berthVesselSelectedRoute {
 					Range: s_locations;
+					Comment: "Origin port of the vessel assigned to the currently selected route, shown as the berth location.";
 					Definition: ep_originPortOfVessel( ep_def_selectedVessel );
 				}
 				Parameter p_def_noDaysSailing {
 					Unit: day;
+					Comment: "Total sailing days for the currently selected route.";
 					Definition: p_def_routeSailingDays( ep_selectedRoute );
 				}
 				Parameter p_def_noDaysIdle {
 					Unit: day;
+					Comment: "Total idle days for the currently selected route.";
 					Definition: p_def_routeIdleDays( ep_selectedRoute );
 				}
 				Parameter p_def_totalSailingCostPerRoute {
 					Unit: $;
+					Comment: "Total sailing cost for the currently selected route.";
 					Definition: p_def_routeSailingCost(ep_selectedRoute);
 				}
 				Parameter p_def_totalIdleCostPerRoute {
 					Unit: $;
+					Comment: "Total idle cost for the currently selected route.";
 					Definition: p_def_routeIdleCost(ep_selectedRoute);
 				}
 				Parameter p_def_totalVisitingLocationCostPerRoute {
 					Unit: $;
+					Comment: "Total location visiting cost for the currently selected route.";
 					Definition: p_def_visitingLocationCost(ep_selectedRoute);
 				}
 				Parameter p_def_totalCargoCostPerRoute {
 					Unit: $;
+					Comment: "Total cargo handling cost for the currently selected route.";
 					Definition: p_def_cargoCost(ep_selectedRoute);
 				}
 				Parameter p_def_totalRouteCostPerRoute {
 					Unit: $;
+					Comment: "Total combined cost for the currently selected route, summing all cost components.";
 					Definition: p_def_routeCosts(ep_selectedRoute);
 				}
 			}
 			StringParameter sp_def_titleTableHandledCargos {
+				Comment: "Dynamic table title showing which cargoes are handled by the currently selected route.";
 				Definition: {
 					FormatString("Cargos handled by route \"%e\"", ep_selectedRoute);
 				}
@@ -1070,6 +1178,7 @@ LibraryModule UserInterface {
 			Set s_def_legs {
 				SubsetOf: s_calc_legs;
 				Index: i_leg;
+				Comment: "Subset of feasible route legs that have a non-zero vessel activity length for the currently selected route.";
 				Definition: {
 					{::i_leg | p_def_vesselActivityLength(ep_selectedRoute, ::i_leg)}
 				}
@@ -1077,33 +1186,40 @@ LibraryModule UserInterface {
 			Set s_def_cargosOfSelectedRoute {
 				SubsetOf: s_cargoes;
 				Index: i_cargoOfSelectedRoute;
+				Comment: "Subset of cargoes handled by the currently selected route, used to populate the itinerary detail table.";
 				OrderBy: user;
 				Definition: s_calc_cargosHandled(ep_selectedRoute);
 			}
 			ElementParameter ep_def_minTimeWindow {
 				IndexDomain: i_cargo;
 				Range: cal_days;
+				Comment: "Local alias for the minimum time window of each cargo, for display on the Itineraries page.";
 				Definition: ::ep_minTimeWindow(i_cargo);
 			}
 			ElementParameter ep_def_maxTimeWindow {
 				IndexDomain: i_cargo;
 				Range: cal_days;
+				Comment: "Local alias for the maximum time window of each cargo, for display on the Itineraries page.";
 				Definition: ::ep_maxTimeWindow(i_cargo);
 			}
 			ElementParameter ep_def_loadingPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
+				Comment: "Local alias for the loading port of each cargo, for display on the Itineraries page.";
 				Definition: ::ep_loadingPortsCargo(i_cargo);
 			}
 			ElementParameter ep_def_deliveringPortsCargo {
 				IndexDomain: i_cargo;
 				Range: s_locations;
+				Comment: "Local alias for the delivering port of each cargo, for display on the Itineraries page.";
 				Definition: ::ep_deliveringPortsCargo(i_cargo);
 			}
 		}
 		Section Detailed_Costs_Page {
+			Comment: "Declarations for the Detailed Costs page, providing aggregated cost parameters and annotations for unfulfilled cargoes and idle vessels.";
 			StringParameter sp_def_cargoIsSpotTooltip {
 				IndexDomain: i_act_cargo;
+				Comment: "Tooltip indicating that a cargo is fulfilled by a chartered (spot) vessel rather than a scheduled vessel.";
 				Definition: {
 					if mm::bv_cargoOnCharteredVessel(i_act_cargo) then
 					    "This is a spot cost."
@@ -1112,26 +1228,32 @@ LibraryModule UserInterface {
 			}
 			Parameter p_def_totalCargoCost {
 				Unit: $;
+				Comment: "Total cargo handling cost summed across all routes.";
 				Definition: sum(i_route, p_def_cargoCost(i_route));
 			}
 			Parameter p_def_totalSailingCost {
 				Unit: $;
+				Comment: "Total sailing cost summed across all routes.";
 				Definition: sum(i_route, p_def_routeSailingCost(i_route));
 			}
 			Parameter p_def_totalVisitingLocationCost {
 				Unit: $;
+				Comment: "Total location visiting cost summed across all routes.";
 				Definition: sum(i_route, p_def_visitingLocationCost(i_route));
 			}
 			Parameter p_def_totalIdleCost {
 				Unit: $;
+				Comment: "Total idle cost summed across all routes.";
 				Definition: sum(i_route, p_def_routeIdleCost(i_route));
 			}
 			Parameter p_def_totalSpotCost {
 				Unit: $;
+				Comment: "Total spot (chartered vessel) cost summed across all active cargoes not assigned to a scheduled vessel.";
 				Definition: sum(i_act_cargo, mm::p_post_cargoSpotCost(i_act_cargo));
 			}
 			StringParameter sp_def_cargoNotDeliveredAnnotation {
 				IndexDomain: i_act_cargo;
+				Comment: "CSS annotation applied to cargo rows that were not delivered by any vessel, marking them as not fulfilled.";
 				Definition: {
 					if not mm::ep_post_vesselOfCargo(i_act_cargo) then
 					    "not-fulfilled"
@@ -1140,6 +1262,7 @@ LibraryModule UserInterface {
 			}
 			StringParameter sp_def_vesselNotUsedAnnotation {
 				IndexDomain: i_vessel;
+				Comment: "CSS annotation applied to vessel rows that were not assigned any route in the solution, marking them as not used.";
 				Definition: {
 					if not mm::ep_post_routeOfVessel(i_vessel) then
 					    "not-fulfilled"
@@ -1148,9 +1271,12 @@ LibraryModule UserInterface {
 			}
 		}
 		Section Visualizations_Page {
+			Comment: "Declarations and procedures for the Visualizations pages, including map, sea-route, and Gantt chart displays of route solutions.";
 			DeclarationSection Page_Settings {
+				Comment: "Settings for the Visualizations page tabbed widget, defining the Map, Searoute, and Gantt chart tab configuration.";
 				StringParameter sp_tabbedWidgetContentsItineraryPage {
 					IndexDomain: (webui::indexNoOfTabs,webui::indexTabSpec);
+					Comment: "Defines the three tabs (Map, Searoute, Gantt) displayed on the Visualizations page tabbed widget.";
 					Definition: {
 						data { 
 						  ( 1, displayText ) : "Map"      ,  
@@ -1167,11 +1293,17 @@ LibraryModule UserInterface {
 						}
 					}
 				}
-				Parameter p_centerLat;
-				Parameter p_centerLon;
+				Parameter p_centerLat {
+					Comment: "Latitude of the map center point used for longitude normalization in the visualizations map widget.";
+				}
+				Parameter p_centerLon {
+					Comment: "Longitude of the map center point used for longitude normalization in the visualizations map widget.";
+				}
 			}
 			Section Map_Details {
+				Comment: "Declarations and procedures for the route visualization map, displaying vessel routes as arcs between port locations.";
 				Procedure pr_OpenPageVisualizeMap {
+					Comment: "Populates the map visualization data structures by iterating over all used routes and computing waypoints, arc tooltips, and location types for display.";
 					Body: {
 						for i_used_route /* | i_used_route = first( s_calc_usedRoutes ) */ do
 							empty s_locPos ; ! Also empties parameters defined over s_locpos.
@@ -1274,6 +1406,7 @@ LibraryModule UserInterface {
 				Set s_def_visibleLocations {
 					SubsetOf: s_locations;
 					Index: i_vis_loc, i_vis_locFrom, i_vis_locTo;
+					Comment: "Union of delivering ports, loading ports, and vessel origin ports for all selected routes, representing all locations visible on the route map.";
 					Definition: {
 						s_def_visibleDeliveringPorts 
 						+ s_def_visibleLoadingPorts
@@ -1287,6 +1420,7 @@ LibraryModule UserInterface {
 				Set s_def_visibleDeliveringPorts {
 					SubsetOf: s_locations;
 					Index: i_vis_locDeliv;
+					Comment: "Subset of delivering port locations that appear on at least one selected used route.";
 					Definition: {
 						{ i_loc | 
 						    ( i_loc in s_def_deleveringPorts ) and 
@@ -1298,6 +1432,7 @@ LibraryModule UserInterface {
 				Set s_def_visibleLoadingPorts {
 					SubsetOf: s_locations;
 					Index: i_vis_locLoad;
+					Comment: "Subset of loading port locations that appear on at least one selected used route.";
 					Definition: {
 						{ i_loc | 
 						    ( i_loc in s_def_loadingPorts ) and 
@@ -1308,9 +1443,11 @@ LibraryModule UserInterface {
 				}
 				Parameter bp_selectInUsedRoutes {
 					IndexDomain: i_used_route;
+					Comment: "Binary indicator for which used routes are selected for display on the route visualization map.";
 				}
 				Parameter p_def_adapLongitude {
 					IndexDomain: i_loc;
+					Comment: "Adjusted longitude for each location, shifted by +/-360 degrees to ensure arcs cross the antimeridian correctly relative to the map center.";
 					Definition: {
 						if p_longitude(i_loc) < ( p_centerLon - 180 ) then
 							p_longitude(i_loc) + 360
@@ -1323,6 +1460,7 @@ LibraryModule UserInterface {
 				}
 				Parameter p_def_visibleArc {
 					IndexDomain: (i_loc_from,i_loc_to);
+					Comment: "Encodes which routes use each location-to-location arc as a bitmask, used for multi-route arc coloring on the map.";
 					Definition: {
 						sum(i_used_route |
 						        bp_selectInUsedRoutes(i_used_route)
@@ -1333,6 +1471,7 @@ LibraryModule UserInterface {
 				}
 				Parameter p_def_adapVisibleArc {
 					IndexDomain: (i_loc_from,i_loc_to);
+					Comment: "Filtered version of p_def_visibleArc, excluding arcs whose adjusted longitude difference exceeds 250 degrees to avoid wrapping artifacts.";
 					Definition: {
 						p_def_visibleArc(i_loc_from,i_loc_to) $
 							(abs(p_def_adapLongitude(i_loc_from) - p_def_adapLongitude(i_loc_to)) < 250)
@@ -1341,17 +1480,21 @@ LibraryModule UserInterface {
 				}
 				StringParameter sp_def_visibleArcTooltip {
 					IndexDomain: (i_loc_from,i_loc_to);
+					Comment: "HTML tooltip for each arc on the route map, showing the route name, origin, cargo operation, and destination.";
 				}
 				StringParameter sp_def_visibleLocationAnnotation {
 					IndexDomain: i_vis_loc;
+					Comment: "CSS annotation applied to all visible location markers on the route map.";
 					Definition: "VisibleLocations";
 				}
 				Parameter p_def_locationNodeSize {
 					IndexDomain: i_vis_loc;
+					Comment: "Marker size (3) for all visible locations on the route map.";
 					Definition: 3;
 				}
 			}
 			Section Sea_Route_Details {
+				Comment: "Declarations and procedures for the sea-route visualization map, displaying detailed waypoint paths for each vessel route using the searoute library.";
 				Procedure pr_openPageSeaRouteMap {
 					Body: {
 						!DebuggerBreakpoint();
@@ -1575,40 +1718,50 @@ LibraryModule UserInterface {
 				Set s_allWayPoints {
 					SubsetOf: Integers;
 					Index: i_awp, i_awp_from, i_awp_to;
+					Comment: "Set of all waypoint indices used to represent the detailed sea-route paths for all vessel routes.";
 					Property: ElementsAreLabels;
 				}
 				Set s_def_shownWayPoints {
 					SubsetOf: s_allWayPoints;
 					Index: i_swp;
+					Comment: "Union of waypoints belonging to all currently selected used routes, used to filter the sea-route map display.";
 					Definition: {
 						union( i_used_route | bp_selectInUsedRoutes(i_used_route), 
 							s_routeWayPoints(i_used_route) )
 					}
 				}
-				Set s_deliveryWayPoints;
+				Set s_deliveryWayPoints {
+					Comment: "Set of waypoint indices marking delivery harbor stops along sea routes.";
+				}
 				Set s_loadingWayPoints {
 					SubsetOf: s_allWayPoints;
+					Comment: "Set of waypoint indices marking loading harbor stops along sea routes.";
 				}
 				Set s_waypointsForTooltip {
 					SubsetOf: s_allWayPoints;
 					Index: i_wptt;
+					Comment: "Subset of waypoints used to assign arc tooltips at the midpoint of each route leg in the sea-route visualization.";
 					Property: ElementsAreLabels;
 				}
 				Set s_locPos {
 					SubsetOf: Integers;
 					Index: i_locpos;
+					Comment: "Integer set used to index the ordered sequence of locations visited along a single route during sea-route waypoint construction.";
 					Property: ElementsAreLabels;
 				}
 				ElementParameter ep_locType {
 					IndexDomain: i_locpos;
 					Range: s_def_waypointTypes;
+					Comment: "Type classification (startHarbor, loadingHarbor, deliveryHarbor) for each position in the ordered location sequence of a route.";
 				}
 				Set s_def_waypointTypes {
 					Index: i_wpType;
+					Comment: "Enumeration of location type categories used to classify waypoints on a vessel route: starting harbor, loading port, or delivery port.";
 					Definition: data { 'startHarbor', 'loadingHarbor', 'deliveryHarbor' };
 				}
 				StringParameter sp_def_iconLocType {
 					IndexDomain: i_wpType;
+					Comment: "Maps each waypoint type to its corresponding WebUI icon identifier for display on the sea-route map.";
 					Definition: {
 						data { 
 							'startHarbor'     : "aimms-ship", 
@@ -1620,19 +1773,24 @@ LibraryModule UserInterface {
 				Set s_routeWayPoints {
 					IndexDomain: i_used_route;
 					SubsetOf: s_allWayPoints;
+					Comment: "Subset of all waypoints belonging to each used route, used to filter and group waypoints per route.";
 				}
 				ElementParameter ep_wpLoc {
 					IndexDomain: i_awp;
 					Range: s_locations;
+					Comment: "The location associated with a waypoint that represents a port stop (start, loading, or delivery harbor).";
 				}
 				Parameter p_wpLat {
 					IndexDomain: i_awp;
+					Comment: "Latitude coordinate of each waypoint along the sea-route paths.";
 				}
 				Parameter p_wpLon {
 					IndexDomain: i_awp;
+					Comment: "Longitude coordinate of each waypoint along the sea-route paths.";
 				}
 				Parameter p_def_wpAdapLon {
 					IndexDomain: i_awp;
+					Comment: "Adjusted longitude for each waypoint, normalized relative to the map center to prevent antimeridian crossing artifacts.";
 					Definition: {
 						if p_wpLon(i_awp) < ( p_centerLon - 180 ) then
 							p_wpLon(i_awp) + 360
@@ -1646,30 +1804,37 @@ LibraryModule UserInterface {
 				ElementParameter ep_wpType {
 					IndexDomain: i_awp;
 					Range: s_def_waypointTypes;
+					Comment: "Type classification of each waypoint (startHarbor, loadingHarbor, deliveryHarbor) for icon and annotation assignment on the sea-route map.";
 				}
 				StringParameter sp_wpIcon {
 					IndexDomain: i_awp;
+					Comment: "Icon identifier for each waypoint marker on the sea-route map, set based on the waypoint type.";
 				}
 				Parameter p_wpIconSize {
 					IndexDomain: i_awp;
+					Comment: "Size of the icon marker for each waypoint on the sea-route map; non-zero only for port-type waypoints.";
 					webui::AnnotationsIdentifier: sp_wpIconAnnotation;
 					webui::TooltipIdentifier: sp_wpIconTooltip;
 				}
 				StringParameter sp_wpIconTooltip {
 					IndexDomain: i_awp;
+					Comment: "Tooltip text for each waypoint icon on the sea-route map, showing the location name.";
 				}
 				StringParameter sp_wpIconAnnotation {
 					IndexDomain: i_awp;
+					Comment: "CSS annotation for each waypoint icon on the sea-route map, distinguishing loading port from delivering port markers.";
 				}
 				Parameter bp_wayPointArc {
 					IndexDomain: (i_awp_from, i_awp_to);
 					Range: binary;
+					Comment: "Binary indicator for consecutive waypoint pairs forming arcs along the sea-route paths.";
 					webui::AnnotationsIdentifier: sp_wpAnnotation;
 					webui::TooltipIdentifier: sp_wpTooltip;
 				}
 				Parameter bp_def_wayAdapPointArc {
 					IndexDomain: (i_awp_from, i_awp_to);
 					Range: binary;
+					Comment: "Filtered waypoint arc indicator, excluding arcs whose adjusted longitude span exceeds 250 degrees to avoid antimeridian wrapping artifacts.";
 					Definition: {
 						bp_wayPointArc(i_awp_from, i_awp_to) $
 							(abs(p_def_wpAdapLon(i_awp_from)-p_def_wpAdapLon(i_awp_to))<250)
@@ -1679,18 +1844,23 @@ LibraryModule UserInterface {
 				}
 				StringParameter sp_wpTooltip {
 					IndexDomain: (i_awp_from, i_awp_to);
+					Comment: "HTML tooltip for each arc segment on the sea-route map, showing route, origin, cargo operation, and destination.";
 				}
 				StringParameter sp_wpAnnotation {
 					IndexDomain: (i_awp_from, i_awp_to);
+					Comment: "CSS annotation for arc segments on the sea-route map, used to style midpoint leg markers.";
 				}
 			}
 			Section Gantt_Details {
+				Comment: "Declarations for the Gantt chart visualization, providing route duration, loading time, and cargo label parameters.";
 				StringParameter sp_def_ganttChartStartTime {
+					Comment: "Start time string for the Gantt chart, formatted from the planning horizon start date.";
 					Definition: FormatString("%e", ep_startHorizonDate);
 				}
 				Parameter p_def_durationCargoOnRoute {
 					IndexDomain: (i_act_cargo,i_route);
 					Unit: day;
+					Comment: "Duration (in hours expressed as days) of a cargo on a given route, from loading time to delivering time, used as the Gantt bar length.";
 					Definition: (p_def_deleveringTimeCargoRoute(i_act_cargo, i_route) - p_def_loadingTimeCargoRoute(i_act_cargo, i_route))*24;
 					webui::ItemTextIdentifier: sp_def_cargoName(i_act_cargo);
 					webui::TooltipIdentifier: sp_def_empty;
@@ -1698,16 +1868,19 @@ LibraryModule UserInterface {
 				Parameter p_def_loadingTimeCargoRouteInHours {
 					IndexDomain: (i_act_cargo,i_route);
 					Unit: day;
+					Comment: "Loading start time for each cargo on a route, scaled to hours (multiplied by 24), used as the Gantt bar start position.";
 					Definition: p_def_loadingTimeCargoRoute(i_act_cargo, i_route) * 24;
 				}
 				StringParameter sp_def_cargoName {
 					IndexDomain: i_cargo;
+					Comment: "Display label for each cargo on the Gantt chart, using the cargo element name.";
 					Definition: i_cargo;
 				}
 			}
 		}
 	}
 	Section Library_Initialization_and_Termination {
+		Comment: "Standard AIMMS library initialization and termination procedures for the UserInterface library.";
 		Procedure LibraryInitialization {
 			Comment: "Add initialization statements here that do not require any other library being initialized already.";
 		}
