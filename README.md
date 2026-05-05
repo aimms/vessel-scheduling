@@ -8,7 +8,7 @@
 
 This repository contains a high-performance AIMMS example for **Vessel Scheduling and Route Optimization**. It demonstrates how to manage complex maritime logistics, delivering large cargoes using oil tankers while minimizing operational and spot-market costs.
 
-## 🎯 Business Problem
+## 🎯 Business Problem 
 
 Maritime scheduling is a combinatorial challenge where the number of possible routes grows exponentially with the number of vessels and cargoes. This model solves:
 
