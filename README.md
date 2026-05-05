@@ -1,10 +1,10 @@
 # Vessel Scheduling
 
 [![Downloads](https://img.shields.io/github/downloads/aimms/vessel-scheduling/total?style=for-the-badge&logo=github&labelColor=000081&color=1847c9)](https://github.com/aimms/vessel-scheduling/releases)
-![AIMMS Version](https://img.shields.io/badge/AIMMS-25.9-white?style=for-the-badge&labelColor=009B00&color=00D400)
-![WebUI Version](https://img.shields.io/badge/WebUI-25.9.3.4-white?style=for-the-badge&labelColor=009B00&color=00D400)
-![DEX Version](https://img.shields.io/badge/DEX-26.1.6.1-white?style=for-the-badge&labelColor=009B00&color=00D400)
-![pyaimms Version](https://img.shields.io/badge/pyaimms-25.3.1.1-white?style=for-the-badge&labelColor=009B00&color=00D400) 
+![AIMMS Version](https://img.shields.io/badge/AIMMS-26.1-white?style=for-the-badge&labelColor=009B00&color=00D400)
+![WebUI Version](https://img.shields.io/badge/WebUI-26.5.1.1-white?style=for-the-badge&labelColor=009B00&color=00D400)
+![pyaimms Version](https://img.shields.io/badge/pyaimms-26.1.3.1-white?style=for-the-badge&labelColor=009B00&color=00D400) 
+![AimmsDEX Version](https://img.shields.io/badge/AimmsDEX-26.1.9.1-white?style=for-the-badge&labelColor=009B00&color=00D400)
 
 This repository contains a high-performance AIMMS example for **Vessel Scheduling and Route Optimization**. It demonstrates how to manage complex maritime logistics, delivering large cargoes using oil tankers while minimizing operational and spot-market costs.
 
